@@ -14,4 +14,6 @@ public interface RecDao {
 
 	int deleteLog(@Param("id") int id);
 
+	int updateUserBehaviorLog(@Param("vo") UserBehaviorLogVo vo);
+
 }

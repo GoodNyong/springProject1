@@ -40,6 +40,14 @@ public class MessageController {
 			model.addAttribute("message", "delete DB failed");
 			model.addAttribute("url", "rec/test");
 		}
+		else if(msgFlag.equals("updateLogOk")) {
+			model.addAttribute("message", "update DB success");
+			model.addAttribute("url", "rec/test");
+		}
+		else if(msgFlag.equals("updateLogNo")) {
+			model.addAttribute("message", "update DB failed");
+			model.addAttribute("url", "rec/test");
+		}
 		
 		return "include/message";
 	}

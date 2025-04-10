@@ -10,5 +10,7 @@ public interface RecService {
 
 	int deleteLog(int id);
 
+	int updateUserBehaviorLog(UserBehaviorLogVo vo);
+
 
 }

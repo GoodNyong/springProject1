@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:mybatis-spring="http://mybatis.org/schema/mybatis-spring"
+	xsi:schemaLocation="http://mybatis.org/schema/mybatis-spring 	http://mybatis.org/schema/mybatis-spring-1.2.xsd
+						http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd">
+	
+	<!-- Root Context: defines shared resources visible to all other web components -->
+	
+	<!-- Datasource를 Bean등록/설정(DB연동을 위한 환경설정) -->
+	<bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+		<property name="driverClassName" value="com.mysql.jdbc.Driver" />
+		<property name="url" value="jdbc:mysql://localhost:3306/springproject1?allowMultiQueries=true" />
+		<!-- <property name="url" value="jdbc:mysql://localhost:3306/springproject" /> -->
+		<property name="username" value="root" />
+		<property name="password" value="airgear" />
+	</bean>
+	
+	<!-- MyBatis SessionFactory 설정 -->
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+		<property name="mapperLocations" value="classpath:mappers/**/*Mapper.xml" />
+		<property name="typeAliasesPackage" value="com.spring.JspringProject.vo" />
+	</bean>
+	
+	<!-- MyBatis SqlSessionTemplate 설정 -->
+	<bean id="sqlSessionTemplate" class="org.mybatis.spring.SqlSessionTemplate">
+		<constructor-arg index="0" ref="sqlSessionFactory" />
+	</bean>
+
+	<mybatis-spring:scan base-package="com.spring.springProject1.dao"/>
+	
+	<!-- Transaction(트랜잭션) 라이브러리 Bean 등록 -->
+	<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+	
+	<!-- 메일처리를 위한 라이브러리를 Bean으로 등록 -->
+	<bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
+		<property name="host" value="smtp.gmail.com" />
+		<property name="port" value="587" />
+		<property name="username" value="gy990213@gmail.com" />
+		<property name="password" value="wgfobccphoxprylg" />
+		<property name="javaMailProperties">
+			<props>
+			  <prop key="mail.transport.protocol">smtp</prop>
+			  <prop key="mail.smtp.starttls.enable">true</prop>
+			  <prop key="mail.smtp.ssl.trust">smtp.gmail.com</prop>
+			  <prop key="mail.smtp.ssl.protocols">TLSv1.2</prop>
+			  <prop key="mail.debug">true</prop>
+			</props>
+		</property>
+	</bean>
+		
+</beans>

@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -17,6 +18,7 @@ public class RecController {
 	@Autowired
 	private RecService recService;
 
+	// 페이지 호출 및 목록 출력
 	@GetMapping("/test")
 	public String testPageGet(Model model) {
 		List<UserBehaviorLogVo> logList = recService.getUserBehaviorLogList();
@@ -24,7 +26,7 @@ public class RecController {
 		return "rec/test";
 	}
 
-	// user 등록 처리
+	// 등록 처리
 	@RequestMapping(value = "/test", method = RequestMethod.POST)
 	public String testPost(UserBehaviorLogVo vo) {
 		// 회원가입 처리
@@ -32,14 +34,8 @@ public class RecController {
 		if (res != 0) return "redirect:/message/userBehaviorLogInputOk";
 		else return "redirect:/message/userBehaviorLogInputNo";
 	}
-	
-//	@GetMapping("/updateForm")
-//	public String updateForm(@RequestParam("behavior_id") int id, Model model) {
-//	    UserBehaviorLogVo vo = recService.getLogById(id);
-//	    model.addAttribute("vo", vo);
-//	    return "rec/updateForm";
-//	}
 
+	// 삭제 처리
 	@GetMapping("/delete")
 	public String deleteLog(@RequestParam("behavior_id") int id) {
 		// 회원가입 처리
@@ -48,5 +44,12 @@ public class RecController {
 		else return "redirect:/message/deleteLogNo";
 	}
 
+	// 수정 처리
+	@PostMapping("/update")
+	public String updateUserBehaviorLog(UserBehaviorLogVo vo) {
+	    int res = recService.updateUserBehaviorLog(vo);
+	    if (res > 0) return "redirect:/message/updateLogOk";  // 성공 메시지 페이지
+	    else return "redirect:/message/updateLogNo";     // 실패 메시지 페이지
+	}
 
 }

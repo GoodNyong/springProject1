@@ -29,6 +29,11 @@ public class RecServiceImpl implements RecService {
 	public int deleteLog(int id) {
 		return recDao.deleteLog(id);
 	}
+
+	@Override
+	public int updateUserBehaviorLog(UserBehaviorLogVo vo) {
+		return recDao.updateUserBehaviorLog(vo);
+	}
 	
 	
 

@@ -9,17 +9,25 @@
 	
 
 
-
 	<!-- insert -->
 	<insert id="setUserBehaviorLogInput" parameterType="com.spring.springProject1.rec.UserBehaviorLogVo">
 		insert into UserBehaviorLog values (default, #{vo.user_id}, #{vo.content_id}, #{vo.event_type}, default);
 	</insert>
-	
-	
+
+
+
 	<!-- delete -->
 	<delete id="deleteLog">
 		delete from UserBehaviorLog  where behavior_id = #{id};
 	</delete>
+	
+	
+	
+	
+	<update id="updateUserBehaviorLog" parameterType="com.spring.springProject1.rec.UserBehaviorLogVo">
+		UPDATE UserBehaviorLog SET user_id = #{vo.user_id}, content_id = #{vo.content_id}, event_type = #{vo.event_type} WHERE behavior_id = #{vo.behavior_id}
+	</update>
+	
 	
 	<!-- <select id="getMemberTotRecCnt" resultType="int">
 		select count(*) from member

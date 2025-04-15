@@ -9,8 +9,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 public class UserController {
 
 	
-	@GetMapping("/test")
+	@GetMapping("/main")
 	public String testPageGet() {
-		return "user/test";
+		return "user/main";
 	}
 }

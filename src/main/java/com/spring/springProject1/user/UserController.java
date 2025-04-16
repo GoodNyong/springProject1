@@ -109,7 +109,7 @@ public class UserController {
 		//FileSystemResource file = new FileSystemResource(request.getSession().getServletContext().getRealPath("/resources/images/main.jpg"));
 		//messageHelper.addInline("main.jpg", file);
 		
-		// 메일 전송하기ㅏ
+		// 메일 전송하기
 		mailSender.send(message);
 	}
 	

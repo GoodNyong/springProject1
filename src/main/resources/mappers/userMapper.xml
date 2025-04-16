@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.spring.springProject1.user.dao.UserDao">
+<!-- namespace: "이 XML 파일은 UserDao.java 인터페이스와 연결된 SQL 모음입니다!"
+라고 MyBatis에게 알려주는 역할 -->
+
+	<select id="getUsernameCheck" resultType="UserVo">
+		select * from users where username = #{username};
+	</select>
+
+
+</mapper>

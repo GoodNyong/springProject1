@@ -17,8 +17,9 @@
 	<resources mapping="/resources/**" location="/resources/" />
 	<resources mapping="/data/**" location="/resources/data/" />
 	<resources mapping="/pds/**" location="/resources/data/pds/" />
-	<resources mapping="/pds/**" location="/resources/data/board/" />
-	<resources mapping="/pds/**" location="/resources/data/photo/" />
+	<resources mapping="/board/**" location="/resources/data/board/" />
+	<resources mapping="/photo/**" location="/resources/data/photo/" />
+	<resources mapping="/img/**" location="/resources/img/" />
 
 	<!-- Resolves views selected for rendering by @Controllers to .jsp resources in the /WEB-INF/views directory -->
 	<beans:bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">

@@ -10,9 +10,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 public class UserController {
 
 	
-	@GetMapping("/test")
+	@GetMapping("/main")
 	public String testPageGet() {
-		return "user/test";
+		return "user/main";
 	}
 	
 	// user 등록폼

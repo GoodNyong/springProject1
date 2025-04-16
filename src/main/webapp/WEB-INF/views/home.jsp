@@ -18,5 +18,6 @@
 <P>   <a href="${ctp}/expert/test" class="w3-bar-item w3-button">/expert/test</a></P>
 <P>   <a href="${ctp}/rec/test" class="w3-bar-item w3-button">/rec/test</a></P>
 <P>   <a href="${ctp}/user/test" class="w3-bar-item w3-button">/user/test</a></P>
+<P>   <a href="${ctp}/user/userInput" class="w3-bar-item w3-button">/user/userInput</a></P>
 </body>
 </html>

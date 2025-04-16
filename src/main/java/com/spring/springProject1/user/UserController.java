@@ -28,9 +28,9 @@ public class UserController {
 	@Autowired
 	private JavaMailSender mailSender;
 	
-	@GetMapping("/test")
+	@GetMapping("/main")
 	public String testPageGet() {
-		return "user/test";
+		return "user/main";
 	}
 	
 	// user 등록폼

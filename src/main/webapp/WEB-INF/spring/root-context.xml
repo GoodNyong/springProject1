@@ -29,7 +29,7 @@
 	</bean>
 
 	<mybatis-spring:scan base-package="	com.spring.springProject1.rec.dao,
-										com.spring.springProject1.add.dao,
+										com.spring.springProject1.ad.dao,
 										com.spring.springProject1.admin.dao,
 										com.spring.springProject1.api.dao,
 										com.spring.springProject1.content.dao,

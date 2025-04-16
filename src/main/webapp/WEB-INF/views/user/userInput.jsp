@@ -17,10 +17,26 @@
   	let regEmail = /^([\w-]+(?:\.[\w-]+)*)@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$/;
   	let regTel = /\d{2,3}-\d{3,4}-\d{4}$/g;
   	
-  	function finalCheck(){
-  		let 
-  	}
+  	let regEnglish = /[a-zA-Z]/;     // 영문자
+  	let regNumber = /[0-9]/;         // 숫자
+  	let regSpecial = /[^a-zA-Z0-9]/; // 특수문자 전체
   	
+  	function finalCheck(){
+  		
+  		//필수 항목 체크
+  		let email1 = myform.email1.value.trim();
+  		let email2 = myform.email2.value.trim();
+  		let email = email1 + "@" + email2;
+  		
+  		let password = myform.password.value.trim();
+  		let username = myform.username.value.trim();
+  		
+  		if(regEmail.test(email)){
+  			alert("이메일 형식에 맞지 않습니다.")
+  			myform.email1.focuse();
+  			return false;
+  		}
+  	}
 </script>
 <jsp:include page="/WEB-INF/views/include/bs5.jsp" />
 </head>
@@ -50,7 +66,17 @@
         <th>비밀번호</th>
         <td>
           <div>
-            <input type="password" name="password" id="password" placeholder="비밀번호를 입력하세요" required>
+            <input type="password" name="password" id="password" placeholder="비밀번호를 입력하세요" required onblur="checkPassword()">
+            <br><span id="pwMsg" style="color:red; font-size:0.9em;"></span>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <th>비밀번호 확인</th>
+        <td>
+          <div>
+            <input type="password" name="password2" id="password2" placeholder="비밀번호를 한번 더 입력하세요" required onblur="checkPassword2()">
+            <br><span id="pw2Msg" style="color:red; font-size:0.9em;"></span>
           </div>
         </td>
       </tr>
@@ -76,7 +102,7 @@
     </table>
     <div>
       <input type="button" value="회원가입" onclick="finalCheck()">
-      <input type="button" value="돌아가기" onclick="location.href='${ctp}';">
+      <input type="button" value="돌아가기" onclick="location.h ref='${ctp}';">
     </div>
     </form>
   </div>

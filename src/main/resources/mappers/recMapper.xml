@@ -2,21 +2,45 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.spring.springProject1.rec.dao.RecDao">
 
+	<!-- insert -->
+	<insert id="setExerciseRecord">
+		INSERT INTO ExerciseRecord (
+		user_id, exercise_id, duration_minutes,
+		calories_burned, activity_date, source_platform
+		)
+		VALUES (
+		#{user_id}, #{exercise_id}, #{duration_minutes},
+		#{calories_burned}, #{activity_date}, #{source_platform}
+		)
+	</insert>
+
+
+
 	<!-- select -->
-	<select id="getUserBehaviorLogList" resultType="com.spring.springProject1.rec.UserBehaviorLogVo">
+	<select id="getExerciseRecordList" resultType="com.spring.springProject1.rec.ExerciseRecordVo">
+		SELECT er.*, ei.name AS exercise_name
+		FROM ExerciseRecord er
+		JOIN ExerciseInfo ei ON er.exercise_id = ei.exercise_id
+		WHERE er.user_id = #{user_id}
+		AND ei.is_active = true
+		ORDER BY er.activity_date DESC
+	</select>
+
+
+
+
+	<!-- <select id="getUserBehaviorLogList" resultType="com.spring.springProject1.rec.UserBehaviorLogVo">
 		SELECT * FROM UserBehaviorLog ORDER BY behavior_id DESC
 	</select>
 	
 
 
-	<!-- insert -->
 	<insert id="setUserBehaviorLogInput" parameterType="com.spring.springProject1.rec.UserBehaviorLogVo">
 		insert into UserBehaviorLog values (default, #{vo.user_id}, #{vo.content_id}, #{vo.event_type}, default);
 	</insert>
 
 
 
-	<!-- delete -->
 	<delete id="deleteLog">
 		delete from UserBehaviorLog  where behavior_id = #{id};
 	</delete>
@@ -26,7 +50,7 @@
 	
 	<update id="updateUserBehaviorLog" parameterType="com.spring.springProject1.rec.UserBehaviorLogVo">
 		UPDATE UserBehaviorLog SET user_id = #{vo.user_id}, content_id = #{vo.content_id}, event_type = #{vo.event_type} WHERE behavior_id = #{vo.behavior_id}
-	</update>
+	</update> -->
 	
 	
 	<!-- <select id="getMemberTotRecCnt" resultType="int">

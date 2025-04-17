@@ -14,3 +14,19 @@ desc UserBehaviorLog;
 insert into UserBehaviorLog values (default, 1, 1, 1, default);
 
 select * from UserBehaviorLog;
+
+
+-- Users 테이블
+INSERT INTO Users (user_id, username, email, password, is_verified, created_at, updated_at, is_premium)
+VALUES (1, '테스트유저', 'test@example.com', 'encrypted', true, NOW(), NOW(), false);
+
+select * from users;
+
+-- ExerciseInfo 테이블
+INSERT INTO ExerciseInfo (exercise_id, name, category, met_value)
+VALUES (1, '걷기', '유산소', 3.5),
+       (2, '러닝', '유산소', 8.0),
+       (3, '사이클링', '유산소', 6.0),
+       (4, '근력 운동', '무산소', 5.0);
+
+select * form ExerciseInfo;

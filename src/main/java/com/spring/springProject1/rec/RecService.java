@@ -4,13 +4,10 @@ import java.util.List;
 
 public interface RecService {
 
-	int setUserBehaviorLogInput(UserBehaviorLogVo vo);
+	int setExerciseRecord(ExerciseRecordVo vo);
 
-	List<UserBehaviorLogVo> getUserBehaviorLogList();
+	List<ExerciseRecordVo> getExerciseRecordList(int user_id);
 
-	int deleteLog(int id);
-
-	int updateUserBehaviorLog(UserBehaviorLogVo vo);
-
+	
 
 }

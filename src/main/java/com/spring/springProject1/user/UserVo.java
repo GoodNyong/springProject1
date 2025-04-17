@@ -1,5 +1,7 @@
 package com.spring.springProject1.user;
 
+import java.util.Date;
+
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -13,8 +15,8 @@ public class UserVo {
 	private String email;
 	private String password;
 	private String phone_number;
-	private int is_verified;
-	private int created_at;
-	private int updated_at;
-	private int is_premium;
+	private boolean is_verified;
+	private Date created_at;
+	private Date updated_at;
+	private boolean is_premium;
 }

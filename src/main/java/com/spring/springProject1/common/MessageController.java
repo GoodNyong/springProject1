@@ -24,30 +24,16 @@ public class MessageController {
 			@RequestParam(name = "mSw", defaultValue = "1", required = false) String mSw,
 			@RequestParam(name = "tempFlag", defaultValue = "", required = false) String tempFlag) {
 		
-		if(msgFlag.equals("userBehaviorLogInputOk")) {
-			model.addAttribute("message", "insert DB success");
-			model.addAttribute("url", "rec/test");
+		if(msgFlag.equals("exerciseRecordInputOk")) {
+			model.addAttribute("message", "운동 기록 마법 성공!");
+			model.addAttribute("url", "user/main");
 		}
-		else if(msgFlag.equals("userBehaviorLogInputNo")) {
-			model.addAttribute("message", "insert DB failed");
-			model.addAttribute("url", "rec/test");
+		else if(msgFlag.equals("error")) {
+			model.addAttribute("message", model.asMap().get("message")); // RedirectAttributes에서 받음
+			model.addAttribute("url", model.asMap().get("url"));
 		}
-		else if(msgFlag.equals("deleteLogOk")) {
-			model.addAttribute("message", "delete DB success");
-			model.addAttribute("url", "rec/test");
-		}
-		else if(msgFlag.equals("deleteLogNo")) {
-			model.addAttribute("message", "delete DB failed");
-			model.addAttribute("url", "rec/test");
-		}
-		else if(msgFlag.equals("updateLogOk")) {
-			model.addAttribute("message", "update DB success");
-			model.addAttribute("url", "rec/test");
-		}
-		else if(msgFlag.equals("updateLogNo")) {
-			model.addAttribute("message", "update DB failed");
-			model.addAttribute("url", "rec/test");
-		}
+
+		
 		
 		return "include/message";
 	}

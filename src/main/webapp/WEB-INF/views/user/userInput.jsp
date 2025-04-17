@@ -25,6 +25,7 @@
 <jsp:include page="/WEB-INF/views/include/bs5.jsp" />
 </head>
 <body>
+<jsp:include page="/WEB-INF/views/include/navbar.jsp" />
   <div class="container">
     <h3 class="text-center">회 원 가 입</h3>
     <form name="myform" method="post" enctype="multipart/form-data">

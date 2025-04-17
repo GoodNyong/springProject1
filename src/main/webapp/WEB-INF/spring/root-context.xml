@@ -13,7 +13,7 @@
 		<property name="url" value="jdbc:mysql://localhost:3306/springproject1?allowMultiQueries=true" />
 		<!-- <property name="url" value="jdbc:mysql://localhost:3306/springproject" /> -->
 		<property name="username" value="root" />
-		<property name="password" value="1234" />
+		<property name="password" value="airgear" />
 	</bean>
 	
 	<!-- MyBatis SessionFactory 설정 -->

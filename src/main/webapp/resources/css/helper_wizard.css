@@ -1,0 +1,29 @@
+@charset "UTF-8";
+/* wizard-helper.css */
+#helper_wizard-img {
+  transition: transform 0.3s ease, filter 0.3s ease;
+}
+
+.wizard-focus-effect {
+  animation: sparkle 0.6s ease-in-out;
+}
+
+@keyframes sparkle {
+  0%, 100% { filter: brightness(1); transform: scale(1); }
+  50% { filter: brightness(1.4); transform: scale(1.05); }
+}
+
+.wizard-message {
+  position: absolute;
+  top: 10%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #f8f9fa;
+  border: 2px solid #007bff;
+  border-radius: 12px;
+  padding: 12px 20px;
+  font-weight: bold;
+  color: #007bff;
+  animation: fadeInUp 0.5s ease-out;
+  z-index: 10;
+}

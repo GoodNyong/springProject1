@@ -6,15 +6,15 @@
 <jsp:include page="/WEB-INF/views/include/navbar.jsp" />
 
 <main class="container mt-4 mb-5">
-	<!-- 🔹 페이지 제목 및 인사 -->
+	<!-- 페이지 제목 및 인사 -->
 	<div class="mb-4">
 		<h2>🎉 환영합니다, ${sessionScope.user.nickname}님!</h2>
 		<p class="text-muted">오늘도 건강한 루틴을 시작해볼까요?</p>
 	</div>
 
-	<!-- 🔹 오늘의 추천 루틴 -->
+	<!-- 오늘의 추천 루틴 -->
 	<section class="row mb-5">
-		<div class="col-md-6">
+		<div class="col-md-6 mb-3">
 			<div class="card border-primary shadow-sm h-100">
 				<div class="card-body d-flex flex-column">
 					<h5 class="card-title text-primary">🏃 오늘의 운동 추천</h5>
@@ -22,7 +22,7 @@
 				</div>
 			</div>
 		</div>
-		<div class="col-md-6">
+		<div class="col-md-6 mb-3">
 			<div class="card border-success shadow-sm h-100">
 				<div class="card-body d-flex flex-column">
 					<h5 class="card-title text-success">🍱 오늘의 식단 추천</h5>
@@ -33,7 +33,7 @@
 	</section>
 
 
-	<!-- 🔹 목표 달성률 -->
+	<!-- 목표 달성률 -->
 	<section class="mb-5">
 		<h5>🎯 목표 달성 현황</h5>
 		<div class="progress" style="height: 24px;">
@@ -41,13 +41,13 @@
 		</div>
 	</section>
 
-	<!-- 🔹 주요 기능 빠른 이동 -->
+	<!-- 주요 기능 빠른 이동 -->
 	<section class="row text-center mt-4">
 		<div class="col-md-4 mb-3">
-			<a href="${ctp}/rec/exerciseInput" class="btn btn-outline-primary w-100 py-3">운동 기록 입력</a>
+			<a href="${ctp}/rec/exerciseRecordInput" class="btn btn-outline-primary w-100 py-3">운동 기록 입력</a>
 		</div>
 		<div class="col-md-4 mb-3">
-			<a href="${ctp}/rec/mealInput" class="btn btn-outline-info w-100 py-3">식단 기록 입력</a>
+			<a href="${ctp}/rec/mealRecordInput" class="btn btn-outline-info w-100 py-3">식단 기록 입력</a>
 		</div>
 		<div class="col-md-4 mb-3">
 			<a href="${ctp}/rec/report" class="btn btn-outline-success w-100 py-3">리포트 보기</a>

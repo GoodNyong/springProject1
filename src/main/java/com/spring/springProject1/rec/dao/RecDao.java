@@ -2,18 +2,25 @@ package com.spring.springProject1.rec.dao;
 
 import java.util.List;
 
+import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
+import org.springframework.stereotype.Repository;
 
-import com.spring.springProject1.rec.UserBehaviorLogVo;
+import com.spring.springProject1.rec.ExerciseRecordVo;
 
+@Repository
+@Mapper
 public interface RecDao {
 
-	int setUserBehaviorLogInput(@Param("vo") UserBehaviorLogVo vo);
+	void setExerciseRecord(ExerciseRecordVo vo);
+	
+	List<ExerciseRecordVo> getExerciseRecordList(@Param("user_id") int user_id);
 
-	List<UserBehaviorLogVo> getUserBehaviorLogList();
+	void updateExerciseRecord(ExerciseRecordVo vo);
 
-	int deleteLog(@Param("id") int id);
+	ExerciseRecordVo getExerciseRecordById(@Param("record_id") int record_id, @Param("user_id") int user_id);
+	
+	int deleteExerciseRecord(@Param("record_id") int record_id, @Param("user_id") int user_id);
 
-	int updateUserBehaviorLog(@Param("vo") UserBehaviorLogVo vo);
 
 }

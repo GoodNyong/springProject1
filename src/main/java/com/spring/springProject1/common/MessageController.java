@@ -28,6 +28,18 @@ public class MessageController {
 			model.addAttribute("message", "운동 기록 마법 성공!");
 			model.addAttribute("url", "user/main");
 		}
+		else if(msgFlag.equals("exerciseRecordUpdateOk")) {
+			model.addAttribute("message", "단일 수정 마법 성공!");
+			model.addAttribute("url", "rec/exerciseRecordList");
+		}
+		else if(msgFlag.equals("exerciseRecordEditOk")) {
+			model.addAttribute("message", "수정 마법 성공!");
+			model.addAttribute("url", "rec/exerciseRecordList");
+		}
+		else if(msgFlag.equals("exerciseRecordDeleteOk")) {
+			model.addAttribute("message", "삭제 마법 성공!");
+			model.addAttribute("url", "rec/exerciseRecordList");
+		}
 		else if(msgFlag.equals("error")) {
 			model.addAttribute("message", model.asMap().get("message")); // RedirectAttributes에서 받음
 			model.addAttribute("url", model.asMap().get("url"));

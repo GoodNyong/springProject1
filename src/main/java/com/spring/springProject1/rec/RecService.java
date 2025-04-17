@@ -4,10 +4,14 @@ import java.util.List;
 
 public interface RecService {
 
-	int setExerciseRecord(ExerciseRecordVo vo);
+	void setExerciseRecord(ExerciseRecordVo vo);
 
 	List<ExerciseRecordVo> getExerciseRecordList(int user_id);
 
-	
+	void updateExerciseRecord(ExerciseRecordVo vo);
+
+	ExerciseRecordVo getExerciseRecordById(int record_id, int user_id);
+
+	void deleteExerciseRecord(int record_id, int user_id);
 
 }

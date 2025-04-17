@@ -26,6 +26,39 @@
 		ORDER BY er.activity_date DESC
 	</select>
 
+	<select id="getExerciseRecordById" resultType="com.spring.springProject1.rec.ExerciseRecordVo">
+		SELECT er.*, ei.name AS exercise_name
+		FROM ExerciseRecord er
+		JOIN ExerciseInfo ei ON er.exercise_id = ei.exercise_id
+		WHERE er.record_id = #{record_id}
+		AND er.user_id = #{user_id}
+	</select>
+	
+
+
+	<!-- update -->
+	<update id="updateExerciseRecord">
+		UPDATE ExerciseRecord
+		SET	duration_minutes = #{duration_minutes},
+			calories_burned = #{calories_burned},
+			activity_date = #{activity_date},
+			source_platform = #{source_platform}
+		WHERE record_id = #{record_id} AND user_id = #{user_id}
+	</update>
+
+
+
+	<!-- delete -->
+	<delete id="deleteExerciseRecord">
+		DELETE FROM ExerciseRecord
+		WHERE record_id = #{record_id}
+		AND user_id = #{user_id}
+	</delete>
+	
+	
+	
+	
+
 
 
 

@@ -12,9 +12,15 @@ import com.spring.springProject1.rec.ExerciseRecordVo;
 @Mapper
 public interface RecDao {
 
-	int setExerciseRecord(ExerciseRecordVo vo);
+	void setExerciseRecord(ExerciseRecordVo vo);
 	
 	List<ExerciseRecordVo> getExerciseRecordList(@Param("user_id") int user_id);
 
+	void updateExerciseRecord(ExerciseRecordVo vo);
+
+	ExerciseRecordVo getExerciseRecordById(@Param("record_id") int record_id, @Param("user_id") int user_id);
 	
+	int deleteExerciseRecord(@Param("record_id") int record_id, @Param("user_id") int user_id);
+
+
 }

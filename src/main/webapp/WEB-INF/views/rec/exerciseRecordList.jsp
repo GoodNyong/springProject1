@@ -10,6 +10,7 @@
 
 <script>
 let isEditMode = false;
+const ctp = "${ctp}";
 
 document.addEventListener('DOMContentLoaded', function () {
 	const editBtn = document.getElementById('toggleEditModeBtn');
@@ -39,7 +40,13 @@ document.addEventListener('DOMContentLoaded', function () {
 				calorieCell.innerHTML = "<input type='number' name='calories' class='form-control form-control-sm' value='" + calorie + "' min='0' required />";
 				dateCell.innerHTML = "<input type='date' name='activity_date' class='form-control form-control-sm' value='" + date + "' required />";
 				platformCell.innerHTML = "<input type='text' name='platform' class='form-control form-control-sm' value='" + platform + "' />";
-				controlCell.innerHTML = "<button class='btn btn-sm btn-outline-success' onclick='submitEdit(this)'>개별 저장</button>";
+				// 기존 record_id 값 추출
+				const recordId = row.querySelector("input[name='record_id']").value;
+
+				// 수정 모드에서도 숨겨진 input 유지 + 개별 저장 버튼
+				controlCell.innerHTML = 
+					"<input type='hidden' name='record_id' value='" + recordId + "' />" +
+					"<button class='btn btn-sm btn-outline-success' onclick='submitEdit(this)'>개별 저장</button>";
 			} else {
 				location.reload(); // 원래 상태로 복귀
 			}
@@ -52,6 +59,7 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 function submitEdit(button) {
+	console.log("submitEdit() 진입"); // ← 이거 찍히는지 먼저 확인
 	const row = button.closest("tr");
 
 	// 기존 validateFormOnSubmit을 수정한 버전으로 사용
@@ -86,6 +94,8 @@ function submitEdit(button) {
 	}
 
 	document.body.appendChild(form);
+	console.log("폼 action:", form.action);
+	console.log("폼 method:", form.method);
 	form.submit();
 }
 

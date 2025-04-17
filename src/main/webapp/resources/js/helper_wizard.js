@@ -60,7 +60,7 @@ document.addEventListener('DOMContentLoaded', function() {
 		clearTimeout(wizardIdleTimer);
 		wizardIdleTimer = setTimeout(() => {
 			showWizardMessage("혹시 수면 마법에 걸린 거야?");
-		}, 30000);
+		}, 180000);
 	}
 	inputs.forEach(input => {
 		input.addEventListener('input', resetWizardIdleTimer);

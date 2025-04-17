@@ -59,9 +59,6 @@
 		<div class="col-md-6 text-center">
 			<jsp:include page="/WEB-INF/views/include/helper_wizard.jsp" />
 		</div>
-		<%-- <div class="col-md-6 text-center">
-			<img src="${ctp }/resources/img/helper_wizard.png" class="img-fluid" id="helper_wizard-img" alt="입력도우미 마법사">
-		</div> --%>
 		
 
 

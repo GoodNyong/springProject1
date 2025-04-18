@@ -27,8 +27,8 @@
 					<a class="btn btn-primary btn-sm" href="${pageContext.request.contextPath}/user/logout">로그아웃</a>
 				</c:when>
 				<c:otherwise>
-					<a class="btn btn-outline-primary me-2" href="${pageContext.request.contextPath}/user/login">로그인</a>
-					<a class="btn btn-primary" href="${pageContext.request.contextPath}/user/signup">회원가입</a>
+					<a class="btn btn-outline-primary me-2" href="${pageContext.request.contextPath}/user/userLogin">로그인</a>
+					<a class="btn btn-primary" href="${pageContext.request.contextPath}/user/userJoin">회원가입</a>
 				</c:otherwise>
 			</c:choose>
 		</div>

@@ -19,4 +19,5 @@ public class UserVo {
 	private Date created_at;
 	private Date updated_at;
 	private int is_premium;
+	private int login_fail_count;
 }

@@ -4,9 +4,39 @@
 <!-- namespace: "이 XML 파일은 UserDao.java 인터페이스와 연결된 SQL 모음입니다!"
 라고 MyBatis에게 알려주는 역할 -->
 
-	<select id="getUsernameCheck" resultType="UserVo">
+	<select id="getUsernameCheck" resultType="com.spring.springProject1.user.UserVo">
 		select * from users where username = #{username};
 	</select>
-
+	
+	<select id="getUserLoginCheck" resultType="com.spring.springProject1.user.UserVo">
+		select * from users where email = #{email} and password = #{password}
+	</select>
+	
+	<!-- <select id="getUserRoles" resultType="String">
+	<select id="getRoleToUser" resultType="String">
+		select roles.role_name from roles join user_roles on user_roles.role_id = roles.role_id
+		where user_roles.user_id = #{user_id}
+	</select> -->
+	
+	<update id="resetLoginFail">
+		UPDATE users SET login_fail_count = 0 WHERE email = #{email}
+	</update>
+	
+	
+	<insert id="setUserJoinOk">
+		insert into users values (default, #{vo.username}, #{vo.email}, #{vo.password}, #{vo.phone_number}, default, default, default, default, default);
+	</insert>
+	
+<!-- 	<insert id="insertUserRole" parameterType="map">
+	  INSERT INTO user_roles (user_id, role_id)
+	  VALUES (#{user_id}, #{role_id})
+	</insert> -->
+	
+	
+	
+	<update id="increaseLoginFail">
+		update users set login_fail_count = login_fail_count + 1 where email = #{email}
+	</update>
+	
 
 </mapper>

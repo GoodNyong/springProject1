@@ -48,13 +48,22 @@
 
 
 
+
 	<!-- delete -->
 	<delete id="deleteExerciseRecord">
 		DELETE FROM ExerciseRecord
 		WHERE record_id = #{record_id}
 		AND user_id = #{user_id}
 	</delete>
-	
+
+	<delete id="multiDeleteExerciseRecord">
+		DELETE FROM ExerciseRecord
+		WHERE record_id IN
+		<foreach collection="recordIdList" item="id" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+		AND user_id = #{user_id}
+	</delete>
 	
 	
 	

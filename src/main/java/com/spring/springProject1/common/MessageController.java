@@ -40,6 +40,14 @@ public class MessageController {
 			model.addAttribute("message", "삭제 마법 성공!");
 			model.addAttribute("url", "rec/exerciseRecordList");
 		}
+		else if (msgFlag.equals("exerciseRecordMultiUpdateOk")) {
+			model.addAttribute("message", "다중 수정 마법 성공!");
+			model.addAttribute("url", "rec/exerciseRecordList");
+		}
+		else if(msgFlag.equals("exerciseRecordMultiDeleteOk")) {
+			model.addAttribute("message", "다중 삭제 마법 성공!");
+			model.addAttribute("url", "rec/exerciseRecordList");
+		}
 		else if(msgFlag.equals("error")) {
 			model.addAttribute("message", model.asMap().get("message")); // RedirectAttributes에서 받음
 			model.addAttribute("url", model.asMap().get("url"));

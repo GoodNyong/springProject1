@@ -1,4 +1,6 @@
 const pageType = document.querySelector('main')?.getAttribute('data-page') || 'default';
+
+// 인풋 창이 처음부터 로드되는 경우
 document.addEventListener('DOMContentLoaded', function() {
 	const inputs = document.querySelectorAll('input, select, textarea');
 	const wizard = document.querySelector('#helper_wizard-img');

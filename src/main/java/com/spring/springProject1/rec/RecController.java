@@ -1,13 +1,16 @@
 package com.spring.springProject1.rec;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -52,8 +55,8 @@ public class RecController {
 		if (user == null)
 			return "redirect:/"; // 비로그인 시 홈으로 이동
 
-		List<ExerciseRecordVo> recordList = recService.getExerciseRecordList(user.getUser_id());
-		model.addAttribute("recordList", recordList);
+		List<ExerciseRecordVo> exerciseRecordList = recService.getExerciseRecordList(user.getUser_id());
+		model.addAttribute("exerciseRecordList", exerciseRecordList);
 
 		return "rec/exerciseRecordList";
 	}
@@ -97,7 +100,6 @@ public class RecController {
 		try {
 			// 세션에서 user_id 강제 주입 (보안용)
 			vo.setUser_id(((UserVo) session.getAttribute("loginUser")).getUser_id());
-
 			recService.updateExerciseRecord(vo);
 			return "redirect:/message/exerciseRecordEditOk";
 		} catch (IllegalArgumentException e) {
@@ -127,6 +129,59 @@ public class RecController {
 	        return "redirect:/message/error";
 	    }
 	}
+
+	// 운동 기록 목록에서 다중 수정하기
+	@PostMapping("/exerciseRecordMultiUpdate")
+	public String exerciseRecordMultiUpdatePost(@ModelAttribute ExerciseRecordListWrapper exerciseRecordListWrapper,
+	                                            HttpSession session, RedirectAttributes ra) {
+	    UserVo user = (UserVo) session.getAttribute("loginUser");
+
+	    if (user == null) {
+	        ra.addFlashAttribute("message", "로그인이 필요합니다.");
+	        ra.addFlashAttribute("url", "/");
+	        return "redirect:/message/error";
+	    }
+
+	    try {
+	        List<ExerciseRecordVo> exerciseRecordList = exerciseRecordListWrapper.getExerciseRecordList();
+	        for (ExerciseRecordVo vo : exerciseRecordList) {
+	            vo.setUser_id(user.getUser_id());
+	        }
+
+	        recService.multiUpdateExerciseRecord(exerciseRecordList);
+	        return "redirect:/message/exerciseRecordMultiUpdateOk";
+
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        ra.addFlashAttribute("message", e.getMessage());
+	        ra.addFlashAttribute("url", "/rec/exerciseRecordList");
+	        return "redirect:/message/error";
+	    }
+	}
+
+	// 운동 기록 목록에서 다중 삭제하기
+	@PostMapping("/exerciseRecordMultiDelete")
+	public String exerciseRecordMultiDeletePost(HttpServletRequest request, HttpSession session, RedirectAttributes ra) {
+	    UserVo user = (UserVo) session.getAttribute("loginUser");
+
+	    if (user == null) {
+	        ra.addFlashAttribute("message", "로그인이 필요합니다.");
+	        ra.addFlashAttribute("url", "/");
+	        return "redirect:/message/error";
+	    }
+
+	    try {
+	        recService.multiDeleteExerciseRecord(request, user.getUser_id());  // 요청 객체 통째로 위임
+	        return "redirect:/message/exerciseRecordMultiDeleteOk";
+	    } catch (Exception e) {
+	        ra.addFlashAttribute("message", e.getMessage());
+	        ra.addFlashAttribute("url", "/rec/exerciseRecordList");
+	        return "redirect:/message/error";
+	    }
+	}
+
+
+
 
 
 

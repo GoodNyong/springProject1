@@ -15,12 +15,13 @@ public interface RecDao {
 	void setExerciseRecord(ExerciseRecordVo vo);
 	
 	List<ExerciseRecordVo> getExerciseRecordList(@Param("user_id") int user_id);
-
-	void updateExerciseRecord(ExerciseRecordVo vo);
+	
+	int updateExerciseRecord(ExerciseRecordVo vo);
 
 	ExerciseRecordVo getExerciseRecordById(@Param("record_id") int record_id, @Param("user_id") int user_id);
 	
 	int deleteExerciseRecord(@Param("record_id") int record_id, @Param("user_id") int user_id);
 
+	int multiDeleteExerciseRecord(@Param("recordIdList") List<Integer> recordIdList, @Param("user_id") int user_id);
 
 }

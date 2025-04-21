@@ -15,7 +15,11 @@
 		<p class="text-muted">오늘 수행한 운동 내용을 기록해보세요.</p>
 	</div>
 
-
+	<div class="text-end mt-4">
+		<p class="text-muted">💡 여러 운동을 한 번에 입력하고 싶다면?</p>
+		<a href="${ctp}/rec/exerciseRecordMultiInput" class="btn btn-outline-secondary btn-sm">➡ 다중 입력 페이지로 이동</a>
+	</div>
+	
 	<div class="row">
 		<!-- 입력 폼 -->
 		<div class="col-md-6">
@@ -53,6 +57,9 @@
 					<button type="submit" class="btn btn-primary btn-lg">✅ 기록 저장</button>
 				</div>
 			</form>
+			<div class="mt-4 mb-4 text-center">
+				<a href="${ctp}/user/main" class="btn btn-outline-primary">🏠 메인으로 돌아가기</a>
+			</div>
 		</div>
 
 		<!-- 도우미 마법사 -->

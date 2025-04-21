@@ -20,6 +20,11 @@ public interface RecService {
 
 	void multiDeleteExerciseRecord(HttpServletRequest request, int userId);
 
+	void multiSetExerciseRecord(List<ExerciseRecordVo> exerciseRecordList);
 
-
+	void setMealRecord(MealRecordVo vo);
+	
+	List<MealRecordVo> getMealRecordList(int user_id);
+	
+	void multiSetMealRecord(List<MealRecordVo> mealRecordList);
 }

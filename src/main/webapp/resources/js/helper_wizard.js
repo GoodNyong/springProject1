@@ -11,6 +11,7 @@ document.addEventListener('DOMContentLoaded', function() {
 	let hasWelcomed = false;
 	const welcomeMessages = {
 		exercise: "마법의 운동 기록을 시작해볼까?",
+		exerciseRecordMultiInput: "한꺼번에 마법을 여러 번 시전한다니… 대단해!",
 		meal: "오늘 먹은 걸 마법처럼 정리해보자!",
 		goal: "작지만 강한 목표가 마법의 시작이야.",
 		signup: "너의 이름이 마법에 각인될 거야!",
@@ -176,6 +177,182 @@ document.addEventListener('DOMContentLoaded', function() {
 			});
 		});
 	}
+
+	// 운동 기록 다중 입력 페이지
+	if (pageType === 'exerciseRecordMultiInput') {
+		const durationInputs = document.querySelectorAll('input[name*=".duration_minutes"]');
+		durationInputs.forEach(input => {
+			input.addEventListener('input', () => {
+				const val = parseInt(input.value || 0);
+				if (val >= 60) showWizardMessage("마력의 한계에 도전했군!");
+				else if (val >= 30) showWizardMessage("좋아, 충분히 활동했어!");
+			});
+		});
+
+		const calorieInputs = document.querySelectorAll('input[name*=".calories_burned"]');
+		calorieInputs.forEach(input => {
+			input.addEventListener('input', () => {
+				const val = parseInt(input.value || 0);
+				if (val >= 400) showWizardMessage("🔥 대마법 에너지 폭발!");
+				else if (val >= 100) showWizardMessage("✨ 마법처럼 움직였네!");
+				else if (val > 0) showWizardMessage("🐾 몸풀기 마법 완료!");
+			});
+		});
+
+		const exerciseSelects = document.querySelectorAll('select[name*=".exercise_id"]');
+		exerciseSelects.forEach(select => {
+			select.addEventListener('change', () => {
+				const val = select.value;
+				if (val === "1") showWizardMessage("산책 마법은 언제나 좋아!");
+				else if (val === "4") showWizardMessage("근력 마법으로 단련하자!");
+			});
+		});
+
+		const dateInputs = document.querySelectorAll('input[name*=".activity_date"]');
+		dateInputs.forEach(input => {
+			input.addEventListener('change', () => {
+				const today = new Date().toISOString().slice(0, 10);
+				const selectedDate = input.value;
+
+				if (selectedDate) {
+					if (selectedDate > today) return;
+					else if (selectedDate === today) showWizardMessage("오늘의 기록이군요! ⚡");
+					else showWizardMessage("어제도 마법을 썼군요? 멋져요!");
+				}
+			});
+		});
+	}
+
+	// 식단 기록 단건 입력 페이지 전용
+	if (pageType === 'mealRecordInput') {
+		const amountInput = document.getElementById('amount');
+		const unitSelect = document.getElementById('unit');
+
+		if (amountInput && unitSelect) {
+			// 수치 입력 반응
+			amountInput.addEventListener('input', () => {
+				const val = parseFloat(amountInput.value || 0);
+				if (val >= 500) showWizardMessage("이건 진짜 푸드 파워 마법이야!");
+				else if (val >= 100) showWizardMessage("좋아, 꽤 든든한 식사였네!");
+				else if (val > 0) showWizardMessage("가볍게 마법 식사를 했군요!");
+			});
+
+			// 단위 선택 반응
+			unitSelect.addEventListener('change', () => {
+				const unit = unitSelect.value;
+				if (unit === "컵") showWizardMessage("마법의 컵에 담긴 영양이군요!");
+				else if (unit === "공기") showWizardMessage("공기 마법 한 그릇, 진정한 클래식!");
+			});
+		}
+
+		const foodSelect = document.querySelector('#food_id');
+		if (foodSelect) {
+			foodSelect.addEventListener('change', () => {
+				const val = foodSelect.value;
+				if (val === "2") showWizardMessage("단백질 마법을 시전하셨군요!");
+				else if (val === "4") showWizardMessage("라면이라니… 죄책감 마법이 발동할지도?");
+			});
+		}
+
+		const mealTimeSelect = document.querySelector('#meal_time');
+		if (mealTimeSelect) {
+			mealTimeSelect.addEventListener('change', () => {
+				const val = mealTimeSelect.value;
+				if (val === "1") showWizardMessage("좋은 아침이에요! 마법같은 하루의 시작이군요.");
+				else if (val === "3") showWizardMessage("저녁 마법으로 하루를 마무리해요.");
+			});
+		}
+
+		const dateInput = document.querySelector('#meal_date');
+		if (dateInput) {
+			dateInput.addEventListener('change', () => {
+				const today = new Date().toISOString().slice(0, 10);
+				const selectedDate = dateInput.value;
+
+				if (selectedDate) {
+					if (selectedDate > today) return;
+					else if (selectedDate === today) showWizardMessage("오늘의 식단이군요! 🍽");
+					else showWizardMessage("이전 식사를 기록했군요. 정리 마법 굿!");
+				}
+			});
+		}
+	}
+
+	// 식단 기록 다중 입력 페이지 전용
+	if (pageType === 'mealRecordMultiInput') {
+		const rows = document.querySelectorAll("#recordTableBody tr");
+
+		// 동적으로 추가될 행은 이벤트 위임이 어렵기 때문에, 초기화 시점마다 전체 바인딩 필요
+		function bindMealRowEvents() {
+			const amountInputs = document.querySelectorAll('input[id^="amount"]');
+			const unitSelects = document.querySelectorAll('select[id^="unit"]');
+			const foodSelects = document.querySelectorAll('select[name*=".food_id"]');
+			const dateInputs = document.querySelectorAll('input[name*=".meal_date"]');
+			const timeSelects = document.querySelectorAll('select[name*=".meal_time"]');
+
+			amountInputs.forEach(input => {
+				input.addEventListener('input', () => {
+					const val = parseFloat(input.value || 0);
+					if (val >= 500) showWizardMessage("이건 진짜 푸드 파워 마법이야!");
+					else if (val >= 100) showWizardMessage("좋아, 꽤 든든한 식사였네!");
+					else if (val > 0) showWizardMessage("가볍게 마법 식사를 했군요!");
+				});
+			});
+
+			unitSelects.forEach(select => {
+				select.addEventListener('change', () => {
+					const unit = select.value;
+					if (unit === "컵") showWizardMessage("마법의 컵에 담긴 영양이군요!");
+					else if (unit === "공기") showWizardMessage("공기 마법 한 그릇, 진정한 클래식!");
+				});
+			});
+
+			foodSelects.forEach(select => {
+				select.addEventListener('change', () => {
+					const val = select.value;
+					if (val === "2") showWizardMessage("단백질 마법을 시전하셨군요!");
+					else if (val === "4") showWizardMessage("라면이라니… 죄책감 마법이 발동할지도?");
+				});
+			});
+
+			dateInputs.forEach(input => {
+				input.addEventListener('change', () => {
+					const today = new Date().toISOString().slice(0, 10);
+					const selectedDate = input.value;
+
+					if (selectedDate) {
+						if (selectedDate > today) return;
+						else if (selectedDate === today) showWizardMessage("오늘의 식단이군요! 🍽");
+						else showWizardMessage("이전 식사를 기록했군요. 정리 마법 굿!");
+					}
+				});
+			});
+
+			timeSelects.forEach(select => {
+				select.addEventListener('change', () => {
+					const val = select.value;
+					if (val === "1") showWizardMessage("좋은 아침이에요! 마법같은 하루의 시작이군요.");
+					else if (val === "2") showWizardMessage("점심 마법으로 활력을 충전했네요!");
+					else if (val === "3") showWizardMessage("저녁 마법으로 하루를 마무리해요.");
+					else if (val === "4") showWizardMessage("간식은 마법사의 쉼표 같은 존재죠.");
+				});
+			});
+
+		}
+
+		bindMealRowEvents();
+
+		// 새 행 추가 시 이벤트 재바인딩 필요 → 기존 addRow 끝에 호출
+		if (typeof window.addRow === "function") {
+			const originalAddRow = window.addRow;
+			window.addRow = function() {
+				originalAddRow();
+				bindMealRowEvents();
+			};
+		}
+		
+	}
+
 });
 
 // 검증 로직 수행 (submit 시점)
@@ -198,11 +375,34 @@ function validateFormOnSubmit(scope = document) {
 
 		if (type === 'number') {
 			const numVal = parseFloat(val);
-			if (isNaN(numVal) || numVal <= 0 || !Number.isInteger(numVal)) {
-				showWizardMessage("0이나 소숫점, 음수는 마법이 허용하지 않아!");
-				el.focus();
-				isValid = false;
-				break;
+
+			// 운동 기록용 숫자 필드 (정수만 허용)
+			if (pageType.startsWith('exercise') && (el.id === 'duration_minutes' || el.id === 'calories_burned')) {
+				if (isNaN(numVal) || numVal <= 0 || !Number.isInteger(numVal)) {
+					showWizardMessage("0이나 소숫점, 음수는 마법이 허용하지 않아!");
+					el.focus();
+					isValid = false;
+					break;
+				}
+			}
+
+			// 식단 입력용 amount (단건/다중 공통)
+			if (el.id && el.id.startsWith('amount')) {
+				if (isNaN(numVal) || numVal <= 0) {
+					showWizardMessage("섭취량은 0보다 큰 수여야 해요!");
+					el.focus();
+					isValid = false;
+					break;
+				}
+				// 단위 입력 검사 (id 대응)
+				const unitId = el.id.replace('amount', 'unit');
+				const unitEl = document.getElementById(unitId);
+				if (unitEl && unitEl.value.trim() === '') {
+					showWizardMessage("단위를 선택해 주세요!");
+					unitEl.focus();
+					isValid = false;
+					break;
+				}
 			}
 		}
 

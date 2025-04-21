@@ -14,6 +14,15 @@
 		)
 	</insert>
 
+	<insert id="setMealRecord" parameterType="com.spring.springProject1.rec.MealRecordVo">
+		INSERT INTO MealRecord (
+		user_id, food_id, meal_time, quantity, meal_date, recorded_at
+		)
+		VALUES (
+		#{user_id}, #{food_id}, #{meal_time}, #{quantity}, #{meal_date}, NOW()
+		)
+	</insert>
+
 
 
 	<!-- select -->
@@ -33,16 +42,26 @@
 		WHERE er.record_id = #{record_id}
 		AND er.user_id = #{user_id}
 	</select>
+
+	<select id="getMealRecordList" resultType="com.spring.springProject1.rec.MealRecordVo">
+		SELECT mr.*, fi.name AS food_name
+		FROM MealRecord mr
+		JOIN FoodInfo fi ON mr.food_id = fi.food_id
+		WHERE mr.user_id = #{user_id}
+		AND fi.is_active = TRUE
+		ORDER BY mr.meal_date DESC
+	</select>
 	
+
 
 
 	<!-- update -->
 	<update id="updateExerciseRecord">
 		UPDATE ExerciseRecord
-		SET	duration_minutes = #{duration_minutes},
-			calories_burned = #{calories_burned},
-			activity_date = #{activity_date},
-			source_platform = #{source_platform}
+		SET duration_minutes = #{duration_minutes},
+		calories_burned = #{calories_burned},
+		activity_date = #{activity_date},
+		source_platform = #{source_platform}
 		WHERE record_id = #{record_id} AND user_id = #{user_id}
 	</update>
 

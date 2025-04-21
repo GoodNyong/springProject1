@@ -1,6 +1,5 @@
 package com.spring.springProject1.rec;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -25,7 +24,7 @@ public class RecController {
 	@Autowired
 	private RecService recService;
 
-//	운동 부분
+//	운동 부분----------------------------------------------------------------
 
 	// 운동 기록 입력 페이지 호출
 	@GetMapping("/exerciseRecordInput")
@@ -180,8 +179,112 @@ public class RecController {
 	    }
 	}
 
+	@GetMapping("/exerciseRecordMultiInput")
+	public String exerciseRecordMultiInputGet() {
+		return "rec/exerciseRecordMultiInput";
+	}
 
+	// 다중 운동 입력 처리
+	@PostMapping("/exerciseRecordMultiInput")
+	public String exerciseRecordMultiInputPost(@ModelAttribute ExerciseRecordListWrapper exerciseRecordListWrapper,
+	                                           HttpSession session, RedirectAttributes ra) {
+	    UserVo user = (UserVo) session.getAttribute("loginUser");
+	    if (user == null) {
+	        ra.addFlashAttribute("message", "로그인이 필요합니다.");
+	        ra.addFlashAttribute("url", "/");
+	        return "redirect:/message/error";
+	    }
 
+	    try {
+	        List<ExerciseRecordVo> list = exerciseRecordListWrapper.getExerciseRecordList();
+	        for (ExerciseRecordVo vo : list) {
+	            vo.setUser_id(user.getUser_id());
+	        }
+
+	        recService.multiSetExerciseRecord(list);
+	        return "redirect:/message/exerciseRecordMultiInputOk";
+	    } catch (Exception e) {
+	        ra.addFlashAttribute("message", e.getMessage());
+	        ra.addFlashAttribute("url", "/rec/exerciseRecordMultiInput");
+	        return "redirect:/message/error";
+	    }
+	}
+	
+// 식단 부분----------------------------------------------------------------
+	
+	// 식단 기록 단일 입력 페이지 호출
+	@GetMapping("/mealRecordInput")
+	public String mealRecordInputGet() {
+	    return "rec/mealRecordInput";
+	}
+	
+	// 식닥 기록 단일 입력 처리
+	@PostMapping("/mealRecordInput")
+	public String mealRecordInputPost(MealRecordVo vo, HttpSession session, RedirectAttributes ra) {
+		try {
+			// 로그인 사용자 ID 주입
+			UserVo loginUser = (UserVo) session.getAttribute("loginUser");
+			if (loginUser == null) throw new IllegalArgumentException("로그인이 필요합니다.");
+
+			vo.setUser_id(loginUser.getUser_id());
+
+			recService.setMealRecord(vo);
+			return "redirect:/message/mealRecordInputOk";
+		} catch (IllegalArgumentException e) {
+			ra.addFlashAttribute("message", e.getMessage());
+			ra.addFlashAttribute("url", "/rec/mealRecordInput");
+			return "redirect:/message";
+		}
+	}
+
+	// 식단 기록 목록 조회
+	@GetMapping("/mealRecordList")
+	public String mealRecordListGet(Model model, HttpSession session) {
+		UserVo loginUser = (UserVo) session.getAttribute("loginUser");
+		if (loginUser == null) {
+			return "redirect:/user/login";
+		}
+
+		int userId = loginUser.getUser_id();
+		List<MealRecordVo> mealRecordList = recService.getMealRecordList(userId);
+		model.addAttribute("mealRecordList", mealRecordList);
+		return "rec/mealRecordList";
+	}
+
+	// 식단 다중 입력 페이지 호출
+	@GetMapping("/mealRecordMultiInput")
+	public String mealRecordMultiInputGet(HttpSession session) {
+		UserVo loginUser = (UserVo) session.getAttribute("loginUser");
+		if (loginUser == null) {
+			return "redirect:/user/login";
+		}
+		return "rec/mealRecordMultiInput";
+	}
+
+	// 다중 식단 입력 처리
+	@PostMapping("/mealRecordMultiInput")
+	public String mealRecordMultiInputPost(@ModelAttribute MealRecordListWrapper mealRecordListWrapper,
+	                                       HttpSession session, RedirectAttributes ra) {
+		UserVo loginUser = (UserVo) session.getAttribute("loginUser");
+		if (loginUser == null) {
+			ra.addFlashAttribute("message", "로그인이 필요합니다.");
+			ra.addFlashAttribute("url", "/user/login");
+			return "redirect:/message/error";
+		}
+
+		try {
+			List<MealRecordVo> list = mealRecordListWrapper.getMealRecordList();
+			for (MealRecordVo vo : list) {
+				vo.setUser_id(loginUser.getUser_id());
+			}
+			recService.multiSetMealRecord(list);
+			return "redirect:/message/mealRecordMultiInputOk";
+		} catch (Exception e) {
+			ra.addFlashAttribute("message", e.getMessage());
+			ra.addFlashAttribute("url", "/rec/mealRecordMultiInput");
+			return "redirect:/message/error";
+		}
+	}
 
 
 

@@ -284,36 +284,44 @@ function createHidden(name, value) {
 function submitSelectedDeletes() {
 	const selectedRows = document.querySelectorAll("tbody tr.table-success");
 	if (selectedRows.length === 0) {
-		alert("삭제할 항목을 먼저 선택해주세요!");
+		showWizardMessage("삭제할 마법 기록이 선택되지 않았어요!");
 		return;
 	}
 
-	if (!confirm("선택된 마법 기록들을 정말 삭제하시겠어요?")) return;
+	// 마법사 말풍선 형태 삭제 확인 UI 표시
+	const confirmBox = document.querySelector("#wizard-delete-confirm");
+	const yesBtn = document.getElementById("wizard-confirm-yes");
+	const noBtn = document.getElementById("wizard-confirm-no");
+	confirmBox.classList.remove("d-none");
 
-	// 기존 삭제 form 제거
-	const existingForm = document.querySelector("form[data-delete-form='true']");
-	if (existingForm) existingForm.remove();
+	// 예: 실제 삭제 실행
+	yesBtn.onclick = () => {
+		confirmBox.classList.add("d-none");
+		// 기존 삭제 폼 생성 및 submit
+		const form = document.createElement("form");
+		form.method = "post";
+		form.action = ctp + "/rec/exerciseRecordMultiDelete";
+		form.setAttribute("data-delete-form", "true");
 
-	// 삭제용 form 생성
-	const form = document.createElement("form");
-	form.method = "post";
-	form.action = ctp + "/rec/exerciseRecordMultiDelete"; // 🛠️ 삭제용 요청 URL
-	form.setAttribute("data-delete-form", "true");
+		let count = 0;
+		selectedRows.forEach(row => {
+			const recordId = row.querySelector("input[name='record_id']").value;
+			form.appendChild(createHidden("recordIdList[" + count + "]", recordId));
+			count++;
+		});
 
-	let count = 0;
-	selectedRows.forEach(row => {
-		const recordId = row.querySelector("input[name='record_id']").value;
-		form.appendChild(createHidden("recordIdList[" + count + "]", recordId));
-		count++;
-	});
+		document.body.appendChild(form);
+		form.submit();
+	};
 
-	document.body.appendChild(form);
-	form.submit();
+	// 아니오: 닫기
+	noBtn.onclick = () => {
+		confirmBox.classList.add("d-none");
+	};
 }
-
 </script>
 
-<main class="container mt-4 mb-5"  data-page="exerciseexerciseRecordList">
+<main class="container mt-4 mb-5"  data-page="exerciseRecordList">
 	<!-- 페이지 제목 -->
 	<div class="row">
 		<div class="mb-4 col">
@@ -377,6 +385,9 @@ function submitSelectedDeletes() {
 			</table>
 		</div>
 	</c:if>
+	<div class="mt-4 text-center">
+		<a href="${ctp}/user/main" class="btn btn-outline-primary">🏠 메인으로 돌아가기</a>
+	</div>
 
 
 </main>

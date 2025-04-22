@@ -14,6 +14,15 @@
 		)
 	</insert>
 
+	<insert id="setMealRecord" parameterType="com.spring.springProject1.rec.MealRecordVo">
+		INSERT INTO MealRecord (
+		user_id, food_id, meal_time, quantity, meal_date, recorded_at
+		)
+		VALUES (
+		#{user_id}, #{food_id}, #{meal_time}, #{quantity}, #{meal_date}, NOW()
+		)
+	</insert>
+
 
 
 	<!-- select -->
@@ -33,18 +42,53 @@
 		WHERE er.record_id = #{record_id}
 		AND er.user_id = #{user_id}
 	</select>
-	
+
+	<select id="getMealRecordList" resultType="com.spring.springProject1.rec.MealRecordVo">
+		SELECT mr.*, fi.name AS food_name
+		FROM MealRecord mr
+		JOIN FoodInfo fi ON mr.food_id = fi.food_id
+		WHERE mr.user_id = #{user_id}
+		AND fi.is_active = TRUE
+		ORDER BY mr.meal_date DESC
+	</select>
+
+	<select id="getMealRecordById" resultType="com.spring.springProject1.rec.MealRecordVo">
+		SELECT mr.*, fi.name AS food_name
+		FROM MealRecord mr
+		JOIN FoodInfo fi ON mr.food_id = fi.food_id
+		WHERE mr.meal_id = #{meal_id}
+		AND mr.user_id = #{user_id}
+		AND fi.is_active = TRUE
+	</select>
+
+
+
+
+
 
 
 	<!-- update -->
 	<update id="updateExerciseRecord">
 		UPDATE ExerciseRecord
-		SET	duration_minutes = #{duration_minutes},
-			calories_burned = #{calories_burned},
-			activity_date = #{activity_date},
-			source_platform = #{source_platform}
+		SET
+		duration_minutes = #{duration_minutes},
+		calories_burned = #{calories_burned},
+		activity_date = #{activity_date},
+		source_platform = #{source_platform}
 		WHERE record_id = #{record_id} AND user_id = #{user_id}
 	</update>
+
+	<update id="updateMealRecord">
+		UPDATE MealRecord
+		SET
+		food_id = #{vo.food_id},
+		meal_time = #{vo.meal_time},
+		quantity = #{vo.quantity},
+		meal_date = #{vo.meal_date}
+		WHERE meal_id = #{vo.meal_id}
+		AND user_id = #{vo.user_id}
+	</update>
+
 
 
 
@@ -64,96 +108,26 @@
 		</foreach>
 		AND user_id = #{user_id}
 	</delete>
-	
-	
-	
 
-
-
-
-	<!-- <select id="getUserBehaviorLogList" resultType="com.spring.springProject1.rec.UserBehaviorLogVo">
-		SELECT * FROM UserBehaviorLog ORDER BY behavior_id DESC
-	</select>
-	
-
-
-	<insert id="setUserBehaviorLogInput" parameterType="com.spring.springProject1.rec.UserBehaviorLogVo">
-		insert into UserBehaviorLog values (default, #{vo.user_id}, #{vo.content_id}, #{vo.event_type}, default);
-	</insert>
-
-
-
-	<delete id="deleteLog">
-		delete from UserBehaviorLog  where behavior_id = #{id};
-	</delete>
-	
-	
-	
-	
-	<update id="updateUserBehaviorLog" parameterType="com.spring.springProject1.rec.UserBehaviorLogVo">
-		UPDATE UserBehaviorLog SET user_id = #{vo.user_id}, content_id = #{vo.content_id}, event_type = #{vo.event_type} WHERE behavior_id = #{vo.behavior_id}
-	</update> -->
-	
-	
-	<!-- <select id="getMemberTotRecCnt" resultType="int">
-		select count(*) from member
-		<if test="level != 99"> where level = #{level}</if>
-		;
-	</select>
-
-	<select id="getComplaintList" resultType="com.spring.JspringProject.vo.ComplaintVo">
-		select date_format(cpDate,'%Y-%m-%d %H:%i') as cpDate,b.title as title, b.nickName as nickName,b.complaint as complaint,c.* from complaint c, board b, pds p where c.boardIdx=b.idx and c.pdsIdx=p.idx order by c.idx desc;
-		select date_format(c.cpDate, '%Y-%m-%d %H:%i') as cpDate, b.title as title, b.nickName as nickName, b.mid as mid, b.content as content, b.complaint as complaint, c.* from complaint c left join board b on c.partIdx=b.idx order by c.idx desc;
-	</select>
-
-
-
-	<insert id="setBoardComplaintInput">
-		insert into complaint values (default,#{vo.part},#{vo.boardIdx},default,#{vo.cpMid},#{vo.cpContent},default);
-		insert into complaint values (default,#{vo.part},#{vo.partIdx},#{vo.cpMid},#{vo.cpContent},default,default);
-	</insert>
-
-
-
-
-	<update id="setMemberLevelChange">
-		update member set level = #{level} where idx = #{idx};
-	</update>
-
-	<update id="setMemberLevelCheck">
-		update member set level = #{level} where idx = #{idx};
-	</update>
-
-	<update id="setBoardTableComplaintOk">
-		update board set complaint = 'OK' where idx = #{partIdx};
-	</update>
-
-	<update id="setContentChange">
-		<if test='contentSw == "H"'>
-			update board set complaint = 'HI' where idx = #{contentIdx};
-		</if>
-		<if test='contentSw == "S"'>
-			update board set complaint = 'NO' where idx = #{contentIdx};
-		</if>
-	</update>
-
-	<update id="setComplaintProcess">
-		update board set complaint = #{complaintSw} where idx = #{partIdx};
-	</update>
-
-	<update id="setComplaintProcessOk">
-		update complaint set progress = #{complaintSw} where idx = #{idx};
-	</update>
-
-
-	board에서의 삭제인지, pds에서의 삭제인지는 동적쿼리로 체크할수 있도록 해야한다.(아래는 반영되지 않음)
-	<delete id="setContentDelete">
-		<if test='part == "board"'>delete from board where idx = #{contentIdx};</if>
-		<if test='part == "pds"'>delete from pds where idx = #{contentIdx};</if>
+	<delete id="deleteMealRecord">
+		DELETE FROM MealRecord
+		WHERE meal_id = #{meal_id}
+		AND user_id = #{user_id}
 	</delete>
 
-	<delete id="setComplaintDelete">
-		delete from board where idx = #{partIdx};
-	</delete> -->
+	<delete id="multiDeleteMealRecord">
+		DELETE FROM MealRecord
+		WHERE meal_id IN
+		<foreach collection="recordIdList" item="id" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+		AND user_id = #{user_id}
+	</delete>
+	
+
+
+
+
+
 
 </mapper>

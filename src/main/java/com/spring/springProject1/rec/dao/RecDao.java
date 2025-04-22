@@ -7,6 +7,7 @@ import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
 import com.spring.springProject1.rec.ExerciseRecordVo;
+import com.spring.springProject1.rec.MealRecordVo;
 
 @Repository
 @Mapper
@@ -23,5 +24,18 @@ public interface RecDao {
 	int deleteExerciseRecord(@Param("record_id") int record_id, @Param("user_id") int user_id);
 
 	int multiDeleteExerciseRecord(@Param("recordIdList") List<Integer> recordIdList, @Param("user_id") int user_id);
+
+	void setMealRecord(MealRecordVo vo);
+	
+	List<MealRecordVo> getMealRecordList(@Param("user_id") int user_id);
+	
+	MealRecordVo getMealRecordById(@Param("meal_id") int meal_id, @Param("user_id") int user_id);
+
+	int updateMealRecord(@Param("vo") MealRecordVo vo);
+
+	int deleteMealRecord(@Param("meal_id") int meal_id, @Param("user_id") int user_id);
+	
+	int multiDeleteMealRecord(@Param("recordIdList") List<Integer> recordIdList, @Param("user_id") int user_id);
+
 
 }

@@ -13,7 +13,7 @@
 	</div>
 
 	<!-- 오늘의 추천 루틴 -->
-	<section class="row mb-5">
+	<section class="row mb-4">
 		<div class="col-md-6 mb-3">
 			<div class="card border-primary shadow-sm h-100">
 				<div class="card-body d-flex flex-column">
@@ -34,10 +34,26 @@
 
 
 	<!-- 목표 달성률 -->
-	<section class="mb-5">
+	<!-- <section class="mb-5">
 		<h5>🎯 목표 달성 현황</h5>
 		<div class="progress" style="height: 24px;">
 			<div class="progress-bar bg-info" role="progressbar" style="width: 68%;" aria-valuenow="68" aria-valuemin="0" aria-valuemax="100">68% 완료</div>
+		</div>
+	</section> -->
+	
+	<!-- 목표 달성률 (운동 + 식단) -->
+	<section class="row mb-4">
+		<div class="col-md-6">
+			<h5>🏃 운동 목표 달성률</h5>
+			<div class="progress mb-3" style="height: 24px;">
+				<div class="progress-bar bg-info" style="width: 60%;">60%</div>
+			</div>
+		</div>
+		<div class="col-md-6">
+			<h5>🍱 식단 목표 달성률</h5>
+			<div class="progress mb-3" style="height: 24px;">
+				<div class="progress-bar bg-success" style="width: 80%;">80%</div>
+			</div>
 		</div>
 	</section>
 
@@ -56,7 +72,7 @@
 			<a href="${ctp}/expert/feedbackRequest" class="btn btn-outline-warning w-100 py-3">피드백 요청</a>
 		</div>
 		<div class="col-md-4 mb-3">
-			<a href="${ctp}/rec/goalSetting" class="btn btn-outline-secondary w-100 py-3">목표 설정</a>
+			<a href="${ctp}/rec/goalInput" class="btn btn-outline-secondary w-100 py-3">목표 설정</a>
 		</div>
 		<div class="col-md-4 mb-3">
 			<a href="${ctp}/user/notifications" class="btn btn-outline-dark w-100 py-3">알림 확인</a>

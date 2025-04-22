@@ -14,7 +14,7 @@
 		<div class="table-responsive shadow rounded-4 border border-2 border-light overflow-hidden">
 			<table class="table align-middle text-center m-0" id="recordTable">
 				<thead class="table-light">
-					<tr class="table-success">
+					<tr class="table-info">
 						<th>음식</th>
 						<th>시간대</th>
 						<th>섭취량</th>
@@ -30,12 +30,13 @@
 
 		<div class="d-flex justify-content-between my-3">
 			<button type="button" class="btn btn-outline-success" onclick="addRow()">➕ 행 추가</button>
-			<button type="submit" class="btn btn-success">✅ 전체 저장</button>
+			<button type="submit" class="btn btn-primary">✅ 전체 저장</button>
 		</div>
 	</form>
 
 	<div class="mt-4 text-center">
 		<a href="${ctp}/user/main" class="btn btn-outline-primary">🏠 메인으로 돌아가기</a>
+		<a href="${ctp}/rec/mealRecordList" class="btn btn-outline-secondary">← 식단 기록 목록으로</a>
 	</div>
 
 	<!-- 마법사 -->

@@ -319,6 +319,24 @@ function submitSelectedDeletes() {
 		confirmBox.classList.add("d-none");
 	};
 }
+
+//운동 기록 단일 삭제 확인 처리
+function confirmSingleExerciseDelete(recordId) {
+	const confirmBox = document.querySelector("#wizard-delete-confirm");
+	const yesBtn = document.getElementById("wizard-confirm-yes");
+	const noBtn = document.getElementById("wizard-confirm-no");
+
+	confirmBox.classList.remove("d-none");
+
+	yesBtn.onclick = () => {
+		confirmBox.classList.add("d-none");
+		location.href = ctp + "/rec/exerciseRecordDelete?record_id=" + recordId;
+	};
+
+	noBtn.onclick = () => {
+		confirmBox.classList.add("d-none");
+	};
+}
 </script>
 
 <main class="container mt-4 mb-5"  data-page="exerciseRecordList">
@@ -375,8 +393,7 @@ function submitSelectedDeletes() {
 							<td>
 								<input type="hidden" name="record_id" value="${vo.record_id}" />
 								<a href="${ctp}/rec/exerciseRecordEdit?record_id=${vo.record_id}" class="btn btn-sm btn-outline-secondary me-1">수정</a>
-								<a href="${ctp}/rec/exerciseRecordDelete?record_id=${vo.record_id}" class="btn btn-sm btn-outline-danger"
-								   onclick="return confirm('정말 삭제하시겠습니까?');">삭제</a>
+								<a href="javascript:void(0);" class="btn btn-sm btn-outline-danger" onclick="confirmSingleExerciseDelete(${vo.record_id});">삭제</a>
 							</td>
 							
 						</tr>

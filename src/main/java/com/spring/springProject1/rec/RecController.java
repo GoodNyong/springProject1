@@ -76,7 +76,7 @@ public class RecController {
 		}
 	}
 
-	// 수정 페이지 호출
+	// 운동 기록 수정 페이지 호출
 	@GetMapping("/exerciseRecordEdit")
 	public String exerciseRecordEdit(@RequestParam("record_id") int record_id, HttpSession session, Model model) {
 		UserVo user = (UserVo) session.getAttribute("loginUser");
@@ -93,7 +93,7 @@ public class RecController {
 		return "rec/exerciseRecordEdit"; // 수정 전용 폼 페이지
 	}
 	
-	// 수정 페이지에서 수정 처리
+	// 운동 기록 수정 페이지에서 수정 처리
 	@PostMapping("/exerciseRecordEdit")
 	public String exerciseRecordEditPost(ExerciseRecordVo vo, HttpSession session, RedirectAttributes ra) {
 		try {
@@ -184,7 +184,7 @@ public class RecController {
 		return "rec/exerciseRecordMultiInput";
 	}
 
-	// 다중 운동 입력 처리
+	// 다중 운동 기록 입력 처리
 	@PostMapping("/exerciseRecordMultiInput")
 	public String exerciseRecordMultiInputPost(@ModelAttribute ExerciseRecordListWrapper exerciseRecordListWrapper,
 	                                           HttpSession session, RedirectAttributes ra) {
@@ -286,7 +286,143 @@ public class RecController {
 		}
 	}
 
+	// 식단 기록 수정 페이지 호출
+	@GetMapping("/mealRecordEdit")
+	public String mealRecordEdit(@RequestParam("record_id") int meal_id, HttpSession session, Model model) {
+		UserVo user = (UserVo) session.getAttribute("loginUser");
+		if (user == null) return "redirect:/"; // 비로그인 접근 방지
 
+		MealRecordVo vo = recService.getMealRecordById(meal_id, user.getUser_id());
+		if (vo == null) {
+			model.addAttribute("message", "해당 식단 기록을 찾을 수 없어요!");
+			model.addAttribute("url", "/rec/mealRecordList");
+			return "include/message";
+		}
+		
+		model.addAttribute("record", vo);
+		return "rec/mealRecordEdit"; // 수정 전용 폼 페이지
+	}
+	
+	// 식단 기록 수정 처리
+	@PostMapping("/mealRecordEdit")
+	public String mealRecordEditPost(MealRecordVo vo, HttpSession session, RedirectAttributes ra) {
+		try {
+			// 세션에서 user_id 강제 주입 (보안 강화)
+			vo.setUser_id(((UserVo) session.getAttribute("loginUser")).getUser_id());
+
+			recService.updateMealRecord(vo);
+			return "redirect:/message/mealRecordEditOk"; // 성공 메시지 리디렉션
+		} catch (IllegalArgumentException e) {
+			ra.addFlashAttribute("message", e.getMessage());
+			ra.addFlashAttribute("url", "/rec/mealRecordEdit?record_id=" + vo.getMeal_id());
+			return "redirect:/message/error";
+		}
+	}
+
+	// 식단 기록 단일 삭제
+	@GetMapping("/mealRecordDelete")
+	public String mealRecordDelete(@RequestParam("record_id") int mealId, HttpSession session, Model model) {
+		UserVo user = (UserVo) session.getAttribute("loginUser");
+		if (user == null) return "redirect:/"; // 비로그인 접근 방지
+
+		try {
+			recService.deleteMealRecord(mealId, user.getUser_id());
+			return "redirect:/message/mealRecordDeleteOk";
+		} catch (IllegalArgumentException e) {
+			model.addAttribute("message", e.getMessage());
+			model.addAttribute("url", "/rec/mealRecordList");
+			return "include/message/error";
+		}
+	}
+	
+	// 식단 기록 단일 수정 처리
+	@PostMapping("/mealRecordUpdate")
+	public String mealRecordUpdatePost(MealRecordVo vo, HttpSession session, RedirectAttributes ra) {
+		try {
+			vo.setUser_id(((UserVo) session.getAttribute("loginUser")).getUser_id());
+			recService.updateMealRecord(vo);
+			return "redirect:/message/mealRecordUpdateOk";
+		} catch (IllegalArgumentException e) {
+			ra.addFlashAttribute("message", e.getMessage());
+			ra.addFlashAttribute("url", "/rec/mealRecordList");
+			return "redirect:/message/error";
+		}
+	}
+
+	// 식단 기록 다중 수정 처리
+	@PostMapping("/mealRecordMultiUpdate")
+	public String mealRecordMultiUpdatePost(@ModelAttribute MealRecordListWrapper mealRecordListWrapper,
+	                                        HttpSession session, RedirectAttributes ra) {
+		UserVo user = (UserVo) session.getAttribute("loginUser");
+
+		if (user == null) {
+			ra.addFlashAttribute("message", "로그인이 필요합니다.");
+			ra.addFlashAttribute("url", "/");
+			return "redirect:/message/error";
+		}
+
+		try {
+			List<MealRecordVo> list = mealRecordListWrapper.getMealRecordList();
+			for (MealRecordVo vo : list) {
+				vo.setUser_id(user.getUser_id());
+			}
+
+			recService.multiUpdateMealRecord(list);
+			return "redirect:/message/mealRecordMultiUpdateOk";
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			ra.addFlashAttribute("message", e.getMessage());
+			ra.addFlashAttribute("url", "/rec/mealRecordList");
+			return "redirect:/message/error";
+		}
+	}
+
+	// 식단 기록 다중 삭제 처리
+	@PostMapping("/mealRecordMultiDelete")
+	public String mealRecordMultiDelete(HttpServletRequest request, HttpSession session, RedirectAttributes ra) {
+		UserVo user = (UserVo) session.getAttribute("loginUser");
+		if (user == null) {
+			ra.addFlashAttribute("message", "로그인이 필요합니다.");
+			ra.addFlashAttribute("url", "/");
+			return "redirect:/message";
+		}
+
+		try {
+			recService.multiDeleteMealRecord(request, user.getUser_id());
+			return "redirect:/message/mealRecordMultiDeleteOk";
+		} catch (IllegalArgumentException e) {
+			ra.addFlashAttribute("message", e.getMessage());
+			ra.addFlashAttribute("url", "/rec/mealRecordList");
+			return "redirect:/message/error";
+		}
+	}
+
+// 목표 부분----------------------------------------------------------------
+	
+	// 목표 설정 허브 페이지 호출
+	@GetMapping("/goalInput")
+	public String goalInputPageGet(HttpSession session, RedirectAttributes ra) {
+		UserVo user = (UserVo) session.getAttribute("loginUser");
+		if (user == null) {
+			ra.addFlashAttribute("message", "로그인이 필요합니다.");
+			ra.addFlashAttribute("url", "/");
+			return "redirect:/message/error";
+		}
+		return "rec/goalInput";
+	}
+
+	// 목표 목록 허브 페이지 호출
+	@GetMapping("/goalList")
+	public String goalListPageGet(HttpSession session, RedirectAttributes ra) {
+		UserVo user = (UserVo) session.getAttribute("loginUser");
+		if (user == null) {
+			ra.addFlashAttribute("message", "로그인이 필요합니다.");
+			ra.addFlashAttribute("url", "/");
+			return "redirect:/message/error";
+		}
+		return "rec/goalList";
+	}
 
 
 }

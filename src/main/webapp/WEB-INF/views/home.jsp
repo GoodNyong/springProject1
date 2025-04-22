@@ -77,7 +77,7 @@
 <section class="container py-5 text-center">
   <h5>📬 뉴스레터 구독</h5>
   <form class="row justify-content-center mt-3">
-    <div class="col-md-4">
+    <div class="col-md-4 mb-3">
       <input type="email" class="form-control" placeholder="이메일 주소 입력">
     </div>
     <div class="col-auto">

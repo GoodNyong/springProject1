@@ -59,6 +59,7 @@
 			</form>
 			<div class="mt-4 mb-4 text-center">
 				<a href="${ctp}/user/main" class="btn btn-outline-primary">🏠 메인으로 돌아가기</a>
+				<a href="${ctp}/rec/exerciseRecordList" class="btn btn-outline-secondary">← 운동 기록 목록으로</a>
 			</div>
 		</div>
 

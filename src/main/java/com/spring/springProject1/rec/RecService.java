@@ -27,4 +27,16 @@ public interface RecService {
 	List<MealRecordVo> getMealRecordList(int user_id);
 	
 	void multiSetMealRecord(List<MealRecordVo> mealRecordList);
+	
+	MealRecordVo getMealRecordById(int mealId, int userId);
+	
+	void updateMealRecord(MealRecordVo vo);
+
+	void deleteMealRecord(int mealId, int userId);
+	
+	void multiUpdateMealRecord(List<MealRecordVo> mealRecordList);
+	
+	void multiDeleteMealRecord(HttpServletRequest request, int userId);
+
+
 }

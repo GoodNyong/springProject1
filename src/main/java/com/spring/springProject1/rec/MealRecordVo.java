@@ -23,7 +23,22 @@ public class MealRecordVo {
 
 	@DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
 	private Date recorded_at;
+	
+	private String changed;
 
 	// (선택) 식품명 임시 조인 필드
 	private String food_name;
+	
+	// quantity = amount + unit 용 파싱
+	private String amount;
+	private String unit;
+	
+	public void setQuantity(String quantity) {
+		this.quantity = quantity;
+		if (quantity != null) {
+			this.amount = quantity.replaceAll("[^0-9.]", "");
+			this.unit = quantity.replaceAll("[0-9.]", "");
+		}
+	}
+
 }

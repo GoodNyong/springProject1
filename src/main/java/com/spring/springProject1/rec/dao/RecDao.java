@@ -29,4 +29,13 @@ public interface RecDao {
 	
 	List<MealRecordVo> getMealRecordList(@Param("user_id") int user_id);
 	
+	MealRecordVo getMealRecordById(@Param("meal_id") int meal_id, @Param("user_id") int user_id);
+
+	int updateMealRecord(@Param("vo") MealRecordVo vo);
+
+	int deleteMealRecord(@Param("meal_id") int meal_id, @Param("user_id") int user_id);
+	
+	int multiDeleteMealRecord(@Param("recordIdList") List<Integer> recordIdList, @Param("user_id") int user_id);
+
+
 }

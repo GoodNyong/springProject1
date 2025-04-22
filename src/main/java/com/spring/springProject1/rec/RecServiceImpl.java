@@ -216,7 +216,7 @@ public class RecServiceImpl implements RecService {
 		}
 
 		for (MealRecordVo vo : mealRecordList) {
-			// 🧪 식단 유효성 검사
+			// 식단 유효성 검사
 			if (vo.getUser_id() <= 0) {
 				throw new IllegalArgumentException("누구의 식단인지 알 수 없어요. 마법사가 필요해요!");
 			}
@@ -240,5 +240,123 @@ public class RecServiceImpl implements RecService {
 			recDao.setMealRecord(vo);
 		}
 	}
+
+	@Override
+	public MealRecordVo getMealRecordById(int mealId, int userId) {
+		return recDao.getMealRecordById(mealId, userId);
+	}
+
+	@Override
+	public void updateMealRecord(MealRecordVo vo) {
+		if (vo.getMeal_id() <= 0) {
+			throw new IllegalArgumentException("수정할 식단 기록이 명확하지 않아요!");
+		}
+
+		if (vo.getUser_id() <= 0) {
+			throw new IllegalArgumentException("누구의 식단인지 알 수 없어요! 마법사가 필요해요.");
+		}
+
+		if (vo.getFood_id() <= 0) {
+			throw new IllegalArgumentException("음식이 선택되지 않았어요. 마법 요리를 골라주세요!");
+		}
+
+		if (vo.getMeal_time() <= 0 || vo.getMeal_time() > 4) {
+			throw new IllegalArgumentException("식사 시간대를 다시 확인해 주세요!");
+		}
+
+		if (vo.getMeal_date() == null || vo.getMeal_date().after(new Date())) {
+			throw new IllegalArgumentException("미래의 식사는 아직 못 먹어요! 날짜를 다시 선택해주세요.");
+		}
+
+		if (vo.getQuantity() == null || vo.getQuantity().trim().isEmpty()) {
+			throw new IllegalArgumentException("섭취량을 입력해주세요! 마법 식사의 양이 중요하답니다.");
+		}
+
+		if (vo.getQuantity().length() > 20) {
+			throw new IllegalArgumentException("섭취량 정보가 너무 길어요! 20자 이내로 적어주세요.");
+		}
+
+		int result = recDao.updateMealRecord(vo);
+		if (result == 0) {
+			throw new IllegalArgumentException("해당 식단 기록이 존재하지 않거나 수정 권한이 없어요.");
+		}
+	}
+
+	@Override
+	public void deleteMealRecord(int mealId, int userId) {
+		if (mealId <= 0) {
+			throw new IllegalArgumentException("삭제할 마법 식단이 명확하지 않아요!");
+		}
+		int result = recDao.deleteMealRecord(mealId, userId);
+		if (result == 0) {
+			throw new IllegalArgumentException("해당 식단을 삭제할 수 없어요! 이미 사라졌거나 권한이 없어요.");
+		}
+	}
+
+	@Override
+	@Transactional
+	public void multiUpdateMealRecord(List<MealRecordVo> mealRecordList) {
+		if (mealRecordList == null || mealRecordList.isEmpty()) {
+			throw new IllegalArgumentException("수정할 마법 식단이 아무것도 없어요! 먼저 마법서를 펼쳐주세요.");
+		}
+
+		for (MealRecordVo vo : mealRecordList) {
+			if (!"true".equalsIgnoreCase(vo.getChanged()))
+				continue;
+
+			if (vo.getMeal_id() <= 0 || vo.getUser_id() <= 0)
+				throw new IllegalArgumentException("이 마법 식사의 정체가 불분명해요! 기록 ID와 마법사를 다시 확인해 주세요.");
+
+			if (vo.getFood_id() <= 0)
+				throw new IllegalArgumentException("음식을 선택하지 않았어요! 마법 요리를 지정해 주세요.");
+
+			if (vo.getMeal_time() < 1 || vo.getMeal_time() > 4)
+				throw new IllegalArgumentException("식사 시간대가 잘못되었어요! 아침, 점심, 저녁, 간식 중에서 골라주세요.");
+
+			if (vo.getMeal_date() == null || vo.getMeal_date().after(new Date()))
+				throw new IllegalArgumentException("미래의 식사는 아직 준비되지 않았어요. 오늘 또는 과거로 돌아가 주세요!");
+
+			if (vo.getQuantity() == null || vo.getQuantity().trim().isEmpty())
+				throw new IllegalArgumentException("마법 식사의 양이 빠졌어요! 섭취량은 꼭 적어주세요.");
+
+			if (vo.getQuantity().length() > 20)
+				throw new IllegalArgumentException("섭취량 정보가 너무 길어요! 20자 이내로 마법을 간결하게 유지해 주세요.");
+
+			int result = recDao.updateMealRecord(vo);
+			if (result == 0) {
+				throw new IllegalArgumentException("일부 마법 식사는 이미 사라졌거나, 당신의 마력으로는 수정할 수 없어요!");
+			}
+		}
+	}
+	
+	@Override
+	@Transactional
+	public void multiDeleteMealRecord(HttpServletRequest request, int userId) {
+		List<Integer> recordIdList = new ArrayList<>();
+		int index = 0;
+
+		while (true) {
+			String param = request.getParameter("recordIdList[" + index + "]");
+			if (param == null) break;
+
+			try {
+				int id = Integer.parseInt(param);
+				recordIdList.add(id);
+			} catch (NumberFormatException e) {
+				throw new IllegalArgumentException("마법 식사 ID에 이상한 문자가 섞여 있어요! 숫자만 허용됩니다.");
+			}
+			index++;
+		}
+
+		if (recordIdList.isEmpty()) {
+			throw new IllegalArgumentException("삭제할 마법 식단이 선택되지 않았어요!");
+		}
+
+		int result = recDao.multiDeleteMealRecord(recordIdList, userId);
+		if (result == 0) {
+			throw new IllegalArgumentException("삭제할 수 있는 마법 식단이 없어요! 다시 확인해 주세요.");
+		}
+	}
+
 
 }

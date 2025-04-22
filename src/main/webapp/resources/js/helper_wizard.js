@@ -350,8 +350,41 @@ document.addEventListener('DOMContentLoaded', function() {
 				bindMealRowEvents();
 			};
 		}
-		
+
 	}
+
+	// 식단 목록 페이지 전용
+	if (pageType === 'mealRecordList') {
+		const addBtn = document.querySelector("a[href*='mealRecordInput']");
+		const editModeBtn = document.getElementById("toggleEditModeBtn");
+		const deleteBtns = document.querySelectorAll("a[href*='mealRecordDelete']");
+		const editBtns = document.querySelectorAll("a[href*='mealRecordEdit']");
+
+		if (addBtn) {
+			addBtn.addEventListener('mouseover', function() {
+				showWizardMessage("🍱 새로운 마법 식사를 시작해볼까요?");
+			});
+		}
+
+		if (editModeBtn) {
+			editModeBtn.addEventListener('mouseover', function() {
+				showWizardMessage("✏️ 전역 수정 마법진, 시전 준비 완료!");
+			});
+		}
+
+		editBtns.forEach(function(btn) {
+			btn.addEventListener('mouseover', function() {
+				showWizardMessage("🔧 무영창 식단 수정 마법!");
+			});
+		});
+
+		deleteBtns.forEach(function(btn) {
+			btn.addEventListener('mouseover', function() {
+				showWizardMessage("❌ 마법 식사를 지우려는 거예요?");
+			});
+		});
+	}
+
 
 });
 

@@ -80,6 +80,18 @@ public class MessageController {
 			model.addAttribute("message", "다중 식단 기록 삭제 마법 성공!");
 			model.addAttribute("url", "rec/mealRecordList");
 		}
+		else if(msgFlag.equals("goalInputExerciseOk")) {
+			model.addAttribute("message", "운동 목표 설정 마법 성공!");
+			model.addAttribute("url", "rec/goalListExercise");
+		}
+		else if(msgFlag.equals("goalEditExerciseOk")) {
+			model.addAttribute("message", "운동 목표 수정 마법 성공!");
+			model.addAttribute("url", "rec/goalListExercise");
+		}
+		else if(msgFlag.equals("goalDeleteExerciseOk")) {
+			model.addAttribute("message", "운동 목표 삭제 마법 성공!");
+			model.addAttribute("url", "rec/goalListExercise");
+		}
 		else if(msgFlag.equals("error")) {
 			model.addAttribute("message", model.asMap().get("message")); // RedirectAttributes에서 받음
 			model.addAttribute("url", model.asMap().get("url"));

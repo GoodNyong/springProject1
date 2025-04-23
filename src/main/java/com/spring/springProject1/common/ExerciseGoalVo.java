@@ -27,4 +27,10 @@ public class ExerciseGoalVo {
 
 	@DateTimeFormat(pattern = "yyyy-MM-dd")
 	private Date end_date;
+	
+	private String goal_unit_label; // 출력 전용 단위명
+	
+	private String exercise_name; // 운동 이름 (조인 결과)
+
+
 }

@@ -6,6 +6,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
+import com.spring.springProject1.common.ExerciseGoalVo;
 import com.spring.springProject1.rec.ExerciseRecordVo;
 import com.spring.springProject1.rec.MealRecordVo;
 
@@ -36,6 +37,17 @@ public interface RecDao {
 	int deleteMealRecord(@Param("meal_id") int meal_id, @Param("user_id") int user_id);
 	
 	int multiDeleteMealRecord(@Param("recordIdList") List<Integer> recordIdList, @Param("user_id") int user_id);
+
+	void insertExerciseGoal(ExerciseGoalVo vo);
+	
+	List<ExerciseGoalVo> getExerciseGoalList(int user_id);
+
+	ExerciseGoalVo getExerciseGoalById(@Param("goal_id") int goal_id, @Param("user_id") int user_id); // 운동 목표 단건 조회
+
+	int updateExerciseGoal(ExerciseGoalVo vo); // 운동 목표 수정 처리
+	
+	int deleteExerciseGoal(@Param("goal_id") int goal_id, @Param("user_id") int user_id);
+
 
 
 }

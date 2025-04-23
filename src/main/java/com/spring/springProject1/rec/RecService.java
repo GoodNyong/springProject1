@@ -4,6 +4,8 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
+import com.spring.springProject1.common.ExerciseGoalVo;
+
 public interface RecService {
 
 	void setExerciseRecord(ExerciseRecordVo vo);
@@ -37,6 +39,16 @@ public interface RecService {
 	void multiUpdateMealRecord(List<MealRecordVo> mealRecordList);
 	
 	void multiDeleteMealRecord(HttpServletRequest request, int userId);
+
+	void setExerciseGoal(ExerciseGoalVo vo);
+
+	List<ExerciseGoalVo> getExerciseGoalList(int user_id);
+
+	ExerciseGoalVo getExerciseGoalById(int goal_id, int user_id); // 운동 목표 단건 조회
+
+	void updateExerciseGoal(ExerciseGoalVo vo); // 운동 목표 수정 처리
+
+	void deleteExerciseGoal(int goal_id, int user_id);
 
 
 }

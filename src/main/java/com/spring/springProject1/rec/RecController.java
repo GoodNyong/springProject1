@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.spring.springProject1.common.ExerciseGoalVo;
 import com.spring.springProject1.user.UserVo;
 
 @Controller
@@ -24,20 +25,31 @@ public class RecController {
 	@Autowired
 	private RecService recService;
 
-//	운동 부분----------------------------------------------------------------
+//	운동 기록 부분----------------------------------------------------------------
 
 	// 운동 기록 입력 페이지 호출
 	@GetMapping("/exerciseRecordInput")
-	public String exerciseRecordInputGet() {
-
+	public String exerciseRecordInputGet(HttpSession session, RedirectAttributes ra) {
+		UserVo user = (UserVo)	session.getAttribute("loginUser");
+		if (user == null) {
+			ra.addFlashAttribute("message", "로그인이 필요합니다.");
+			ra.addFlashAttribute("url", "/");
+			return "redirect:/message/error";
+		}
 		return "rec/exerciseRecordInput";
 	}
 
 	// 운동 기록 입력 처리
 	@PostMapping("/exerciseRecordInput")
 	public String exerciseRecordInputPost(ExerciseRecordVo vo, HttpSession session, RedirectAttributes ra) {
+		UserVo user = (UserVo) session.getAttribute("loginUser");
+		if (user == null) {
+			ra.addFlashAttribute("message", "로그인이 필요합니다.");
+			ra.addFlashAttribute("url", "/");
+			return "redirect:/message/error";
+		}
 		try {
-			vo.setUser_id(((UserVo) session.getAttribute("loginUser")).getUser_id()); // 세션의 loginUser(vo)에서 유저아이디키 가져오기
+			vo.setUser_id(user.getUser_id()); // 세션의 loginUser(vo)에서 유저아이디키 가져오기
 			recService.setExerciseRecord(vo);
 			return "redirect:/message/exerciseRecordInputOk";
 		} catch (IllegalArgumentException e) {
@@ -49,30 +61,42 @@ public class RecController {
 
 	// 운동 기록 목록 페이지 호출
 	@GetMapping("/exerciseRecordList")
-	public String exerciseRecordListGet(HttpSession session, Model model) {
+	public String exerciseRecordListGet(HttpSession session, Model model, RedirectAttributes ra) {
 		UserVo user = (UserVo) session.getAttribute("loginUser");
-		if (user == null)
-			return "redirect:/"; // 비로그인 시 홈으로 이동
-
-		List<ExerciseRecordVo> exerciseRecordList = recService.getExerciseRecordList(user.getUser_id());
-		model.addAttribute("exerciseRecordList", exerciseRecordList);
-
-		return "rec/exerciseRecordList";
+		if (user == null) {
+			ra.addFlashAttribute("message", "로그인이 필요합니다.");
+			ra.addFlashAttribute("url", "/");
+			return "redirect:/message/error";
+		}
+		try {
+			List<ExerciseRecordVo> exerciseRecordList = recService.getExerciseRecordList(user.getUser_id());
+			model.addAttribute("exerciseRecordList", exerciseRecordList);
+			return "rec/exerciseRecordList";
+		} catch (Exception e) {
+			ra.addFlashAttribute("message",  e.getMessage());
+			ra.addFlashAttribute("url", "/user/main");
+			return "redirect:/message/error";
+		}
 	}
 	
 	// 운동 기록 단일 수정 처리
 	@PostMapping("/exerciseRecordUpdate")
 	public String exerciseRecordUpdatePost(ExerciseRecordVo vo, HttpSession session, RedirectAttributes ra) {
+		UserVo user = (UserVo) session.getAttribute("loginUser");
+		if (user == null) {
+			ra.addFlashAttribute("message", "로그인이 필요합니다.");
+			ra.addFlashAttribute("url", "/");
+			return "redirect:/message/error";
+		}
 		try {
 			// 세션에서 user_id 강제 주입 (보안용)
-			vo.setUser_id(((UserVo) session.getAttribute("loginUser")).getUser_id());
-
+			vo.setUser_id(user.getUser_id());
 			recService.updateExerciseRecord(vo);
 			return "redirect:/message/exerciseRecordUpdateOk";
 		} catch (IllegalArgumentException e) {
 			ra.addFlashAttribute("message", e.getMessage());
 			ra.addFlashAttribute("url", "/rec/exerciseRecordList");
-			return "redirect:/message";
+			return "redirect:/message/error";
 		}
 	}
 
@@ -80,13 +104,17 @@ public class RecController {
 	@GetMapping("/exerciseRecordEdit")
 	public String exerciseRecordEdit(@RequestParam("record_id") int record_id, HttpSession session, Model model) {
 		UserVo user = (UserVo) session.getAttribute("loginUser");
-		if (user == null) return "redirect:/"; // 비로그인 접근 방지
+		if (user == null) {
+			model.addAttribute("message", "로그인이 필요합니다.");
+			model.addAttribute("url", "/");
+			return "redirect:/message/error";
+		}
 
 		ExerciseRecordVo vo = recService.getExerciseRecordById(record_id, user.getUser_id());
 		if (vo == null) {
 			model.addAttribute("message", "해당 기록을 찾을 수 없어요!");
 			model.addAttribute("url", "/rec/exerciseRecordList");
-			return "include/message";
+			return "redirect:/message/error";
 		}
 
 		model.addAttribute("record", vo);
@@ -96,9 +124,15 @@ public class RecController {
 	// 운동 기록 수정 페이지에서 수정 처리
 	@PostMapping("/exerciseRecordEdit")
 	public String exerciseRecordEditPost(ExerciseRecordVo vo, HttpSession session, RedirectAttributes ra) {
+		UserVo user = (UserVo) session.getAttribute("loginUser");
+		if (user == null) {
+			ra.addFlashAttribute("message", "로그인이 필요합니다.");
+			ra.addFlashAttribute("url", "/");
+			return "redirect:/message/error";
+		}
 		try {
 			// 세션에서 user_id 강제 주입 (보안용)
-			vo.setUser_id(((UserVo) session.getAttribute("loginUser")).getUser_id());
+			vo.setUser_id(user.getUser_id());
 			recService.updateExerciseRecord(vo);
 			return "redirect:/message/exerciseRecordEditOk";
 		} catch (IllegalArgumentException e) {
@@ -214,49 +248,66 @@ public class RecController {
 	
 	// 식단 기록 단일 입력 페이지 호출
 	@GetMapping("/mealRecordInput")
-	public String mealRecordInputGet() {
+	public String mealRecordInputGet(HttpSession session, RedirectAttributes ra) {
+		UserVo user = (UserVo) session.getAttribute("loginUser");
+		if (user == null) {
+			ra.addFlashAttribute("message", "로그인이 필요합니다.");
+			ra.addFlashAttribute("url", "/");
+			return "redirect:/message/error";
+		}
 	    return "rec/mealRecordInput";
 	}
 	
 	// 식닥 기록 단일 입력 처리
 	@PostMapping("/mealRecordInput")
 	public String mealRecordInputPost(MealRecordVo vo, HttpSession session, RedirectAttributes ra) {
+		UserVo user = (UserVo) session.getAttribute("loginUser");
+		if (user == null) {
+			ra.addFlashAttribute("message", "로그인이 필요합니다.");
+			ra.addFlashAttribute("url", "/");
+			return "redirect:/message/error";
+		}
 		try {
-			// 로그인 사용자 ID 주입
-			UserVo loginUser = (UserVo) session.getAttribute("loginUser");
-			if (loginUser == null) throw new IllegalArgumentException("로그인이 필요합니다.");
-
-			vo.setUser_id(loginUser.getUser_id());
-
+			vo.setUser_id(user.getUser_id());
 			recService.setMealRecord(vo);
 			return "redirect:/message/mealRecordInputOk";
 		} catch (IllegalArgumentException e) {
 			ra.addFlashAttribute("message", e.getMessage());
 			ra.addFlashAttribute("url", "/rec/mealRecordInput");
-			return "redirect:/message";
+			return "redirect:/message/error";
 		}
 	}
 
 	// 식단 기록 목록 조회
 	@GetMapping("/mealRecordList")
-	public String mealRecordListGet(Model model, HttpSession session) {
-		UserVo loginUser = (UserVo) session.getAttribute("loginUser");
-		if (loginUser == null) {
-			return "redirect:/user/login";
+	public String mealRecordListGet(Model model, HttpSession session, RedirectAttributes ra) {
+		UserVo user = (UserVo) session.getAttribute("loginUser");
+		if (user == null) {
+			ra.addFlashAttribute("message", "로그인이 필요합니다.");
+			ra.addFlashAttribute("url", "/");
+			return "redirect:/message/error";
 		}
-
-		int userId = loginUser.getUser_id();
-		List<MealRecordVo> mealRecordList = recService.getMealRecordList(userId);
-		model.addAttribute("mealRecordList", mealRecordList);
-		return "rec/mealRecordList";
+		try {
+			int userId = user.getUser_id();
+			List<MealRecordVo> mealRecordList = recService.getMealRecordList(userId);
+			model.addAttribute("mealRecordList", mealRecordList);
+			return "rec/mealRecordList";
+		} catch (Exception e) {
+			e.printStackTrace();
+			ra.addFlashAttribute("message", "식단 기록을 불러오는 데 실패했어요! ");
+			ra.addFlashAttribute("url", "/user/main");
+			return "redirect:/message/error";
+		}
 	}
 
 	// 식단 다중 입력 페이지 호출
 	@GetMapping("/mealRecordMultiInput")
-	public String mealRecordMultiInputGet(HttpSession session) {
-		UserVo loginUser = (UserVo) session.getAttribute("loginUser");
-		if (loginUser == null) {
-			return "redirect:/user/login";
+	public String mealRecordMultiInputGet(HttpSession session, RedirectAttributes ra) {
+		UserVo user = (UserVo) session.getAttribute("loginUser");
+		if (user == null) {
+			ra.addFlashAttribute("message", "로그인이 필요합니다.");
+			ra.addFlashAttribute("url", "/");
+			return "redirect:/message/error";
 		}
 		return "rec/mealRecordMultiInput";
 	}
@@ -265,8 +316,8 @@ public class RecController {
 	@PostMapping("/mealRecordMultiInput")
 	public String mealRecordMultiInputPost(@ModelAttribute MealRecordListWrapper mealRecordListWrapper,
 	                                       HttpSession session, RedirectAttributes ra) {
-		UserVo loginUser = (UserVo) session.getAttribute("loginUser");
-		if (loginUser == null) {
+		UserVo user = (UserVo) session.getAttribute("loginUser");
+		if (user == null) {
 			ra.addFlashAttribute("message", "로그인이 필요합니다.");
 			ra.addFlashAttribute("url", "/user/login");
 			return "redirect:/message/error";
@@ -275,7 +326,7 @@ public class RecController {
 		try {
 			List<MealRecordVo> list = mealRecordListWrapper.getMealRecordList();
 			for (MealRecordVo vo : list) {
-				vo.setUser_id(loginUser.getUser_id());
+				vo.setUser_id(user.getUser_id());
 			}
 			recService.multiSetMealRecord(list);
 			return "redirect:/message/mealRecordMultiInputOk";
@@ -290,13 +341,17 @@ public class RecController {
 	@GetMapping("/mealRecordEdit")
 	public String mealRecordEdit(@RequestParam("record_id") int meal_id, HttpSession session, Model model) {
 		UserVo user = (UserVo) session.getAttribute("loginUser");
-		if (user == null) return "redirect:/"; // 비로그인 접근 방지
+		if (user == null) {
+			model.addAttribute("message", "로그인이 필요합니다.");
+			model.addAttribute("url", "/");
+			return "redirect:/message/error";
+		}
 
 		MealRecordVo vo = recService.getMealRecordById(meal_id, user.getUser_id());
 		if (vo == null) {
 			model.addAttribute("message", "해당 식단 기록을 찾을 수 없어요!");
 			model.addAttribute("url", "/rec/mealRecordList");
-			return "include/message";
+			return "redirect:/message/error";
 		}
 		
 		model.addAttribute("record", vo);
@@ -306,10 +361,14 @@ public class RecController {
 	// 식단 기록 수정 처리
 	@PostMapping("/mealRecordEdit")
 	public String mealRecordEditPost(MealRecordVo vo, HttpSession session, RedirectAttributes ra) {
+		UserVo user = (UserVo) session.getAttribute("loginUser");
+		if (user == null) {
+			ra.addFlashAttribute("message", "로그인이 필요합니다.");
+			ra.addFlashAttribute("url", "/");
+			return "redirect:/message/error";
+		}
 		try {
-			// 세션에서 user_id 강제 주입 (보안 강화)
-			vo.setUser_id(((UserVo) session.getAttribute("loginUser")).getUser_id());
-
+			vo.setUser_id(user.getUser_id()); // 세션에서 user_id 강제 주입 (보안 강화)
 			recService.updateMealRecord(vo);
 			return "redirect:/message/mealRecordEditOk"; // 성공 메시지 리디렉션
 		} catch (IllegalArgumentException e) {
@@ -323,7 +382,11 @@ public class RecController {
 	@GetMapping("/mealRecordDelete")
 	public String mealRecordDelete(@RequestParam("record_id") int mealId, HttpSession session, Model model) {
 		UserVo user = (UserVo) session.getAttribute("loginUser");
-		if (user == null) return "redirect:/"; // 비로그인 접근 방지
+		if (user == null) {
+			model.addAttribute("message", "로그인이 필요합니다.");
+			model.addAttribute("url", "/");
+			return "redirect:/message/error";
+		}
 
 		try {
 			recService.deleteMealRecord(mealId, user.getUser_id());
@@ -331,15 +394,21 @@ public class RecController {
 		} catch (IllegalArgumentException e) {
 			model.addAttribute("message", e.getMessage());
 			model.addAttribute("url", "/rec/mealRecordList");
-			return "include/message/error";
+			return "redirect:/message/error";
 		}
 	}
 	
 	// 식단 기록 단일 수정 처리
 	@PostMapping("/mealRecordUpdate")
 	public String mealRecordUpdatePost(MealRecordVo vo, HttpSession session, RedirectAttributes ra) {
+		UserVo user = (UserVo) session.getAttribute("loginUser");
+		if (user == null) {
+			ra.addFlashAttribute("message", "로그인이 필요합니다.");
+			ra.addFlashAttribute("url", "/");
+			return "redirect:/message/error";
+		}
 		try {
-			vo.setUser_id(((UserVo) session.getAttribute("loginUser")).getUser_id());
+			vo.setUser_id(user.getUser_id());
 			recService.updateMealRecord(vo);
 			return "redirect:/message/mealRecordUpdateOk";
 		} catch (IllegalArgumentException e) {
@@ -385,7 +454,7 @@ public class RecController {
 		if (user == null) {
 			ra.addFlashAttribute("message", "로그인이 필요합니다.");
 			ra.addFlashAttribute("url", "/");
-			return "redirect:/message";
+			return "redirect:/message/error";
 		}
 
 		try {
@@ -423,6 +492,139 @@ public class RecController {
 		}
 		return "rec/goalList";
 	}
+	
+// 운동 목표 부분----------------------------------------------------------------
+	
+	// 운동 목표 설정 페이지 호출
+	@GetMapping("/goalInputExercise")
+	public String goalInputExerciseGet(HttpSession session, RedirectAttributes ra) {
+		UserVo user = (UserVo) session.getAttribute("loginUser");
+		if (user == null) {
+			ra.addFlashAttribute("message", "로그인이 필요합니다.");
+			ra.addFlashAttribute("url", "/");
+			return "redirect:/message/error";
+		}
+		return "rec/goalInputExercise";
+	}
+
+	@PostMapping("/goalInputExerciseOk")
+	public String goalInputExerciseOk(@ModelAttribute ExerciseGoalVo vo, HttpSession session, RedirectAttributes ra) {
+		UserVo user = (UserVo) session.getAttribute("loginUser");
+		if (user == null) {
+			ra.addFlashAttribute("message", "로그인이 필요합니다.");
+			ra.addFlashAttribute("url", "/");
+			return "redirect:/message/error";
+		}
+		try {
+			// 로그인 유저 검증 및 ID 강제 주입
+			vo.setUser_id(user.getUser_id());
+			vo.setSet_by(1); // 직접 설정
+
+			recService.setExerciseGoal(vo);
+			return "redirect:/message/goalInputExerciseOk";
+
+		} catch (Exception e) {
+			ra.addFlashAttribute("message", e.getMessage());
+			ra.addFlashAttribute("url", "/rec/goalInputExercise");
+			return "redirect:/message/error";
+		}
+	}
+	
+	// 운동 목표 목록 조회
+	@GetMapping("/goalListExercise")
+	public String goalListExerciseGet(Model model, HttpSession session, RedirectAttributes ra) {
+		UserVo user = (UserVo) session.getAttribute("loginUser");
+		if (user == null) {
+			ra.addFlashAttribute("message", "로그인이 필요합니다.");
+			ra.addFlashAttribute("url", "/");
+			return "redirect:/message/error";
+		}
+		try {
+			List<ExerciseGoalVo> list = recService.getExerciseGoalList(user.getUser_id());
+			model.addAttribute("exerciseGoalList", list);
+
+			return "rec/goalListExercise";
+		} catch (Exception e) {
+			ra.addFlashAttribute("message", "운동 목표 목록을 불러오는 데 실패했어요! " + e.getMessage());
+			ra.addFlashAttribute("url", "/user/main");
+			return "redirect:/message/error";
+		}
+	}
+
+	// 운동 목표 수정 페이지 호출
+	@GetMapping("/goalEditExercise")
+	public String goalEditExerciseGet(@RequestParam("goal_id") int goal_id,
+	                                  HttpSession session, Model model, RedirectAttributes ra) {
+		UserVo user = (UserVo) session.getAttribute("loginUser");
+		if (user == null) {
+			ra.addFlashAttribute("message", "로그인이 필요합니다.");
+			ra.addFlashAttribute("url", "/");
+			return "redirect:/message/error";
+		}
+
+		try {
+			ExerciseGoalVo vo = recService.getExerciseGoalById(goal_id, user.getUser_id());
+			if (vo == null) {
+				model.addAttribute("message", "해당 운동 목표를 찾을 수 없어요!");
+				model.addAttribute("url", "/rec/goalListExercise");
+				return "redirect:/message/error";
+			}
+			model.addAttribute("record", vo);
+			return "rec/goalEditExercise";
+		} catch (Exception e) {
+			e.printStackTrace();
+			ra.addFlashAttribute("message", e.getMessage());
+			ra.addFlashAttribute("url", "/rec/goalListExercise");
+			return "redirect:/message/error";
+		}
+	}
+	
+	// 운동 목표 수정 페이지에서 수정 처리
+	@PostMapping("/goalEditExercise")
+	public String goalEditExercisePost(@ModelAttribute ExerciseGoalVo vo,
+	                                   HttpSession session, RedirectAttributes ra) {
+		UserVo user = (UserVo) session.getAttribute("loginUser");
+		if (user == null) {
+			ra.addFlashAttribute("message", "로그인이 필요합니다.");
+			ra.addFlashAttribute("url", "/");
+			return "redirect:/message/error";
+		}
+
+		try {
+			vo.setUser_id(user.getUser_id()); // 사용자 ID 강제 주입
+			recService.updateExerciseGoal(vo);
+			return "redirect:/message/goalEditExerciseOk";
+		} catch (IllegalArgumentException e) {
+			ra.addFlashAttribute("message", e.getMessage());
+			ra.addFlashAttribute("url", "/rec/goalEditExercise?goal_id=" + vo.getGoal_id());
+			return "redirect:/message/error";
+		}
+	}
+	
+	// 운동 목표 목록 페이지 관리 - 삭제 처리
+	@GetMapping("/goalDeleteExercise")
+	public String goalDeleteExercise(@RequestParam("goal_id") int goal_id,
+			HttpSession session, RedirectAttributes ra) {
+		UserVo user = (UserVo) session.getAttribute("loginUser");
+		if (user == null) {
+			ra.addFlashAttribute("message", "로그인이 필요합니다.");
+			ra.addFlashAttribute("url", "/");
+			return "redirect:/message/error";
+		}
+
+		try {
+			recService.deleteExerciseGoal(goal_id, user.getUser_id());
+			return "redirect:/message/goalDeleteExerciseOk";
+		} catch (IllegalArgumentException e) {
+			ra.addFlashAttribute("message", e.getMessage());
+			ra.addFlashAttribute("url", "/rec/goalListExercise");
+			return "redirect:/message/error";
+		}
+	}
+
+
+
+
 
 
 }

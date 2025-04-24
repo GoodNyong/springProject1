@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.spring.springProject1.board.dao.boardDao">
+
+<select id="getBoardTotRecCnt">
+	select count(*) from board where is_deleted = 0
+</select>
+
+<select id="getBoardList">
+	select * from board where is_deleted = 0
+	<if test="category != 'all'">
+		and category = #{category}
+	</if>
+	order by board_id desc limit #{startIn
+</select>
+
+</mapper>

@@ -12,11 +12,18 @@ public interface UserService {
 
 	void increaseLoginFail(String email);
 
-	List<String> getUserRoles(int user_id);
-
 	void resetLoginFail(String email);
 
-	//void getRoleToUser(int user_id, int role_id);
+	UserVo getUserEmailCheck(String email);
 
+	int updatePassword(UserVo vo);
+
+	UserVo getUserByUser_id(Integer user_id);
+
+	void setUserInvalid(Integer user_id);
+
+	void setUserRole(Integer user_id, Integer role_id);
+
+	List<String> getUserRoles(Integer user_id);
 
 }

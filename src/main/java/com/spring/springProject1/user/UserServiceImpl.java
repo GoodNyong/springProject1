@@ -34,19 +34,38 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public List<String> getUserRoles(int user_id) {
-		return userDao.getUserRoles(user_id);
-	}
-
-	@Override
 	public void resetLoginFail(String email) {
 		userDao.resetLoginFail(email);
 	}
 
-	/*
-	 * @Override public void getRoleToUser(int user_id, int role_id) {
-	 * userDao.getRoleToUser(user_id, role_id); }
-	 */
-	
+	@Override
+	public UserVo getUserEmailCheck(String email) {
+		return userDao.getUserEmailCheck(email);
+	}
+
+	@Override
+	public int updatePassword(UserVo vo) {
+		return userDao.updatePassword(vo);
+	}
+
+	@Override
+	public UserVo getUserByUser_id(Integer user_id) {
+		return userDao.getUserByUser_id(user_id);
+	}
+
+	@Override
+	public void setUserInvalid(Integer user_id) {
+		userDao.setUserInvalid(user_id);
+	}
+
+	@Override
+	public void setUserRole(Integer user_id, Integer role_id) {
+		userDao.setUserRole(user_id, role_id);
+	}
+
+	@Override
+	public List<String> getUserRoles(Integer user_id) {
+		return userDao.getUserRoles(user_id);
+	}
 	
 }

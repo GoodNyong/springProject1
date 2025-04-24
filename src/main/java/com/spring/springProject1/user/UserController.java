@@ -1,13 +1,10 @@
 package com.spring.springProject1.user;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
-import java.net.HttpURLConnection;
-import java.net.URL;
+import java.net.URLEncoder;
 import java.security.InvalidKeyException;
 import java.util.List;
+import java.util.UUID;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
@@ -16,13 +13,13 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -73,20 +70,21 @@ public class UserController {
 	  
 	  // 3. 비밀번호 암호화 (SHA-256 + ARIA)
 	  SecurityUtil security = new SecurityUtil();
-	  String shaPwd = security.encryptSHA256(vo.getPassword());
+	  String shaPassword = security.encryptSHA256(vo.getPassword());
+	  String encPassword;
 	  try {
-	    String encPwd = ARIAUtil.ariaEncrypt(shaPwd);
-	    vo.setPassword(encPwd); // DB에는 암호화된 비밀번호 저장
+	    encPassword = ARIAUtil.ariaEncrypt(shaPassword);
+	    vo.setPassword(encPassword); // DB에는 암호화된 비밀번호 저장
 	  } catch (Exception e) {
 	    e.printStackTrace();
-	    return "redirect:/message/passwordEncryptNo";
+	    return "redirect:/message/passwordEncryptNoJoin";
 	  }
 	  
 	  // 4. 최종 회원정보 저장
 	  int res = userService.setUserJoinOk(vo);
 	  
 	  // 5. 역할 부여
-	  //userService.getRoleToUser(vo.getUser_id(), 4);
+	  userService.setUserRole(vo.getUser_id(), 4);
 	  
 	  session.removeAttribute("sEmailCode");
 	  
@@ -114,18 +112,19 @@ public class UserController {
 	
 	//로그인 처리
 	@RequestMapping(value = "/userLogin", method = RequestMethod.POST)
-	public String userLoginPost(String email, String password, String gRecaptchaResponse,
+	public String userLoginPost(String email, String password, String username,
       HttpSession session, HttpServletRequest request, HttpServletResponse response,
-      String idSave, Model model) {
+      String idSave, Model model, String gRecaptchaResponse) throws UnsupportedEncodingException {
 		
-	  // ✅ 여기가 캡차 값 들어오는지 확인하는 위치!
-	  System.out.println("reCaptcha token: " + gRecaptchaResponse);
+		/*
+		 * //여기가 캡차 값 들어오는지 확인하는 위치 System.out.println("reCaptcha token: " +
+		 * gRecaptchaResponse);
+		 */
 	  
-	  //ReCaptcha검증
-	  boolean captchaSuccess = verifyRecaptcha(gRecaptchaResponse);
-	  if (!captchaSuccess) {
-	    return "redirect:/message/reCaptchaNo";
-	  }
+		/*
+		 * //ReCaptcha검증 boolean captchaSuccess = verifyRecaptcha(gRecaptchaResponse);
+		 * if (!captchaSuccess) { return "redirect:/message/reCaptchaNo"; }
+		 */
 	  
 	  //비밀번호 암호화
 	  SecurityUtil security = new SecurityUtil();
@@ -135,7 +134,7 @@ public class UserController {
 			encPassword = ARIAUtil.ariaEncrypt(shaPassword);
 		} catch (InvalidKeyException | UnsupportedEncodingException e) {
 			e.printStackTrace();
-			return "redirect:/message/passwordEncryptNo";
+			return "redirect:/message/passwordEncryptNoLogin";
 		}
 	  
 		//사용자 정보 조회 (로그인 실패 횟수 및 차단)
@@ -151,11 +150,24 @@ public class UserController {
 	  	return "redirect:/message/LoginLocked";
 	  }
 	  
-	  userService.resetLoginFail(email);
+	  userService.resetLoginFail(email); //로그인 되면 실패횟수 초기화
+	  
+	  //해당 user_id의 역할(들)을 리스트로 가져옴
+	  List<String> roles = userService.getUserRoles(vo.getUser_id());
+	  
 	  
 	  //로그인 성공 처리
 	  session.setAttribute("sUser", vo);
+	  session.setAttribute("sUser_id", vo.getUser_id());
+		session.setAttribute("sEmail", vo.getEmail());
+		session.setAttribute("sUsername", vo.getUsername());
+		session.setAttribute("sRoles", roles);
 	  session.setMaxInactiveInterval(1800);
+	  
+	  //임시비밀 번호로 로그인 하면 강제로 비밀번호 변경
+	  if(session.getAttribute("isTempPassword") != null) {
+	  	return "redirect:/message/isTempPassword";
+	  }
 		
 	  //역할(role) 세션 저장
 	  //List<String> roles = userService.getUserRoles(vo.getUser_id());
@@ -181,11 +193,19 @@ public class UserController {
 				}
 			}	  
 		}
-		return "redirect:/message/userLoginOk?username="+vo.getUsername();
+		return "redirect:/message/userLoginOk?username=" + URLEncoder.encode(vo.getUsername(), "UTF-8");
+		//한글값을 넘길 거라 encode 및 throws 필수
+	}
+	
+	// 로그아웃 처리
+	@RequestMapping(value = "/userLogout", method = RequestMethod.GET)
+	public String userLogoutGet(HttpSession session) {
+		session.invalidate();
+		return "redirect:/message/userLogoutOk";
 	}
 	
 	
-	
+	/*
 	public boolean verifyRecaptcha(String token) {
 	  String secretKey = "6LccsBwrAAAAACNU8SQDxsZFv5brs4rwKRHsG7To";
 	  String apiUrl = "https://www.google.com/recaptcha/api/siteverify";
@@ -215,6 +235,7 @@ public class UserController {
 	    return false;
 	  }
 	}
+	*/
 
 	// username 중복체크
 	@ResponseBody
@@ -253,9 +274,9 @@ public class UserController {
 		session.setAttribute("sEmail", email);
 		
 		String title = "[Blinkos] 이메일 인증번호입니다.";
-		String emailCodeFlag = "인증번호: <b>" + emailCode + "</b><br>3분 안에 입력해주세요.";
+		String emailFlag = "인증번호: <b>" + emailCode + "</b><br>3분 안에 입력해주세요.";
 		
-		mailSend(email, title, emailCodeFlag);
+		mailSend(email, title, emailFlag);
 		
 		return "1";
 	}
@@ -270,7 +291,7 @@ public class UserController {
 	*/
 	
 	//메일 전송하기(인증번호, 아이디찾기, 비밀번호 찾기)
-	public void mailSend(String toMail, String title, String emailCodeFlag) throws MessagingException {
+	public void mailSend(String toMail, String title, String emailFlag) throws MessagingException {
 		//HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
 		String content = "";		
 		
@@ -284,7 +305,7 @@ public class UserController {
 		
 		// 메세지에 추가로 필요한 사항을 messageHelper에 추가로 넣어준다.
 		content = content.replace("\n", "<br>");
-		content += "<br><hr><h3>"+emailCodeFlag+"</h3><br>";
+		content += "<br><hr><h3>"+emailFlag+"</h3><br>";
 		//content += "<p><img src=\"cid:main.jpg\" width='550px'></p>";
 		//content += "<p>방문하기 : <a href='http://49.142.157.251:9090/cjgreen'>Green Project</a></p>";
 		content += "<hr>";
@@ -310,6 +331,138 @@ public class UserController {
 		else return "0";
 	}
 	
+	//비밀번호 찾기 입력폼
+	@RequestMapping(value = "/findPassword", method = RequestMethod.GET)
+	public String findPasswordGet() {
+	  return "user/userFindPassword";
+	}
 	
+	//비밀번호 찾기 처리
+	@RequestMapping(value = "/findPassword", method = RequestMethod.POST)
+	public String findPasswordPost(String email, HttpSession session) throws MessagingException {
+		UserVo vo = userService.getUserEmailCheck(email);
+		
+		if(vo == null) return "redirect:/message/userEmailCheckNo";
+		
+		String tempPassword = UUID.randomUUID().toString().substring(0,8);
+		
+	  String title = "[Blinkos] 임시 비밀번호 안내";
+	  String emailFlag = "임시 비밀번호: <b>" + tempPassword + "</b><br>로그인 후 반드시 비밀번호를 변경해주세요.";
+	  mailSend(email, title, emailFlag);
+		
+		SecurityUtil security = new SecurityUtil();
+		
+		String shaPassword = security.encryptSHA256(tempPassword);
+	  try {
+	    String encPassword = ARIAUtil.ariaEncrypt(shaPassword);
+	    vo.setPassword(encPassword);
+	  } catch (Exception e) {
+	    e.printStackTrace();
+	    return "redirect:/message/passwordEncryptNoLogin";
+	  }
+	  
+	  userService.updatePassword(vo);
+	  
+	  //임시 비밀번호인지 세션에 저장
+	  session.setAttribute("isTempPassword", true);
+		
+	  return "redirect:/message/findPasswordOk";
+	}
+	
+	//비밀번호 변경 폼
+	@RequestMapping(value = "/passwordReset", method = RequestMethod.GET)
+	public String PasswordResetGet() {
+	  return "user/userPasswordReset";
+	}
+	
+	// 비밀번호 변경처리
+	@RequestMapping(value = "/passwordReset", method = RequestMethod.POST)
+	public String passwordResetPost(HttpSession session, String newPassword) {
+		
+		String email = (String) (session.getAttribute("sEmail"));
+		
+		System.out.println("session:" + session.getAttribute("sEmail"));
+		
+		UserVo vo = userService.getUserEmailCheck(email);
+		
+		System.out.println("newPassword = " + newPassword);
+		
+		SecurityUtil security = new SecurityUtil();
+		
+		String shaPassword = security.encryptSHA256(newPassword);
+		System.out.println("SHA 암호화 결과: " + shaPassword);
+		if (shaPassword == null || shaPassword.isEmpty()) {
+		  System.out.println("SHA 암호화 실패");
+		  return "redirect:/message/passwordEncryptNoMain";
+		}
+
+		String encPassword = null;
+		try {
+		  encPassword = ARIAUtil.ariaEncrypt(shaPassword);
+		  System.out.println("ARIA 암호화 결과: " + encPassword);
+		  vo.setPassword(encPassword);
+		} catch (Exception e) {
+		  e.printStackTrace();
+		  System.out.println("ARIA 암호화 중 예외 발생");
+		  return "redirect:/message/passwordEncryptNoMain";
+		}
+	  
+	  //바뀐 비밀번호 DB 저장
+	  int res = userService.updatePassword(vo);
+	  System.out.println("updatePassword 결과: " + res);
+		if(res != 0) {
+			//임시비밀번호로 로그인 하여 강제로 여기 온 경우 세션 제거
+			if(session.getAttribute("isTempPassword") != null){
+				session.removeAttribute("isTempPassword");
+			}
+			return "redirect:/message/passwordChangeOk";
+		}
+		else return "redirect:/message/passwordChangeNo";
+	}
+	
+	//비밀번호 확인 폼
+	@RequestMapping(value = "/passwordCheck/{passwordFlag}", method = RequestMethod.GET)
+	public String passwordCheckGet(Model model, @PathVariable String passwordFlag) {
+	    model.addAttribute("passwordFlag", passwordFlag);
+	    return "common/passwordCheckForm"; //common 폴더 아래
+	}
+	
+	//비밀번호 확인 후 보내기 처리
+	@RequestMapping(value = "/passwordCheck/{passwordFlag}", method = RequestMethod.POST)
+	public String passwordCheckPost(HttpSession session, String checkPassword, @PathVariable String passwordFlag) {
+		Integer user_id = (Integer) session.getAttribute("sUser_id");
+		UserVo vo = userService.getUserByUser_id(user_id);
+	
+		// 암호화된 비밀번호와 비교
+    SecurityUtil security = new SecurityUtil();
+    String shaPassword = security.encryptSHA256(checkPassword);
+    try {
+        String encPassword = ARIAUtil.ariaEncrypt(shaPassword);
+        if (!encPassword.equals(vo.getPassword())) {
+            // 비밀번호 불일치 시 message 처리
+            return "redirect:/message/passwordCheckNo";
+        }
+    } catch (Exception e) {
+        e.printStackTrace();
+        return "redirect:/message/passwordEncryptNoMain";
+    }
+    
+    // 비밀번호 일치 → 플래그에 따라 이동 처리
+    if (passwordFlag.equals("d")) {
+    		userService.setUserInvalid(user_id); //회원 비활성화 처리
+    		session.invalidate(); //세션 삭제
+        return "redirect:/message/userInvalidOk";
+    }
+    else if (passwordFlag.equals("p")) {
+        return "user/userPasswordReset";
+    }
+    else if (passwordFlag.equals("u")) {
+        return "redirect:/user/userEdit";
+    }
+    
+    return "redirect:/user/main";
+    //return "${ctp}/";
+	    
+	}
 
 }

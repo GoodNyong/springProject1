@@ -5,32 +5,48 @@
 라고 MyBatis에게 알려주는 역할 -->
 
 	<select id="getUsernameCheck" resultType="com.spring.springProject1.user.UserVo">
-		select * from users where username = #{username};
+		select * from users where username = #{username}
 	</select>
 	
 	<select id="getUserLoginCheck" resultType="com.spring.springProject1.user.UserVo">
-		select * from users where email = #{email} and password = #{password}
+		select * from users where email = #{email} and password = #{encPassword}
 	</select>
 	
-	<!-- <select id="getUserRoles" resultType="String">
-	<select id="getRoleToUser" resultType="String">
-		select roles.role_name from roles join user_roles on user_roles.role_id = roles.role_id
-		where user_roles.user_id = #{user_id}
-	</select> -->
+	<select id="getUserEmailCheck" resultType="com.spring.springProject1.user.UserVo">
+		select * from users where email = #{email}
+	</select>
+	
+	<select id="getUserByUser_id" resultType="com.spring.springProject1.user.UserVo">
+		select * from users where user_id = #{user_id}
+	</select>
+	
+	<select id="getUserRoles" resultType="String">
+		select r.role_name from roles r
+		join user_roles ur on r.role_id = ur.role_id
+		where ur.user_id = #{user_id}
+	</select>
 	
 	<update id="resetLoginFail">
 		UPDATE users SET login_fail_count = 0 WHERE email = #{email}
 	</update>
 	
+	<update id="updatePassword">
+		update users set password = #{vo.password} where email = #{vo.email}
+	</update>
+	
+	<update id="setUserInvalid">
+	    update users set is_verified = 1, updated_at = default where user_id = #{user_id}
+	</update>
+	
 	
 	<insert id="setUserJoinOk">
-		insert into users values (default, #{vo.username}, #{vo.email}, #{vo.password}, #{vo.phone_number}, default, default, default, default, default);
+		insert into users values (default, #{vo.username}, #{vo.email}, #{vo.encPassword}, #{vo.phone_number}, default, default, default, default, default)
 	</insert>
 	
-<!-- 	<insert id="insertUserRole" parameterType="map">
-	  INSERT INTO user_roles (user_id, role_id)
-	  VALUES (#{user_id}, #{role_id})
-	</insert> -->
+	<insert id="setUserRole">
+		insert into user_roles (user_id, role_id) values (#{user_id}, #{role_id})
+	</insert>
+	
 	
 	
 	

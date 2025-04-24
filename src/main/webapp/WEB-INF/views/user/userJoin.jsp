@@ -14,6 +14,7 @@
   let emailVerifiedSw = 0; // 이메일 인증 했는지
   let passwordValidSw = 0;  // 비밀번호 정규식에 부합하는지
   let passwordConfirmSw = 0;  // 비밀번호 확인 일치하는지
+  let privacyPolicyCheckSw = 0; // 개인정보 처리방침 체크
   
   let usernameChecked = ""; //중복검사 완료한 이름
 
@@ -54,15 +55,20 @@
       }
       
       if (passwordValidSw !== 1) {
-      alert("비밀번호 형식이 올바르지 않습니다.");
-      myform.password.focus();
-      return false;
+        alert("비밀번호 형식이 올바르지 않습니다.");
+        myform.password.focus();
+        return false;
       }
   
       if (passwordConfirmSw !== 1) {
-      alert("비밀번호가 일치하지 않습니다.");
-      myform.password2.focus();
-      return false;
+        alert("비밀번호가 일치하지 않습니다.");
+        myform.password2.focus();
+        return false;
+      }
+      
+      if (privacyPolicyCheckSw !== 1) {
+        alert("개인정보 처리방침에 동의해주세요.");
+        return false;
       }
       
       // 최종 제출
@@ -278,6 +284,11 @@
         $("#usernameStatus").text(""); // 체크표시 제거
       }
     }
+    
+    //개인정보 처리 체크박스
+    function privacyPolicyCheck() {
+    	privacyPolicyCheckSw = (privacyPolicyCheckSw === 0) ? 1 : 0;
+    }
 </script>
 <jsp:include page="/WEB-INF/views/include/bs5.jsp" />
 </head>
@@ -348,6 +359,13 @@
       </tr>
     </table>
     <div>
+      <div>
+        <label>
+          <input type="checkbox" name="privacy" onclick="privacyPolicyCheck()"/>
+          개인정보 처리방침에 동의합니다.
+        </label>
+        <a href="${ctp}/privacyPolicy" target="_blank">[자세히 보기]</a>
+      </div>
       <input type="button" value="회원가입" onclick="finalCheck()">
       <input type="button" value="돌아가기" onclick="location.href='${ctp}';">
     </div>

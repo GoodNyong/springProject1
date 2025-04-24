@@ -16,9 +16,20 @@ public interface UserDao {
 
 	void increaseLoginFail(@Param("email") String email);
 
-	List<String> getUserRoles(@Param("user_id") int user_id);
-
 	void resetLoginFail(@Param("email") String email);
+
+	UserVo getUserEmailCheck(@Param("email") String email);
+
+	int updatePassword(@Param("vo") UserVo vo);
+
+	UserVo getUserByUser_id(@Param("user_id") Integer user_id);
+
+	void setUserInvalid(@Param("user_id") Integer user_id);
+
+	void setUserRole(@Param("user_id") Integer user_id, @Param("role_id") Integer role_id);
+
+	List<String> getUserRoles(@Param("user_id") Integer user_id);
+
 
 	//void getRoleToUser(@Param("user_id") int user_id, @Param("role_id") int role_id);
 

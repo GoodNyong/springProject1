@@ -2,7 +2,17 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <c:set var="ctp" value="${pageContext.request.contextPath}" />
 <script src="https://developers.kakao.com/sdk/js/kakao.js"></script>
-
+<script>
+  'use strict';
+  
+  function deleteCheck() {
+    let ans = confirm("정말 탈퇴(비활성화)하시겠습니까?");
+    if(ans) {
+      ans = confirm("탈퇴(비활성화) 후 30일간 같은 아이디로 재가입하실 수 없습니다.\n\n계속 진행할까요?");
+      if(ans) location.href = "${ctp}/user/passwordCheck/d";
+    }
+  }
+</script>
 <nav class="navbar navbar-expand-lg bg-white border-bottom px-4 py-3">
 	<div class="container-fluid d-flex justify-content-between align-items-center">
 
@@ -21,10 +31,10 @@
 
 			<!-- 로그인/로그아웃 메뉴 -->
 			<c:choose>
-				<c:when test="${not empty sessionScope.user}">
-					<span class="navbar-text me-3"> 👋 ${sessionScope.user.nickname}님 </span>
+				<c:when test="${not empty sessionScope.sUser}">
+					<span class="navbar-text me-3"> 👋 ${sessionScope.sUser.username}님 </span>
 					<a class="btn btn-outline-secondary btn-sm me-2" href="${pageContext.request.contextPath}/user/mypage">마이페이지</a>
-					<a class="btn btn-primary btn-sm" href="${pageContext.request.contextPath}/user/logout">로그아웃</a>
+					<a class="btn btn-primary btn-sm" href="${pageContext.request.contextPath}/user/userLogout">로그아웃</a>
 				</c:when>
 				<c:otherwise>
 					<a class="btn btn-outline-primary me-2" href="${pageContext.request.contextPath}/user/userLogin">로그인</a>
@@ -46,8 +56,29 @@
 						<li><a class="dropdown-item" href="${ctp}/rec/exerciseList">운동 기록</a></li>
 						<li><a class="dropdown-item" href="${ctp}/rec/mealList">식단 기록</a></li>
 						<li><a class="dropdown-item" href="${ctp}/rec/goalList">목표 목록</a></li>
-					</ul></li>
-
+					</ul>
+                </li>
+                
+                <!-- 🔽 새 드롭다운: 마이페이지 -->
+                <li class="nav-item dropdown"><a class="nav-link dropdown-toggle" href="#" id="myPageDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false"> 마이페이지 </a>
+                  <ul class="dropdown-menu" aria-labelledby="myPageDropdown">
+                    <li><a class="dropdown-item" href="${ctp}/user/userMain">내 정보 관리</a></li>
+                    <li><a class="dropdown-item" href="${ctp}/user/passwordCheck/i">회원정보 수정</a></li>
+                    <li><a class="dropdown-item" href="${ctp}/user/passwordCheck/p">비밀번호 변경</a></li>
+                    <li><a class="dropdown-item" href="javascript:deleteCheck()">회원탈퇴</a></li>
+                  </ul>
+                </li>        
+                
+                <!-- 🔽 새 드롭다운: 게시판(커뮤니티) -->
+                <li class="nav-item dropdown"><a class="nav-link dropdown-toggle" href="#" id="boardDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false"> 마이페이지 </a>
+                  <ul class="dropdown-menu" aria-labelledby="boardDropdown">
+                    <li><a class="dropdown-item" href="${ctp}/board/all">전체게시판</a></li>
+                    <li><a class="dropdown-item" href="${ctp}/board/free">자유게시판</a></li>
+                    <li><a class="dropdown-item" href="${ctp}/board/exercise">운동게시판</a></li>
+                    <li><a class="dropdown-item" href="${ctp}/board/meal">식단게시판</a></li>
+                  </ul>
+                </li>
+                
 				<!-- 🔹 피드백 요청 현황 (단일 항목 또는 전문가 메뉴와 연계) -->
 				<li class="nav-item"><a class="nav-link" href="${ctp}/expert/feedbackList">피드백 현황</a></li>
 				<%-- <c:if test="${sessionScope.user.role eq 'expert'}"> --%>

@@ -9,12 +9,12 @@
   <title>login.jsp</title>
   <jsp:include page="/WEB-INF/views/include/bs5.jsp"/>
   <!-- ReCAPTCHA API -->
-  <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+  <!-- <script src="https://www.google.com/recaptcha/api.js" async defer></script> -->
   <script>
-    function setRecaptchaToken() {
+    /* function setRecaptchaToken() {
       var response = grecaptcha.getResponse();
       document.getElementById("g-recaptcha-response").value = response;
-    }
+    } */
   </script>
 </head>
 <body>
@@ -36,8 +36,8 @@
       <tr>
         <td>
           <p><br/></p>
-          <input type="hidden" name="g-recaptcha-response" id="g-recaptcha-response">
-          <div class="g-recaptcha" data-sitekey="6LccsBwrAAAAAKWo3j1E-J4L4I9a8pRcst2v6hbM"></div>
+          <!-- <div class="g-recaptcha" data-sitekey="6LccsBwrAAAAAKWo3j1E-J4L4I9a8pRcst2v6hbM"></div>
+          <input type="hidden" name="g-recaptcha-response" id="g-recaptcha-response"> -->
           <input type="submit" value="로그인" />
           <input type="reset" value="다시입력" />
           <a href="javascript:kakaoLogin()" ><img src="${ctp}/images/kakaoLogin.png" /></a>
@@ -50,13 +50,11 @@
         <td>
           <input type="checkbox" name="idSave" checked /> 아이디저장 &nbsp;&nbsp;&nbsp;
           [<a href="javascript:midSearch()">아이디 찾기</a>] /
-          [<a href="javascript:pwdSearch()">비밀번호 찾기</a>]
+          [<a href="${ctp}/user/findPassword">비밀번호 찾기</a>]
         </td>
       </tr>
     </table>
   </form>
-</div>
-  
 </div>
 <p><br/><p>
 <jsp:include page="/WEB-INF/views/include/footer.jsp" />

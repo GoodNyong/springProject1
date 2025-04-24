@@ -30,18 +30,22 @@ DESC roles;
 select * from roles;
 TRUNCATE TABLE roles;
 
-INSERT INTO roles (role_name) VALUES
-('ROLE_USER'),
-('ROLE_EXPERT'),
-('ROLE_ADVERTISER'),
-('ROLE_ADMIN');
+INSERT INTO roles (role_id, role_name) VALUES
+(1, 'admin'),
+(2, 'expert'),
+(3, 'advertiser'),
+(4, 'user');
 
-CREATE TABLE UserRoles (
-    user_id INT NOT NULL,
-    role_id INT NOT NULL,
-    PRIMARY KEY (user_id, role_id),
-    FOREIGN KEY (user_id) REFERENCES Users(user_id),
-    FOREIGN KEY (role_id) REFERENCES Roles(role_id)
+CREATE TABLE user_roles (
+  user_id INT NOT NULL,
+  role_id INT NOT NULL,
+  PRIMARY KEY (user_id, role_id),
+  FOREIGN KEY (user_id) REFERENCES users(user_id),
+  FOREIGN KEY (role_id) REFERENCES roles(role_id)
 );
+
+DESC user_roles;
+
+select * from user_roles;
 
 select * from users;

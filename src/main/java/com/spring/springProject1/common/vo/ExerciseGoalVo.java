@@ -1,4 +1,4 @@
-package com.spring.springProject1.common;
+package com.spring.springProject1.common.vo;
 
 import java.util.Date;
 
@@ -32,5 +32,6 @@ public class ExerciseGoalVo {
 	
 	private String exercise_name; // 운동 이름 (조인 결과)
 
+	private String Changed; // "true"일 경우 수정대상
 
 }

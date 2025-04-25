@@ -60,7 +60,7 @@
 					<fmt:formatDate var="start" value="${record.start_date}" pattern="yyyy-MM-dd" />
 					<fmt:formatDate var="end" value="${record.end_date}" pattern="yyyy-MM-dd" />
 					<label for="start_date" class="form-label">시작일</label>
-					<input type="date" name="start_date" id="start_date" class="form-control" value="${start}" required />
+					<input type="date" name="start_date" id="start_date" class="form-control" value="${start}" required readonly />
 				</div>
 
 				<div class="mb-4">

@@ -149,18 +149,19 @@ document.addEventListener('DOMContentLoaded', function() {
 
 	}
 
-	// 운동 목록 페이지 전용
-	if (pageType === 'exerciseRecordList') {
-		const addBtn = document.querySelector("a[href*='exerciseRecordInput']");
+	// 운동 기록/목표 목록 페이지
+	if (pageType === 'exerciseRecordList' || pageType === 'goalExerciseList') {
+		const addButtons = document.querySelectorAll("a[href*='exerciseRecordInput'], a[href*='goalInputExercise']");
 		const editModeBtn = document.getElementById("toggleEditModeBtn");
-		const deleteBtns = document.querySelectorAll("a[href*='exerciseRecordDelete']");
-		const editBtns = document.querySelectorAll("a[href*='exerciseRecordEdit']");
+		const deleteBtns = document.querySelectorAll("a[href*='javascript:void(0)']");
+		const editBtns = document.querySelectorAll("a[href*='Edit']");
 
-		if (addBtn) {
-			addBtn.addEventListener('mouseover', () => {
+		addButtons.forEach(btn => {
+			btn.addEventListener('mouseover', () => {
 				showWizardMessage("새로운 마법 기록을 시작해볼까?");
 			});
-		}
+		});
+
 
 		if (editModeBtn) {
 			editModeBtn.addEventListener('mouseover', () => {
@@ -450,6 +451,76 @@ document.addEventListener('DOMContentLoaded', function() {
 
 	}
 
+	// 식단 목표 설정 페이지
+	if (pageType === 'goalMeal') {
+		const goalType = document.querySelector('#goal_type');
+		const nutrientSelect = document.querySelector('#nutrient_id');
+		const foodSelect = document.querySelector('#food_id');
+		const targetValue = document.querySelector('input[name="target_value"]');
+		const goalUnit = document.querySelector('select[name="goal_unit"]');
+		const startDate = document.querySelector('#start_date');
+		const endDate = document.querySelector('#end_date');
+
+		if (goalType) {
+			goalType.addEventListener('change', () => {
+				showWizardMessage("영양소? 식품? 당신의 마법 목표는 무엇인가요?");
+			});
+		}
+
+		if (nutrientSelect) {
+			nutrientSelect.addEventListener('change', () => {
+				showWizardMessage("선택한 영양소로 마법식을 세팅 중이야!");
+			});
+		}
+
+		if (foodSelect) {
+			foodSelect.addEventListener('change', () => {
+				showWizardMessage("선택한 식품이 오늘의 마법 재료야!");
+			});
+		}
+
+		if (goalUnit) {
+			goalUnit.addEventListener('change', () => {
+				showWizardMessage("단위를 명확히 해야 마법의 효과가 나타나지!");
+			});
+		}
+
+		if (targetValue) {
+			targetValue.addEventListener('input', () => {
+				const val = parseFloat(targetValue.value || 0);
+				if (val >= 500) showWizardMessage("이건 진짜 거인용 식단 마법이야!");
+				else if (val >= 200) showWizardMessage("좋아, 꽤나 의욕적이네!");
+				else if (val > 0) showWizardMessage("마법의 시작은 한 숟가락부터지.");
+			});
+		}
+
+		const today = new Date().toISOString().slice(0, 10);
+		if (startDate) {
+			startDate.addEventListener('change', () => {
+				if (startDate.value === today) {
+					showWizardMessage("오늘부터 마법 식단을 시작해볼까?");
+				} else if (startDate.value > today) {
+					showWizardMessage("미래의 영양 목표라니, 계획적이야!");
+				} else {
+					showWizardMessage("과거를 바꾸는 마법...? 가능할지도.");
+				}
+			});
+		}
+
+		if (endDate) {
+			endDate.addEventListener('change', () => {
+				if (endDate.value === today) {
+					showWizardMessage("오늘로 식단 마법을 마무리하네!");
+				} else if (endDate.value > today) {
+					showWizardMessage("지속적인 마법... 건강한 길이지!");
+				} else {
+					showWizardMessage("흠... 목표가 과거에 끝났는데?");
+				}
+			});
+		}
+	}
+
+
 
 
 
@@ -505,7 +576,14 @@ function validateFormOnSubmit(scope = document) {
 				}
 			}
 
-			if (el.id === 'target_value') {
+			if (el.name === 'target_value' || el.id === 'target_value') {
+				if (val === '' || isNaN(parseFloat(val))) {
+					showWizardMessage("목표 수치를 입력해 주세요!");
+					el.focus();
+					isValid = false;
+					break;
+				}
+
 				const numVal = parseFloat(val);
 				const goalUnitEl = document.getElementById('goal_unit');
 				const unitVal = goalUnitEl ? goalUnitEl.value : '';
@@ -520,7 +598,7 @@ function validateFormOnSubmit(scope = document) {
 				// 단위 코드가 시간/횟수(정수형)인 경우
 				const integerOnlyUnits = ['01', '02', '21'];
 				if (integerOnlyUnits.includes(unitVal) && !Number.isInteger(numVal)) {
-					showWizardMessage("소수점은 정밀 마법에만 허용된다고!");
+					showWizardMessage("이 단위는 정수만 허용돼요! 소수점은 마법 계산에 방해가 되거든.");
 					el.focus();
 					isValid = false;
 					break;
@@ -540,25 +618,33 @@ function validateFormOnSubmit(scope = document) {
 				break;
 			}
 
-			// 목표 설정 페이지: 과거 날짜 금지
-			if (pageType.includes('goal') && val < today) {
-				showWizardMessage("과거 시간 마법은 금지된 마법이라구!");
+			// 운동 기록/식단 기록 페이지: 미래 금지
+			if (pageType.includes('Record') && val > today) {
+				showWizardMessage("미래를 보고온거야...?");
 				el.focus();
 				isValid = false;
 				break;
 			}
 
 			// 목표 설정 페이지: 과거 날짜 금지
-			if (pageType.includes('goal') && val < today) {
+			if (pageType.includes('goal') && val < today && !pageType.includes('Edit')) {
 				showWizardMessage("과거 시간 마법은 금지된 마법이라구!");
 				el.focus();
 				isValid = false;
 				break;
 			}
 
-			// 목표 종료일 검증
-			if (pageType.includes('goal') && el.id === 'end_date') {
-				const startEl = document.getElementById('start_date');
+			if (pageType.includes('goal') && el.name === 'end_date') {
+				const startEl = scope.querySelector("input[name='start_date']");
+				const today = new Date().toISOString().slice(0, 10);
+
+				if (val < today) {
+					showWizardMessage("종료일이 이미 과거라니, 마법은 미래로 향해야 해!");
+					el.focus();
+					isValid = false;
+					break;
+				}
+
 				if (startEl && startEl.value && val < startEl.value) {
 					showWizardMessage("마법의 종료일이 시작일보다 빠를 순 없지!");
 					el.focus();
@@ -566,6 +652,7 @@ function validateFormOnSubmit(scope = document) {
 					break;
 				}
 			}
+
 		}
 
 

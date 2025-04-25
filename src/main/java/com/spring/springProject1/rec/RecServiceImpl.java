@@ -10,8 +10,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.spring.springProject1.common.ExerciseGoalVo;
+import com.spring.springProject1.common.eNum.GoalUnitEnum;
+import com.spring.springProject1.common.vo.ExerciseGoalVo;
+import com.spring.springProject1.common.vo.FoodInfoVo;
+import com.spring.springProject1.common.vo.NutritionGoalVo;
 import com.spring.springProject1.rec.dao.RecDao;
+import com.spring.springProject1.rec.vo.ExerciseRecordVo;
+import com.spring.springProject1.rec.vo.MealRecordVo;
 
 @Service
 public class RecServiceImpl implements RecService {
@@ -424,12 +429,132 @@ public class RecServiceImpl implements RecService {
 			throw new IllegalArgumentException("이 마법 목표는 이미 사라졌거나 수정할 수 없어요!");
 
 	}
-	
+
 	@Override
 	public void deleteExerciseGoal(int goal_id, int user_id) {
-		if (goal_id <= 0) throw new IllegalArgumentException("마법 목표 ID가 유효하지 않아요!");
+		if (goal_id <= 0)
+			throw new IllegalArgumentException("마법 목표 ID가 유효하지 않아요!");
 		int result = recDao.deleteExerciseGoal(goal_id, user_id);
-		if (result == 0) throw new IllegalArgumentException("삭제할 수 없는 마법 목표입니다.");
+		if (result == 0)
+			throw new IllegalArgumentException("삭제할 수 없는 마법 목표입니다.");
+	}
+
+	@Override
+	@Transactional
+	public void multiUpdateExerciseGoal(List<ExerciseGoalVo> goalList) {
+		if (goalList == null || goalList.isEmpty()) {
+			throw new IllegalArgumentException("수정할 마법 목표가 없어요! 먼저 마법진을 완성해볼까요?");
+		}
+
+		for (ExerciseGoalVo vo : goalList) {
+			if (!"true".equalsIgnoreCase(vo.getChanged()))
+				continue;
+
+			if (vo.getGoal_id() <= 0)
+				throw new IllegalArgumentException("마법 목표의 정체가 흐릿해요… 다시 선택해볼까요?");
+			if (vo.getExercise_id() <= 0)
+				throw new IllegalArgumentException("운동 종류를 선택해주세요!");
+			if (vo.getTarget_value() <= 0)
+				throw new IllegalArgumentException("목표 수치는 0보다 커야 해요!");
+			if (vo.getStart_date() == null || vo.getEnd_date() == null)
+				throw new IllegalArgumentException("마법 기간을 모두 입력해주세요!");
+			if (vo.getEnd_date().before(vo.getStart_date()))
+				throw new IllegalArgumentException("종료일은 시작일보다 늦어야 해요!");
+			if (vo.getGoal_unit() == 0 || vo.getTarget_type() == 0)
+				throw new IllegalArgumentException("목표 기준과 단위를 선택해주세요!");
+
+			int result = recDao.updateExerciseGoal(vo);
+			if (result == 0)
+				throw new IllegalArgumentException("일부 마법 목표는 이미 사라졌거나 수정할 수 없어요!");
+		}
+	}
+
+	@Override
+	@Transactional
+	public void multiDeleteExerciseGoal(HttpServletRequest request, int userId) {
+		List<Integer> goalIdList = new ArrayList<>();
+		int index = 0;
+
+		while (true) {
+			String param = request.getParameter("goalList[" + index + "].goal_id");
+			if (param == null) break;
+
+			try {
+				int id = Integer.parseInt(param);
+				goalIdList.add(id);
+			} catch (NumberFormatException e) {
+				throw new IllegalArgumentException("마법 목표 ID에 숫자 이외의 문자가 있어요! 확인해주세요.");
+			}
+			index++;
+		}
+
+		if (goalIdList.isEmpty())
+			throw new IllegalArgumentException("삭제할 마법 목표가 선택되지 않았어요!");
+
+		int result = recDao.deleteExerciseGoals(goalIdList, userId);
+		if (result == 0)
+			throw new IllegalArgumentException("삭제 가능한 마법 목표가 없어요. 다시 확인해 주세요.");
+	}
+	
+	@Override
+	public void setNutritionGoal(NutritionGoalVo vo) {
+		if (vo.getUser_id() <= 0 || vo.getGoal_type() == 0)
+			throw new IllegalArgumentException("사용자 정보나 목표 유형이 누락됐어요.");
+
+		if (vo.getTarget_value() <= 0)
+			throw new IllegalArgumentException("목표 수치는 0보다 커야 해요.");
+
+		if (vo.getStart_date() == null || vo.getEnd_date() == null)
+			throw new IllegalArgumentException("시작일과 종료일은 필수예요.");
+
+		if (vo.getEnd_date().before(vo.getStart_date()))
+			throw new IllegalArgumentException("종료일은 시작일보다 이후여야 해요.");
+
+		if (vo.getGoal_type() == 1) { // 영양소 목표
+			if (vo.getNutrient_id() == null || vo.getGoal_unit() == null)
+				throw new IllegalArgumentException("영양소와 단위를 선택해 주세요.");
+		} else if (vo.getGoal_type() == 2) { // 식품 목표
+			if (vo.getTarget_value() == null || vo.getGoal_unit() == null) // 필수 입력 확인
+				throw new IllegalArgumentException("수치와 단위를 모두 입력해 주세요.");
+			
+			// 단위 코드 -> 문자열
+			GoalUnitEnum unitEnum = GoalUnitEnum.findByCode(vo.getGoal_unit());
+			
+			if (unitEnum == null)
+				throw new IllegalArgumentException("유효하지 않은 단위입니다.");
+			// 섭취량 주입
+			String quantity = vo.getTarget_value() + unitEnum.getLabel();
+			vo.setQuantity(quantity);
+		} else {
+			throw new IllegalArgumentException("목표 유형이 올바르지 않습니다.");
+		}
+
+		recDao.insertNutritionGoal(vo);
+	}
+
+	@Override
+	public List<FoodInfoVo> getAllFoodList() {
+		return recDao.getAllFoodList();
+	}
+
+	@Override
+	public List<NutritionGoalVo> getNutritionGoalList(int user_id) {
+		List<NutritionGoalVo> list = recDao.getNutritionGoalList(user_id);
+
+		for (NutritionGoalVo vo : list) {
+			String label = "단위없음";
+
+			if (vo.getGoal_type() == 1 && vo.getNutrientEnum() != null) {
+				vo.setNutrient_name(vo.getNutrientEnum().getName());
+				label = vo.getNutrientEnum().getGoalUnitEnum().getLabel(); // ✅ Enum 기준 단위
+			}
+			else if (vo.getGoal_type() == 2 && vo.getGoal_unit() != null) {
+				GoalUnitEnum unitEnum = GoalUnitEnum.findByCode(vo.getGoal_unit());
+				if (unitEnum != null) label = unitEnum.getLabel(); // ✅ GoalUnitEnum 활용
+			}
+			vo.setGoal_unit_label(label);
+		}
+		return list;
 	}
 
 

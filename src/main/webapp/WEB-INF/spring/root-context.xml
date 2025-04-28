@@ -34,6 +34,7 @@
 										com.spring.springProject1.api.dao,
 										com.spring.springProject1.content.dao,
 										com.spring.springProject1.expert.dao,
+										com.spring.springProject1.board.dao,
 										com.spring.springProject1.user.dao"/>
 	
 	<!-- Transaction(트랜잭션) 라이브러리 Bean 등록 -->

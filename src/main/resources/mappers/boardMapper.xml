@@ -1,17 +1,101 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.spring.springProject1.board.dao.boardDao">
+<mapper namespace="com.spring.springProject1.board.dao.BoardDao">
 
-<select id="getBoardTotRecCnt">
-	select count(*) from board where is_deleted = 0
-</select>
+	<select id="getBoardTotRecCnt" resultType="int">
+		select count(*) from board where is_deleted = 0
+	</select>
 
-<select id="getBoardList">
-	select * from board where is_deleted = 0
-	<if test="category != 'all'">
-		and category = #{category}
-	</if>
-	order by board_id desc limit #{startIn
-</select>
+	<select id="getBoardList"
+		resultType="com.spring.springProject1.board.BoardVo">
+		select * from board where is_deleted = 0
+		<if test="category != 'all'">
+			and category = #{category}
+		</if>
+		order by board_id desc limit #{startIndexNo}, #{pageSize}
+	</select>
+
+	<select id="getBoardViewLog"
+		resultType="com.spring.springProject1.board.BoardViewLogVo">
+		select * from boardviewlog
+		where board_id = #{board_id} and user_id = #{user_id}
+		order by viewed_at desc limit 1
+	</select>
+
+	<select id="getBoardContent"
+		resultType="com.spring.springProject1.board.BoardVo">
+		select * from board where board_id = #{board_id}
+	</select>
+
+	<select id="getBoardLike"
+		resultType="com.spring.springProject1.board.BoardLikeVo">
+		select * from boardlike where board_id = #{board_id} and user_id =
+		#{user_id}
+	</select>
+
+	<!-- <![CDATA[조건식..]]> -->
+	<select id="getPreNextBoardContent" resultType="com.spring.springProject1.board.BoardVo">
+		select * from board where is_deleted = 0 and
+		(<if test='preNext == "pre"'> <![CDATA[board_id < #{board_id}]]></if>
+		<if test='preNext != "pre"'> <![CDATA[board_id > #{board_id}]]></if>)
+		order by board_id <if test='preNext == "pre"'> desc </if> limit 1;
+	</select>
+
+
+
+	<update id="updateReadCount">
+		update board set read_count = read_count + 1
+		where board_id = #{board_id}
+	</update>
+	
+	<update id="increaseLikeCount">
+	    update board set like_count = like_count + 1
+	    where board_id = #{board_id}
+	</update>
+	
+	<update id="decreaseLikeCount">
+	    update board set like_count = like_count - 1
+	    where board_id = #{board_id}
+	</update>
+
+
+
+
+	<insert id="setBoardInput" useGeneratedKeys="true"
+		keyProperty="board_id">
+		insert into board values (default,
+		#{vo.user_id}, #{vo.username}, #{vo.category}, #{vo.title}, #{vo.content},
+		#{vo.host_ip},
+		default, default, default, default, default,default, default, NOW(), default,
+		default)
+	</insert>
+
+	<insert id="setBoardFile">
+		insert into boardfile values (default,
+		#{fileVo.board_id}, #{fileVo.file_name}, #{fileVo.file_url}, #{fileVo.file_size},
+		#{fileVo.file_type}, now())
+	</insert>
+
+	<insert id="setBoardViewLog">
+		insert into boardviewlog values (default, #{board_id}, #{user_id},
+		#{remoteAddr}, default)
+	</insert>
+	
+	<insert id="setBoardLike">
+    	insert into boardlike values (default, #{board_id}, #{user_id}, default)
+	</insert>
+
+
+
+	
+	<delete id="deleteBoardLike">
+	    delete from boardlike where board_id = #{board_id} and user_id = #{user_id}
+	</delete>
+	
+	
+
+	<!-- <insert id="setBoardInput"> insert into board values ( default, #{user_id}, 
+		#{username}, #{category}, #{title}, #{content}, #{host_ip}, default, default, 
+		default, default, default, default, default, default, default, default) </insert> -->
 
 </mapper>

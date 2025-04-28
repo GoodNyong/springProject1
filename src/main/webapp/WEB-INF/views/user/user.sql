@@ -49,3 +49,15 @@ DESC user_roles;
 select * from user_roles;
 
 select * from users;
+
+
+INSERT INTO users (user_id, username, password, email) VALUES
+(11, 'hong', '1234', 'hong@example.com'),
+(12, 'kim', '1234', 'kim@example.com'),
+(13, 'park', '1234', 'park@example.com'),
+(14, 'choi', '1234', 'choi@example.com'),
+(15, 'lee', '1234', 'lee@example.com'),
+(16, 'yoon', '1234', 'yoon@example.com'),
+(17, 'kang', '1234', 'kang@example.com'),
+(18, 'jang', '1234', 'jang@example.com'),
+(19, 'moon', '1234', 'moon@example.com');

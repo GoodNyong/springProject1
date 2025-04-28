@@ -3,6 +3,7 @@ package com.spring.springProject1.common;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 
 public class DateTimeAgoFormatter {
 	//공용클래스(util)의 역할이기 때문에 public static을 씀. 실무에서도.
@@ -10,8 +11,10 @@ public class DateTimeAgoFormatter {
 		LocalDateTime now = LocalDateTime.now();
 		
 		long hours = Duration.between(created_at, now).toHours();
-		long days = Duration.between(created_at.toLocalDate(), now.toLocalDate()).toDays();
+		long days = ChronoUnit.DAYS.between(created_at.toLocalDate(), now.toLocalDate());
 		//소수점 버리는 거라 1시간50분 됐으면 "1시간 전"으로 처리됨
+		//LocalDate는 시/분/초 가 없어서 Duration 연산 불가능 => "UnsupportedTemporalTypeException: Unsupported unit: Seconds" 예외 발생
+		//ChronoUnit도 시/분/초 아예 고려 안하는 거라 2일+23시간+59분+59초까지 "2일전"으로 뜸
 		
 		if(hours < 1) return "방금 전";
 		else if (hours < 24) return hours + "시간 전";

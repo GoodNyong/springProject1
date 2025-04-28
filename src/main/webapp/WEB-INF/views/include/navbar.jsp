@@ -70,12 +70,12 @@
                 </li>        
                 
                 <!-- 🔽 새 드롭다운: 게시판(커뮤니티) -->
-                <li class="nav-item dropdown"><a class="nav-link dropdown-toggle" href="#" id="boardDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false"> 마이페이지 </a>
+                <li class="nav-item dropdown"><a class="nav-link dropdown-toggle" href="#" id="boardDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false"> 커뮤니티 </a>
                   <ul class="dropdown-menu" aria-labelledby="boardDropdown">
-                    <li><a class="dropdown-item" href="${ctp}/board/all">전체게시판</a></li>
-                    <li><a class="dropdown-item" href="${ctp}/board/free">자유게시판</a></li>
-                    <li><a class="dropdown-item" href="${ctp}/board/exercise">운동게시판</a></li>
-                    <li><a class="dropdown-item" href="${ctp}/board/meal">식단게시판</a></li>
+                    <li><a class="dropdown-item" href="${ctp}/board/boardList/all">전체게시판</a></li>
+                    <li><a class="dropdown-item" href="${ctp}/board/boardList/free">자유게시판</a></li>
+                    <li><a class="dropdown-item" href="${ctp}/board/boardList/exercise">운동게시판</a></li>
+                    <li><a class="dropdown-item" href="${ctp}/board/boardList/meal">식단게시판</a></li>
                   </ul>
                 </li>
                 

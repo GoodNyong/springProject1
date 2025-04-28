@@ -23,7 +23,9 @@ public class MessageController {
 			@RequestParam(name = "part", defaultValue = "전체", required = false) String part,
 			@RequestParam(name = "mSw", defaultValue = "1", required = false) String mSw,
 			@RequestParam(name = "tempFlag", defaultValue = "", required = false) String tempFlag,
-			@RequestParam(name = "username", defaultValue = "", required = false) String username) {
+			@RequestParam(name = "username", defaultValue = "", required = false) String username,
+			@RequestParam(name = "category", defaultValue = "", required = false) String category,
+			@RequestParam(name = "board_id", defaultValue = "", required = false) String board_id) {
 			
 		
 		if(msgFlag.equals("userBehaviorLogInputOk")) {
@@ -128,6 +130,30 @@ public class MessageController {
 		else if(msgFlag.equals("userInvalidOk")) {
 			model.addAttribute("message", "계정이 비활성화 되었습니다.\\n30일 동안 접속 없을 시 탈퇴처리됩니다");
 			model.addAttribute("url", "user/main");
+		}
+		else if(msgFlag.equals("boardInputOk")) {
+			model.addAttribute("message", "게시글 등록 완료");
+			model.addAttribute("url", "board/boardList/" + category);
+		}
+		else if(msgFlag.equals("boardInputNo")) {
+			model.addAttribute("message", "게시글 등록 실패");
+			model.addAttribute("url", "board/boardList");
+		}
+		else if(msgFlag.equals("boardContentNo")) {
+			model.addAttribute("message", "게시글 불러오기 실패");
+			model.addAttribute("url", "board/boardList");
+		}
+		else if(msgFlag.equals("updateBoardLikeNo")) {
+			model.addAttribute("message", "좋아요 업데이트 실패");
+			model.addAttribute("url", "board/boardContent/" + board_id);
+		}
+		else if(msgFlag.equals("decreaseLikeCountOk")) {
+			model.addAttribute("message", "추천 취소");
+			model.addAttribute("url", "board/boardContent/" + board_id);
+		}
+		else if(msgFlag.equals("increaseLikeCountOk")) {
+			model.addAttribute("message", "추천 완료");
+			model.addAttribute("url", "board/boardContent/" + board_id);
 		}
 		
 		return "include/message";

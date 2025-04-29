@@ -173,21 +173,21 @@ public class BoardServiceImpl implements BoardService {
 	
 	//게시물 조회 로그
 	@Override
-	public void setBoardViewLog(int board_id, int sUser_id, String remoteAddr) {
-	    boardDao.setBoardViewLog(board_id, sUser_id, remoteAddr);
+	public void setBoardViewLog(int board_id, int sUser_id, String host_ip) {
+	    boardDao.setBoardViewLog(board_id, sUser_id, host_ip);
 	}
 
 	@Override
 	public boolean checkViewDuplicate(int board_id, int sUser_id) {
-		BoardViewLogVo boardViewLog = boardDao.getBoardViewLog(board_id, sUser_id);
+		BoardViewLogVo lastBoardViewLog = boardDao.getBoardViewLog(board_id, sUser_id);
 		
-		if (boardViewLog == null) {
+		if (lastBoardViewLog == null) {
       // 🔥 이전에 본 기록이 없으면 => 조회수 증가 허용
       // 👉 새로 기록 insert는 따로 해줘야 한다
       return true;
 		} else {
       // 2. 만약 기록이 있다면, 마지막 본 시간이 24시간이 지났는지 체크
-      LocalDateTime lastViewedTime = boardViewLog.getViewed_at();
+      LocalDateTime lastViewedTime = lastBoardViewLog.getViewed_at();
       LocalDateTime now = LocalDateTime.now();
 
       Duration duration = Duration.between(lastViewedTime, now);
@@ -208,39 +208,54 @@ public class BoardServiceImpl implements BoardService {
 	
 	//게시물 조회수 증가
 	@Override
-	public void updateReadCount(int board_id) {
-		boardDao.updateReadCount(board_id);
-	}
-
-	@Override
-	public boolean checkUserLiked(int board_id, int sUser_id) {
-    BoardLikeVo likeVo = boardDao.getBoardLike(board_id, sUser_id);
-    return likeVo != null;
+	public void increaseReadCount(int board_id) {
+		boardDao.increaseReadCount(board_id);
 	}
 
 	@Override
 	public BoardVo getPreNextBoardContent(int board_id, String preNext) {
 		return boardDao.getPreNextBoardContent(board_id, preNext);
 	}
+	
+	@Override
+	public boolean checkIsLiked(Integer board_id, Integer sUser_id) {
+    BoardLikeVo likeVo = boardDao.getBoardLike(board_id, sUser_id);
+    return likeVo != null;
+	}
 
 	@Override
-	public void deleteBoardLike(int board_id, int user_id) {
+	public void deleteBoardLike(Integer board_id, Integer user_id) {
 		boardDao.deleteBoardLike(board_id, user_id);
 	}
 
 	@Override
-	public void decreaseLikeCount(int board_id) {
+	public void decreaseLikeCount(Integer board_id) {
 		boardDao.decreaseLikeCount(board_id);
 	}
 
 	@Override
-	public void setBoardLike(int board_id, int user_id) {
+	public void setBoardLike(Integer board_id, Integer user_id) {
 		boardDao.setBoardLike(board_id, user_id);
 	}
 
 	@Override
-	public void increaseLikeCount(int board_id) {
+	public void increaseLikeCount(Integer board_id) {
 		boardDao.increaseLikeCount(board_id);
+	}
+
+	@Override
+	public List<BoardCommentVo> getBoardCommentList(Integer board_id) {
+		return boardDao.getBoardCommentList(board_id);
+	}
+
+	@Override
+	public void setBoardComment(Integer board_id, Integer user_id, String username, String content, String host_ip) {
+		boardDao.setBoardComment(board_id, user_id, username, content, host_ip);
+	}
+
+	@Override
+	public void increaseBoardCommentCount(Integer board_id) {
+		boardDao.increaseBoardCommentCount(board_id);
 	}
 
 }

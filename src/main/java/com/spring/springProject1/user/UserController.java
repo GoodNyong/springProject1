@@ -424,7 +424,7 @@ public class UserController {
 	@RequestMapping(value = "/passwordCheck/{passwordFlag}", method = RequestMethod.GET)
 	public String passwordCheckGet(Model model, @PathVariable String passwordFlag) {
 	    model.addAttribute("passwordFlag", passwordFlag);
-	    return "common/passwordCheckForm"; //common 폴더 아래
+	    return "include/passwordCheckForm"; //include 폴더 아래
 	}
 	
 	//비밀번호 확인 후 보내기 처리

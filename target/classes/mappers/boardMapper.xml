@@ -6,8 +6,7 @@
 		select count(*) from board where is_deleted = 0
 	</select>
 
-	<select id="getBoardList"
-		resultType="com.spring.springProject1.board.BoardVo">
+	<select id="getBoardList" resultType="com.spring.springProject1.board.BoardVo">
 		select * from board where is_deleted = 0
 		<if test="category != 'all'">
 			and category = #{category}
@@ -15,22 +14,25 @@
 		order by board_id desc limit #{startIndexNo}, #{pageSize}
 	</select>
 
-	<select id="getBoardViewLog"
-		resultType="com.spring.springProject1.board.BoardViewLogVo">
+	<select id="getBoardViewLog" resultType="com.spring.springProject1.board.BoardViewLogVo">
 		select * from boardviewlog
 		where board_id = #{board_id} and user_id = #{user_id}
 		order by viewed_at desc limit 1
 	</select>
 
-	<select id="getBoardContent"
-		resultType="com.spring.springProject1.board.BoardVo">
+	<select id="getBoardContent" resultType="com.spring.springProject1.board.BoardVo">
 		select * from board where board_id = #{board_id}
 	</select>
+	
+	<select id="getBoardCommentList" resultType="com.spring.springProject1.board.BoardCommentVo">
+	    select * from boardcomment
+	    where board_id = #{board_id} and is_deleted = 0
+	    order by created_at asc
+	</select>
 
-	<select id="getBoardLike"
-		resultType="com.spring.springProject1.board.BoardLikeVo">
+	<select id="getBoardLike" resultType="com.spring.springProject1.board.BoardLikeVo">
 		select * from boardlike where board_id = #{board_id} and user_id =
-		#{user_id}
+		#{sUser_id}
 	</select>
 
 	<!-- <![CDATA[조건식..]]> -->
@@ -43,7 +45,7 @@
 
 
 
-	<update id="updateReadCount">
+	<update id="increaseReadCount">
 		update board set read_count = read_count + 1
 		where board_id = #{board_id}
 	</update>
@@ -56,6 +58,10 @@
 	<update id="decreaseLikeCount">
 	    update board set like_count = like_count - 1
 	    where board_id = #{board_id}
+	</update>
+	
+	<update id="increaseBoardCommentCount">
+		update board set comment_count = comment_count + 1 where board_id = #{board_id}
 	</update>
 
 
@@ -77,12 +83,16 @@
 	</insert>
 
 	<insert id="setBoardViewLog">
-		insert into boardviewlog values (default, #{board_id}, #{user_id},
-		#{remoteAddr}, default)
+		insert into boardviewlog values (default, #{board_id}, #{sUser_id},
+		#{host_ip}, default)
 	</insert>
 	
 	<insert id="setBoardLike">
     	insert into boardlike values (default, #{board_id}, #{user_id}, default)
+	</insert>
+	
+	<insert id="setBoardComment">
+	  insert into boardcomment values (default, #{board_id}, #{user_id}, #{username}, #{content}, #{host_ip}, default, default, default, default, default)
 	</insert>
 
 

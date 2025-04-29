@@ -45,10 +45,10 @@ public class BoardController {
 //   		, "", "/"
 		);
 		// 2. 게시글 목록 조회
-		List<BoardVo> boardList = boardService.getBoardList(category, pageVo.getStartIndexNo(), pageVo.getPageSize());
+		List<BoardVo> vos = boardService.getBoardList(category, pageVo.getStartIndexNo(), pageVo.getPageSize());
 
 		// 3. model에 담기
-		model.addAttribute("boardList", boardList);
+		model.addAttribute("vos", vos);
 		model.addAttribute("pageVo", pageVo);
 		model.addAttribute("category", category);
 
@@ -108,27 +108,23 @@ public class BoardController {
 	public String boardContentGet(int board_id, HttpSession session, HttpServletRequest request, Model model) {
 		
 
-		int sUser_id = (int) session.getAttribute("sUser_id");
-		System.out.println("sUser_id" + sUser_id);
-		
-		// 로그추가
-		boardService.setBoardViewLog(board_id, sUser_id, request.getRemoteAddr());
-		
-		// 게시글 가져오기
-		BoardVo boardVo = boardService.getBoardContent(board_id);
-		
-		if (boardVo == null || boardVo.getIs_deleted() == 1) {
-			return "redirect:/message/boardContentNo"; // 🔥 삭제되었거나 없는 게시글
+		Integer sUser_id = (Integer) session.getAttribute("sUser_id");
+		if (sUser_id == null) {
+	    return "redirect:/user/userLogin"; // 🔥 로그인 페이지로 리다이렉트
 		}
 
-		// 24시간 조회수 중복 방지
+		// 24시간 조회수 중복 방지, 조회수 증가
 		boolean checkViewDuplicate = boardService.checkViewDuplicate(board_id, sUser_id);
+		
 		if (checkViewDuplicate) {
-			boardService.updateReadCount(board_id);
+			boardService.increaseReadCount(board_id);
 		}
+		
+		// 조회수 증가 한 이후(중복되면 안되니 이전 로그와 비교) 이번 로그 추가
+		boardService.setBoardViewLog(board_id, sUser_id, request.getRemoteAddr());
 
-		// 좋아요 여부 조회
-		boolean isLiked = boardService.checkUserLiked(board_id, sUser_id);
+		// 로그인 된 사용자 좋아요 여부 조회
+		boolean isLiked = boardService.checkIsLiked(board_id, sUser_id);
 
 		// 이전글 / 다음글 가져오기
 		BoardVo preVo = boardService.getPreNextBoardContent(board_id, "pre");
@@ -136,9 +132,20 @@ public class BoardController {
 
 		// 댓글 + 대댓글 리스트 가져오기
 		// List<CommentVo> commentList = boardService.getCommentReplyList(board_id);
-
+		
+		// 게시글 가져오기
+		BoardVo vo = boardService.getBoardContent(board_id);
+		
+		if (vo == null || vo.getIs_deleted() == 1) {
+			return "redirect:/message/boardContentNo"; // 🔥 삭제되었거나 없는 게시글
+		}
+		
+		//댓글 리스트 가져오기
+		List<BoardCommentVo> commentVos = boardService.getBoardCommentList(board_id);
+			
 		// 모델 담기
-		model.addAttribute("boardVo", boardVo);
+		model.addAttribute("vo", vo);
+		model.addAttribute("commentVos", commentVos);
 		model.addAttribute("isLiked", isLiked);
 		model.addAttribute("preVo", preVo);
 		model.addAttribute("nextVo", nextVo);
@@ -147,27 +154,44 @@ public class BoardController {
 		return "board/boardContent";
 	}
 	
-	/*
-	 * //좋아요 눌렀을 때
-	 * 
-	 * @ResponseBody
-	 * 
-	 * @RequestMapping(value = "/updateBoardLike", method = RequestMethod.POST)
-	 * public String updateBoardLikePost(int board_id, int like_count, HttpSession
-	 * session, BoardVo vo) {
-	 * 
-	 * String res = "0"; int user_id = (int) session.getAttribute("sUser_id");
-	 * 
-	 * boolean isLiked = boardService.checkUserLiked(board_id, user_id);
-	 * 
-	 * if (isLiked) { boardService.deleteBoardLike(board_id, user_id);
-	 * boardService.decreaseLikeCount(board_id); return
-	 * "redirect:/message/decreaseLikeCountOk?board_id=" + vo.getBoard_id(); } else
-	 * { boardService.setBoardLike(board_id, user_id);
-	 * boardService.increaseLikeCount(board_id); return
-	 * "redirect:/message/increaseLikeCountOk?board_id=" + vo.getBoard_id(); }
-	 * return res; }
-	 */
+	
+	// 좋아요 눌렀을 때
+	@ResponseBody
+	@RequestMapping(value = "/updateBoardLike", method = RequestMethod.POST)
+	public String updateBoardLikePost(Integer board_id, HttpSession session) {
+	  Integer user_id = (Integer) session.getAttribute("sUser_id");
+	  if (user_id == null) {
+	    return "nologin";
+	  }
+
+	  boolean isLiked = boardService.checkIsLiked(board_id, user_id);
+
+	  if (isLiked) {
+	    boardService.deleteBoardLike(board_id, user_id);
+	    boardService.decreaseLikeCount(board_id);
+	  } else {
+	    boardService.setBoardLike(board_id, user_id);
+	    boardService.increaseLikeCount(board_id);
+	  }
+	  return "updateLikeOk";
+	}
+	
+	//댓글 등록
+	@ResponseBody
+	@RequestMapping(value = "/commentInput", method = RequestMethod.POST)
+	public String commentInputPost(Integer board_id, String content, HttpSession session, HttpServletRequest request) {
+	  Integer user_id = (Integer) session.getAttribute("sUser_id");
+	  String username = (String) session.getAttribute("sUsername");
+
+	  if (user_id == null || username == null) {
+	    return "nologin";
+	  }
+
+	  boardService.setBoardComment(board_id, user_id, username, content, request.getRemoteAddr());
+	  boardService.increaseBoardCommentCount(board_id);
+	  return "setCommentOk";
+	}
+	 
 
 	/*
 	 * //게시글 입력 처리

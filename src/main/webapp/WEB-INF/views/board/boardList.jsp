@@ -56,7 +56,7 @@
   </table>
 
   <!-- 게시글 목록 -->
-  <c:forEach var="vo" items="${boardList}">
+  <c:forEach var="vo" items="${vos}">
     <div>
       <!-- 작성자: 클릭 시 해당 작성자 글 목록 -->
       <a href="/board/user/${vo.username}">${vo.username}</a> |

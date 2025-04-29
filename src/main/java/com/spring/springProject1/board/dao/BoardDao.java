@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.apache.ibatis.annotations.Param;
 
+import com.spring.springProject1.board.BoardCommentVo;
 import com.spring.springProject1.board.BoardFileVo;
 import com.spring.springProject1.board.BoardLikeVo;
 import com.spring.springProject1.board.BoardViewLogVo;
@@ -19,25 +20,31 @@ public interface BoardDao {
 
 	void setBoardFile(@Param("fileVo") BoardFileVo fileVo);
 
-	void setBoardViewLog(@Param("board_id") int board_id, @Param("sUser_id") int sUser_id, @Param("remoteAddr") String remoteAddr);
+	void setBoardViewLog(@Param("board_id") int board_id, @Param("sUser_id") int sUser_id, @Param("host_ip") String host_ip);
 
 	BoardViewLogVo getBoardViewLog(@Param("board_id") int board_id, @Param("user_id") int user_id);
 
 	BoardVo getBoardContent(@Param("board_id") int board_id);
 
-	void updateReadCount(@Param("board_id") int board_id);
-
-	BoardLikeVo getBoardLike(@Param("board_id") int board_id, @Param("sUser_id") int sUser_id);
+	void increaseReadCount(@Param("board_id") int board_id);
 
 	BoardVo getPreNextBoardContent(@Param("board_id") int board_id, @Param("preNext") String preNext);
 
-	void deleteBoardLike(@Param("board_id") int board_id, @Param("user_id") int user_id);
+	BoardLikeVo getBoardLike(@Param("board_id") Integer board_id, @Param("sUser_id") Integer sUser_id);
+	
+	void deleteBoardLike(@Param("board_id") Integer board_id, @Param("user_id") Integer user_id);
 
-	void decreaseLikeCount(@Param("board_id") int board_id);
+	void decreaseLikeCount(@Param("board_id") Integer board_id);
 
-	void setBoardLike(@Param("board_id") int board_id, @Param("user_id") int user_id);
+	void setBoardLike(@Param("board_id") Integer board_id, @Param("user_id") Integer user_id);
 
-	void increaseLikeCount(@Param("board_id") int board_id);
+	void increaseLikeCount(@Param("board_id") Integer board_id);
+
+	List<BoardCommentVo> getBoardCommentList(@Param("board_id") Integer board_id);
+
+	int setBoardComment(@Param("board_id") Integer board_id, @Param("user_id") Integer user_id, @Param("username") String username, @Param("content") String content, @Param("host_ip") String host_ip);
+
+	void increaseBoardCommentCount(@Param("board_id") Integer board_id);
 
 	
 

@@ -16,23 +16,29 @@ public interface BoardService {
 
 	boolean checkViewDuplicate(int board_id, int sUser_id);
 
-	void setBoardViewLog(int board_id, int sUser_id, String remoteAddr);
+	void setBoardViewLog(int board_id, int sUser_id, String host_ip);
 
 	BoardVo getBoardContent(int board_id);
 
-	void updateReadCount(int board_id);
-
-	boolean checkUserLiked(int board_id, int sUser_id);
+	void increaseReadCount(int board_id);
 
 	BoardVo getPreNextBoardContent(int board_id, String preNext);
+	
+	boolean checkIsLiked(Integer board_id, Integer sUser_id);
 
-	void deleteBoardLike(int board_id, int user_id);
+	void deleteBoardLike(Integer board_id, Integer user_id);
 
-	void decreaseLikeCount(int board_id);
+	void decreaseLikeCount(Integer board_id);
 
-	void setBoardLike(int board_id, int user_id);
+	void setBoardLike(Integer board_id, Integer user_id);
 
-	void increaseLikeCount(int board_id);
+	void increaseLikeCount(Integer board_id);
+
+	List<BoardCommentVo> getBoardCommentList(Integer board_id);
+
+	void setBoardComment(Integer board_id, Integer user_id, String username, String content, String host_ip);
+
+	void increaseBoardCommentCount(Integer board_id);
 
 	/*
 	 * int setBoardInput(BoardVo vo);

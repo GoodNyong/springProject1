@@ -5,6 +5,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -41,9 +42,9 @@ public class BoardController {
 			@RequestParam(name = "pageSize", defaultValue = "10", required = false) Integer pageSize) {
 
 		// 1. 페이징 처리
-		PageVo pageVo = pagination.getTotRecCnt(pag, pageSize, "board"
+		PageVo pageVo = pagination.getTotRecCnt(pag, pageSize, "board");
 //   		, "", "/"
-		);
+//		);
 		// 2. 게시글 목록 조회
 		List<BoardVo> vos = boardService.getBoardList(category, pageVo.getStartIndexNo(), pageVo.getPageSize());
 
@@ -104,8 +105,8 @@ public class BoardController {
 	}
 
 	//게시글 상세 보기
-	@RequestMapping(value = "/boardContent", method = RequestMethod.GET)
-	public String boardContentGet(int board_id, HttpSession session, HttpServletRequest request, Model model) {
+	@RequestMapping(value = "/boardContent/{category}/{board_id}", method = RequestMethod.GET)
+	public String boardContentGet(@PathVariable int board_id, @PathVariable String category, HttpSession session, HttpServletRequest request, Model model) {
 		
 
 		Integer sUser_id = (Integer) session.getAttribute("sUser_id");
@@ -126,15 +127,19 @@ public class BoardController {
 		// 로그인 된 사용자 좋아요 여부 조회
 		boolean isLiked = boardService.checkIsLiked(board_id, sUser_id);
 
+		
+		System.out.println("category" + category);
 		// 이전글 / 다음글 가져오기
-		BoardVo preVo = boardService.getPreNextBoardContent(board_id, "pre");
-		BoardVo nextVo = boardService.getPreNextBoardContent(board_id, "next");
+		BoardVo preVo = boardService.getPreNextBoardContent(board_id, "pre", category);
+		BoardVo nextVo = boardService.getPreNextBoardContent(board_id, "next", category);
 
 		// 댓글 + 대댓글 리스트 가져오기
 		// List<CommentVo> commentList = boardService.getCommentReplyList(board_id);
 		
 		// 게시글 가져오기
 		BoardVo vo = boardService.getBoardContent(board_id);
+		
+		//Integet imsiComm
 		
 		if (vo == null || vo.getIs_deleted() == 1) {
 			return "redirect:/message/boardContentNo"; // 🔥 삭제되었거나 없는 게시글
@@ -176,6 +181,24 @@ public class BoardController {
 	  return "updateLikeOk";
 	}
 	
+	@SuppressWarnings("unchecked")
+	// 좋아요 눌렀을 때
+	@ResponseBody
+	@RequestMapping(value = "/updateCommentLike", method = RequestMethod.POST)
+	public String updateCommentLikePost(Integer comment_id, HttpSession session) {
+		// 중복방지
+		List<String> likeNum = (List<String>) session.getAttribute("sCommentLike");
+		if(likeNum == null) likeNum = new ArrayList<String>();
+		String imsiNum = "CommentLike" + comment_id;
+		if(!likeNum.contains(imsiNum)) {
+			boardService.increaseCommentLikeCount(comment_id);
+			likeNum.add(imsiNum);
+			session.setAttribute("sCommentLiker", imsiNum);
+			return "updateCommentLikeOk";
+		}
+		return "alreadyCommentLike";
+	}
+	
 	//댓글 등록
 	@ResponseBody
 	@RequestMapping(value = "/commentInput", method = RequestMethod.POST)
@@ -191,6 +214,93 @@ public class BoardController {
 	  boardService.increaseBoardCommentCount(board_id);
 	  return "setCommentOk";
 	}
+	
+	//답글 등록
+	@ResponseBody
+	@RequestMapping(value = "/replyInput", method = RequestMethod.POST)
+	public String replyInputPost(Integer comment_id, String content, HttpSession session, HttpServletRequest request) {
+		Integer user_id = (Integer) session.getAttribute("sUser_id");
+		String username = (String) session.getAttribute("sUsername");
+		
+		if (user_id == null || username == null) {
+			return "nologin";
+		}
+		
+		boardService.setBoardReply(comment_id, user_id, username, content, request.getRemoteAddr());
+		return "setReplyOk";
+	}
+	
+	@ResponseBody
+	@RequestMapping(value = "/replyload", method = RequestMethod.GET)
+	public List<BoardReplyVo> replyloadGet(Integer comment_id) {
+	  List<BoardReplyVo> replyVos = boardService.getBoardReplyList(comment_id);
+	  System.out.println("replyVos" + replyVos);
+	  return replyVos;
+	}
+	
+	//신고 처리
+	@ResponseBody
+	@RequestMapping(value = "/reportInput", method = RequestMethod.POST)
+	public String reportInputPost(HttpSession session, String part, Integer board_id, Integer comment_id, Integer reply_id, String reason) {
+		Integer user_id = (Integer) session.getAttribute("sUser_id");
+		
+		if (user_id == null) {
+			return "nologin";
+		}
+		System.out.println(part);
+		
+		boardService.setBoardReport(part, board_id, comment_id, reply_id, user_id, reason);
+		return "setReportOk";
+	}
+	
+	//삭제 처리
+	@RequestMapping(value = "/boardDelete", method = RequestMethod.POST)
+	public String boardDeletePOST(HttpSession session, Integer board_id, Integer comment_id, Integer reply_id, String part, String category) {
+		Integer user_id = (Integer) session.getAttribute("sUser_id");
+		
+		if(part.equals("boardContent")) {
+			//본인이나 관리자인지 한번 더 확인
+		  BoardVo vo = boardService.getBoardContent(board_id);
+		  if (user_id == null || (!user_id.equals(vo.getUser_id()) && !session.getAttribute("sRole_id").equals(1))) {
+		  	return "redirect:/message/deleteError?category="+category+"&board_id="+board_id;
+		  }
+		  
+		  int res = boardService.setBoardDelete(board_id);
+		  
+			if(res != 0) return "redirect:/message/boardDeleteOk";
+			else return "redirect:/message/boardDeleteNo?category="+category+"&board_id="+board_id;
+		}
+		
+		else if(part.equals("boardComment")) {
+			//본인이나 관리자인지 한번 더 확인
+		  BoardCommentVo commentVo = boardService.getBoardComment(comment_id);
+		  if (user_id == null || (!user_id.equals(commentVo.getUser_id()) && !session.getAttribute("sRole_id").equals(1))) {
+		  	return "redirect:/message/deleteError?category="+category+"&board_id="+board_id;
+		  }
+		  
+		  int res = boardService.setBoardCommentDelete(comment_id);
+		  
+			if(res != 0) return "redirect:/message/boardCommentDeleteOk?category="+category+"&board_id="+board_id;
+			else return "redirect:/message/boardCommentDeleteNo?category="+category+"&board_id="+board_id;
+		}
+		
+		else if(part.equals("boardReply")) {
+			//본인이나 관리자인지 한번 더 확인
+		  BoardReplyVo replyVo = boardService.getBoardReply(reply_id);
+		  if (user_id == null || (!user_id.equals(replyVo.getUser_id()) && !session.getAttribute("sRole_id").equals(1))) {
+		  	return "redirect:/message/deleteError?category="+category+"&board_id="+board_id;
+		  }
+		  
+		  int res = boardService.setBoardReplyDelete(reply_id);
+		  
+			if(res != 0) return "redirect:/message/boardReplyDeleteOk?category="+category+"&board_id="+board_id;
+			else return "redirect:/message/boardReplyDeleteNo?category="+category+"&board_id="+board_id;
+		}
+		
+		
+		else return "redirect:/message/deleteError?board_id="+board_id;
+	}
+	
 	 
 
 	/*

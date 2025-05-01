@@ -22,7 +22,7 @@ public interface BoardService {
 
 	void increaseReadCount(int board_id);
 
-	BoardVo getPreNextBoardContent(int board_id, String preNext);
+	BoardVo getPreNextBoardContent(int board_id, String preNext, String category);
 	
 	boolean checkIsLiked(Integer board_id, Integer sUser_id);
 
@@ -35,10 +35,31 @@ public interface BoardService {
 	void increaseLikeCount(Integer board_id);
 
 	List<BoardCommentVo> getBoardCommentList(Integer board_id);
+	BoardCommentVo getBoardComment(Integer comment_id);
 
 	void setBoardComment(Integer board_id, Integer user_id, String username, String content, String host_ip);
 
 	void increaseBoardCommentCount(Integer board_id);
+
+	void setBoardReply(Integer comment_id, Integer user_id, String username, String content, String host_ip);
+
+	List<BoardReplyVo> getBoardReplyList(Integer comment_id);
+	BoardReplyVo getBoardReply(Integer reply_id);
+
+	void increaseCommentLikeCount(Integer comment_id);
+
+	void setBoardReport(String part, Integer board_id, Integer comment_id, Integer reply_id, Integer user_id,
+			String reason);
+
+	int setBoardDelete(int board_id);
+
+	int setBoardCommentDelete(Integer board_id);
+
+	int setBoardReplyDelete(Integer reply_id);
+
+	
+
+	
 
 	/*
 	 * int setBoardInput(BoardVo vo);

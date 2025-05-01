@@ -17,4 +17,7 @@ public class BoardCommentVo {
   private LocalDateTime updated_at;
   private LocalDateTime deleted_at;
   private int is_deleted;
+  
+  private String formattedTime; //출력용 시간
+  private int reply_count;
 }

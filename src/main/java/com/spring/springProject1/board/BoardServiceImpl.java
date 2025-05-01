@@ -16,7 +16,7 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import com.spring.springProject1.board.dao.BoardDao;
-import com.spring.springProject1.common.DateTimeAgoFormatter;
+import com.spring.springProject1.common.CommonDateTimeFormatter;
 
 @Service
 public class BoardServiceImpl implements BoardService {
@@ -36,11 +36,11 @@ public class BoardServiceImpl implements BoardService {
 	//DAO/Mapper	"DB에서 어떤 raw 데이터를 가져올지" 결정함 (데이터 접근 담당)
 	@Override
 	public List<BoardVo> getBoardList(String category, Integer startIndexNo, Integer pageSize) {
-		 List<BoardVo> list = boardDao.getBoardList(category, startIndexNo, pageSize);
-		 for (BoardVo vo : list) {
-			 vo.setFormattedTime(DateTimeAgoFormatter.FormatDateTimeAgo(vo.getCreated_at()));
+		 List<BoardVo> vos = boardDao.getBoardList(category, startIndexNo, pageSize);
+		 for (BoardVo vo : vos) {
+			 vo.setFormattedTime(CommonDateTimeFormatter.FormatDateTimeOne(vo.getCreated_at()));
 		 }
-		 return list;
+		 return vos;
 	}
 //	boardDao.getBoardList(category, startIndexNo, pageSize)를 통해
 //	dao로 보내고 mapper에서 select된 vo들, 즉 게시물 데이터들을
@@ -203,7 +203,9 @@ public class BoardServiceImpl implements BoardService {
 	//게시물 가져오기
 	@Override
 	public BoardVo getBoardContent(int board_id) {
-		return boardDao.getBoardContent(board_id);
+		BoardVo vo = boardDao.getBoardContent(board_id);
+		vo.setFormattedTime(CommonDateTimeFormatter.FormatDateTimeThree(vo.getCreated_at()));
+		return vo;
 	}
 	
 	//게시물 조회수 증가
@@ -213,8 +215,8 @@ public class BoardServiceImpl implements BoardService {
 	}
 
 	@Override
-	public BoardVo getPreNextBoardContent(int board_id, String preNext) {
-		return boardDao.getPreNextBoardContent(board_id, preNext);
+	public BoardVo getPreNextBoardContent(int board_id, String preNext, String category) {
+		return boardDao.getPreNextBoardContent(board_id, preNext, category);
 	}
 	
 	@Override
@@ -245,7 +247,15 @@ public class BoardServiceImpl implements BoardService {
 
 	@Override
 	public List<BoardCommentVo> getBoardCommentList(Integer board_id) {
-		return boardDao.getBoardCommentList(board_id);
+		List<BoardCommentVo> commentVos = boardDao.getBoardCommentList(board_id);
+	  for (BoardCommentVo vo : commentVos) {
+	    vo.setFormattedTime(CommonDateTimeFormatter.FormatDateTimeTwo(vo.getCreated_at()));
+	  }
+		return commentVos;
+	}
+	@Override
+	public BoardCommentVo getBoardComment(Integer comment_id) {
+		return boardDao.getBoardComment(comment_id);
 	}
 
 	@Override
@@ -256,6 +266,49 @@ public class BoardServiceImpl implements BoardService {
 	@Override
 	public void increaseBoardCommentCount(Integer board_id) {
 		boardDao.increaseBoardCommentCount(board_id);
+	}
+
+	@Override
+	public void setBoardReply(Integer comment_id, Integer user_id, String username, String content, String host_ip) {
+		boardDao.setBoardReply(comment_id, user_id, username, content, host_ip);
+	}
+
+	@Override
+	public List<BoardReplyVo> getBoardReplyList(Integer comment_id) {
+		List<BoardReplyVo> replyVos = boardDao.getBoardReplyList(comment_id);
+	  for (BoardReplyVo vo : replyVos) {
+	    vo.setFormattedTime(CommonDateTimeFormatter.FormatDateTimeTwo(vo.getCreated_at()));
+	  }
+		return replyVos;
+	}
+	@Override
+	public BoardReplyVo getBoardReply(Integer reply_id) {
+		return boardDao.getBoardReply(reply_id);
+	}
+
+	@Override
+	public void setBoardReport(String part, Integer board_id, Integer comment_id, Integer reply_id, Integer user_id, String reason) {
+		boardDao.setBoardReport(part, board_id, comment_id, reply_id, user_id, reason);
+	}
+
+	@Override
+	public void increaseCommentLikeCount(Integer comment_id) {
+		boardDao.increaseCommentLikeCount(comment_id);
+	}
+
+	@Override
+	public int setBoardDelete(int board_id) {
+		return boardDao.setBoardDelete(board_id);
+	}
+
+	@Override
+	public int setBoardCommentDelete(Integer comment_id) {
+		return boardDao.setBoardCommentDelete(comment_id);
+	}
+
+	@Override
+	public int setBoardReplyDelete(Integer reply_id) {
+		return boardDao.setBoardReplyDelete(reply_id);
 	}
 
 }

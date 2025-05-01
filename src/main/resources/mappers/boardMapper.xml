@@ -15,7 +15,7 @@
 	</select>
 
 	<select id="getBoardViewLog" resultType="com.spring.springProject1.board.BoardViewLogVo">
-		select * from boardviewlog
+		select * from boardViewLog
 		where board_id = #{board_id} and user_id = #{user_id}
 		order by viewed_at desc limit 1
 	</select>
@@ -25,22 +25,36 @@
 	</select>
 	
 	<select id="getBoardCommentList" resultType="com.spring.springProject1.board.BoardCommentVo">
-	    select * from boardcomment
-	    where board_id = #{board_id} and is_deleted = 0
-	    order by created_at asc
+<!-- 	    select * from boardcomment -->
+<!-- 	    where board_id = #{board_id} and is_deleted = 0 -->
+<!-- 	    order by created_at asc -->
+		SELECT bc.*,(SELECT count(*) FROM boardreply WHERE comment_id=bc.comment_id AND is_deleted = 0) AS reply_count 
+  		FROM boardcomment bc, boardreply br WHERE bc.board_id = #{board_id} AND bc.is_deleted = 0 GROUP BY bc.comment_id ORDER BY bc.comment_id;
+	</select>
+	<select id="getBoardComment">
+		select * from boardComment where comment_id = #{comment_id}
 	</select>
 
+	
 	<select id="getBoardLike" resultType="com.spring.springProject1.board.BoardLikeVo">
-		select * from boardlike where board_id = #{board_id} and user_id =
+		select * from boardLike where board_id = #{board_id} and user_id =
 		#{sUser_id}
 	</select>
 
 	<!-- <![CDATA[조건식..]]> -->
 	<select id="getPreNextBoardContent" resultType="com.spring.springProject1.board.BoardVo">
-		select * from board where is_deleted = 0 and
+		select * from board where category = #{category} and is_deleted = 0 and
 		(<if test='preNext == "pre"'> <![CDATA[board_id < #{board_id}]]></if>
 		<if test='preNext != "pre"'> <![CDATA[board_id > #{board_id}]]></if>)
 		order by board_id <if test='preNext == "pre"'> desc </if> limit 1;
+	</select>
+	
+	<select id="getBoardReplyList" resultType="com.spring.springProject1.board.BoardReplyVo">
+		select * from boardReply where comment_id = #{comment_id} and is_deleted = 0
+		order by created_at asc
+	</select>
+	<select id="getBoardReply">
+		select * from boardReply where reply_id = #{reply_id}
 	</select>
 
 
@@ -64,6 +78,24 @@
 		update board set comment_count = comment_count + 1 where board_id = #{board_id}
 	</update>
 
+	<update id="increaseCommentLikeCount">
+	    update boardComment set like_count = like_count + 1
+	    where comment_id = #{comment_id}
+	</update>
+	
+	<update id="setBoardDelete">
+		update board set is_deleted = 1, deleted_at = now() where board_id = #{board_id}
+	</update>
+	
+	<update id="setBoardCommentDelete">
+		update boardComment set is_deleted = 1, deleted_at = now() where comment_id = #{comment_id}
+	</update>
+	
+	<update id="setBoardReplyDelete">
+		update boardReply set is_deleted = 1, deleted_at = now() where reply_id = #{reply_id}
+	</update>
+	
+	
 
 
 
@@ -77,29 +109,37 @@
 	</insert>
 
 	<insert id="setBoardFile">
-		insert into boardfile values (default,
+		insert into boardFile values (default,
 		#{fileVo.board_id}, #{fileVo.file_name}, #{fileVo.file_url}, #{fileVo.file_size},
 		#{fileVo.file_type}, now())
 	</insert>
 
 	<insert id="setBoardViewLog">
-		insert into boardviewlog values (default, #{board_id}, #{sUser_id},
+		insert into boardViewLog values (default, #{board_id}, #{sUser_id},
 		#{host_ip}, default)
 	</insert>
 	
 	<insert id="setBoardLike">
-    	insert into boardlike values (default, #{board_id}, #{user_id}, default)
+    	insert into boardLike values (default, #{board_id}, #{user_id}, default)
 	</insert>
 	
 	<insert id="setBoardComment">
-	  insert into boardcomment values (default, #{board_id}, #{user_id}, #{username}, #{content}, #{host_ip}, default, default, default, default, default)
+	  	insert into boardComment values (default, #{board_id}, #{user_id}, #{username}, #{content}, #{host_ip}, default, default, default, default, default)
+	</insert>
+	
+	<insert id="setBoardReply">
+	  	insert into boardReply values (default, #{comment_id}, #{user_id}, #{username}, #{content}, #{host_ip}, default, default, default, default)
+	</insert>
+	
+	<insert id="setBoardReport">
+		insert into boardReport values(default, #{part}, #{board_id}, #{comment_id}, #{reply_id}, #{user_id}, #{reason}, default, default)
 	</insert>
 
 
 
 	
 	<delete id="deleteBoardLike">
-	    delete from boardlike where board_id = #{board_id} and user_id = #{user_id}
+	    delete from boardLike where board_id = #{board_id} and user_id = #{user_id}
 	</delete>
 	
 	

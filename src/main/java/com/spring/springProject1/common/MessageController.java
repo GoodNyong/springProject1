@@ -137,11 +137,11 @@ public class MessageController {
 		}
 		else if(msgFlag.equals("boardInputNo")) {
 			model.addAttribute("message", "게시글 등록 실패");
-			model.addAttribute("url", "board/boardList");
+			model.addAttribute("url", "board/boardList/all");
 		}
 		else if(msgFlag.equals("boardContentNo")) {
 			model.addAttribute("message", "게시글 불러오기 실패");
-			model.addAttribute("url", "board/boardList");
+			model.addAttribute("url", "board/boardList/all");
 		}
 		else if(msgFlag.equals("updateBoardLikeNo")) {
 			model.addAttribute("message", "좋아요 업데이트 실패");
@@ -154,6 +154,50 @@ public class MessageController {
 		else if(msgFlag.equals("increaseLikeCountOk")) {
 			model.addAttribute("message", "추천 완료");
 			model.addAttribute("url", "board/boardContent/" + board_id);
+		}
+		else if(msgFlag.equals("deleteError")) {
+			model.addAttribute("message", "삭제 실패");
+			model.addAttribute("url", "board/boardContent/" + board_id);
+		}
+		else if(msgFlag.equals("boardDeleteOk")) {
+			model.addAttribute("message", "게시글 삭제 완료");
+			model.addAttribute("url", "board/boardList/all");
+		}
+		else if(msgFlag.equals("boardDeleteNo")) {
+			model.addAttribute("message", "게시글 삭제 실패");
+			model.addAttribute("url", "board/boardContent/" + board_id);
+		}
+		else if(msgFlag.equals("boardDeleteOk")) {
+			model.addAttribute("message", "게시글 삭제 완료");
+			model.addAttribute("url", "board/boardList/all");
+		}
+		else if(msgFlag.equals("boardDeleteNo")) {
+			model.addAttribute("message", "게시글 삭제 실패");
+			model.addAttribute("url", "board/boardContent/" + category + "/" + board_id);
+		}
+		else if(msgFlag.equals("boardCommentDeleteOk")) {
+			model.addAttribute("message", "댓글 삭제 완료");
+			model.addAttribute("url", "board/boardContent/" + category + "/" + board_id);
+		}
+		else if(msgFlag.equals("boardCommentDeleteNo")) {
+			model.addAttribute("message", "댓글 삭제 실패");
+			model.addAttribute("url", "board/boardContent/" + category + "/" + board_id);
+		}
+		else if(msgFlag.equals("boardCommentDeleteOk")) {
+			model.addAttribute("message", "댓글 삭제 완료");
+			model.addAttribute("url", "board/boardContent/" + category + "/" + board_id);
+		}
+		else if(msgFlag.equals("boardCommentDeleteNo")) {
+			model.addAttribute("message", "댓글 삭제 실패");
+			model.addAttribute("url", "board/boardContent/" + category + "/" + board_id);
+		}
+		else if(msgFlag.equals("boardReplyDeleteOk")) {
+			model.addAttribute("message", "답글 삭제 완료");
+			model.addAttribute("url", "board/boardContent/" + category + "/" + board_id);
+		}
+		else if(msgFlag.equals("boardReplyDeleteNo")) {
+			model.addAttribute("message", "답글 삭제 실패");
+			model.addAttribute("url", "board/boardContent/" + category + "/" + board_id);
 		}
 		
 		return "include/message";

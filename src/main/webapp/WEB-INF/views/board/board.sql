@@ -59,11 +59,16 @@ ADD COLUMN is_deleted TINYINT(1) NOT NULL DEFAULT 0 AFTER content;
 ALTER TABLE boardreply
 ADD COLUMN is_deleted TINYINT(1) NOT NULL DEFAULT 0 AFTER content;
 
+ALTER TABLE boardreport
+ADD COLUMN part VARCHAR(20) NOT NULL AFTER report_id;
+
 ALTER TABLE BoardViewLog
 DROP FOREIGN KEY boardviewlog_ibfk_2;
 
 ALTER TABLE BoardViewLog
 CHANGE COLUMN viewer_id user_id VARCHAR(50) NOT NULL;
+
+
 
 
 

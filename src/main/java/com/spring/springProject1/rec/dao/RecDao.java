@@ -51,13 +51,18 @@ public interface RecDao {
 	int deleteExerciseGoal(@Param("goal_id") int goal_id, @Param("user_id") int user_id);
 
 	int deleteExerciseGoals(@Param("goalIds") List<Integer> goalIds, @Param("user_id") int user_id);
-	
+
 	void insertNutritionGoal(NutritionGoalVo vo); // 식단 목표 등록
 
 	List<FoodInfoVo> getAllFoodList(); // 식품 목록 조회
-	
+
 	List<NutritionGoalVo> getNutritionGoalList(int user_id);
 
+	NutritionGoalVo getNutritionGoalById(@Param("goal_id") int goal_id, @Param("user_id") int user_id);
 
+	int updateNutritionGoal(NutritionGoalVo vo);
+	
+	int deleteNutritionGoal(@Param("goal_id") int goal_id, @Param("user_id") int user_id);
 
+	public FoodInfoVo getFoodById(int foodId);
 }

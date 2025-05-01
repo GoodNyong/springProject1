@@ -17,6 +17,7 @@ document.addEventListener('DOMContentLoaded', function() {
 		goalExercise: "데이트 갈 시간에 운동해!(나 솔로 아니야)",
 		goalEditExercise: "목표를 다시 조율하는 거야? 마법의 재설정이군!",
 		goalMeal: "라면 금지, 야식 금지, 햄버거 금지!!!",
+		goalEditMeal: "더 먹는 걸로 수정하는 건 아니지??",
 		signup: "너의 이름이 마법에 각인될 거야!",
 		default: "마법을 한 번 부려볼까?"
 	};
@@ -357,18 +358,18 @@ document.addEventListener('DOMContentLoaded', function() {
 
 	}
 
-	// 식단 목록 페이지 전용
-	if (pageType === 'mealRecordList') {
-		const addBtn = document.querySelector("a[href*='mealRecordInput']");
+	// 식단 기록/목표 목록 페이지 전용
+	if (pageType === 'mealRecordList' || pageType === 'goalMealList') {
+		const addBtn = document.querySelectorAll("a[href*='mealRecordInput'], a[href*='goalInputNutrition']");
 		const editModeBtn = document.getElementById("toggleEditModeBtn");
-		const deleteBtns = document.querySelectorAll("a[href*='mealRecordDelete']");
-		const editBtns = document.querySelectorAll("a[href*='mealRecordEdit']");
+		const deleteBtns = document.querySelectorAll("a[href*='javascript:void(0)']");
+		const editBtns = document.querySelectorAll("a[href*='Edit']");
 
-		if (addBtn) {
-			addBtn.addEventListener('mouseover', function() {
-				showWizardMessage("🍱 새로운 마법 식사를 시작해볼까요?");
+		addBtn.forEach(function(btn) {
+			btn.addEventListener('mouseover', function() {
+				showWizardMessage("🍱 새로운 마법 기록을 시작해볼까요?");
 			});
-		}
+		});
 
 		if (editModeBtn) {
 			editModeBtn.addEventListener('mouseover', function() {
@@ -451,8 +452,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
 	}
 
-	// 식단 목표 설정 페이지
-	if (pageType === 'goalMeal') {
+	// 식단 목표 설정/수정 페이지
+	if (pageType === 'goalMeal' || pageType === 'goalEditMeal') {
 		const goalType = document.querySelector('#goal_type');
 		const nutrientSelect = document.querySelector('#nutrient_id');
 		const foodSelect = document.querySelector('#food_id');

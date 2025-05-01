@@ -64,7 +64,13 @@ public interface RecService {
 	
 	List<NutritionGoalVo> getNutritionGoalList(int user_id);
 
+	NutritionGoalVo getNutritionGoalById(int goal_id, int user_id);
 
+	void updateNutritionGoal(NutritionGoalVo vo);
+
+	void deleteNutritionGoal(int goal_id, int user_id);
+
+	
 
 
 }

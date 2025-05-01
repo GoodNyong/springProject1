@@ -408,7 +408,7 @@ function submitGoalMultiUpdate() {
 	form.submit();
 }
 
-// ② 선택된 목표(테이블-success) 다중 삭제
+// 선택된 목표(테이블-success) 다중 삭제
 function submitSelectedDeletes() {
 	const selectedRows = document.querySelectorAll("tbody tr.table-success");
 	if (selectedRows.length === 0) {

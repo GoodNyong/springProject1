@@ -1,5 +1,6 @@
 package com.spring.springProject1.rec;
 
+import java.util.Arrays;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.spring.springProject1.common.eNum.GoalUnitEnum;
 import com.spring.springProject1.common.eNum.NutrientEnum;
 import com.spring.springProject1.common.vo.ExerciseGoalVo;
 import com.spring.springProject1.common.vo.FoodInfoVo;
@@ -610,7 +612,7 @@ public class RecController {
 		}
 	}
 
-	// 운동 목표 목록 페이지 관리 - 삭제 처리
+	// 운동 목표 목록 페이지 - 삭제 처리
 	@GetMapping("/goalDeleteExercise")
 	public String goalDeleteExercise(@RequestParam("goal_id") int goal_id, HttpSession session, RedirectAttributes ra) {
 		UserVo user = (UserVo) session.getAttribute("loginUser");
@@ -748,7 +750,11 @@ public class RecController {
 		}
 		try {
 			List<NutritionGoalVo> list = recService.getNutritionGoalList(user.getUser_id());
+			model.addAttribute("nutrientList", Arrays.asList(NutrientEnum.values()));
 			model.addAttribute("nutritionGoalList", list);
+			List<FoodInfoVo> foodList = recService.getAllFoodList(); // is_active = 1
+			model.addAttribute("foodList", foodList);
+			model.addAttribute("unitList", Arrays.asList(GoalUnitEnum.values())); // 전체 단위
 			return "rec/goalListNutrition";
 		} catch (Exception e) {
 			ra.addFlashAttribute("message", "식단 목표 목록을 불러오는 데 실패했어요! " + e.getMessage());
@@ -757,6 +763,97 @@ public class RecController {
 		}
 	}
 	
+	// 식단 목표 수정 페이지 호출
+	@GetMapping("/goalEditNutrition")
+	public String goalEditNutritionGet(@RequestParam("goal_id") int goal_id, HttpSession session, Model model, RedirectAttributes ra) {
+		UserVo user = (UserVo) session.getAttribute("loginUser");
+		if (user == null) {
+			ra.addFlashAttribute("message", "로그인이 필요합니다.");
+			ra.addFlashAttribute("url", "/");
+			return "redirect:/message/error";
+		}
+
+		try {
+			NutritionGoalVo vo = recService.getNutritionGoalById(goal_id, user.getUser_id());
+			if (vo == null) {
+				model.addAttribute("message", "해당 식단 목표를 찾을 수 없어요!");
+				model.addAttribute("url", "/rec/goalListNutrition");
+				return "redirect:/message/error";
+			}
+			model.addAttribute("record", vo);
+			model.addAttribute("nutrientList", NutrientEnum.values());
+			model.addAttribute("foodList", recService.getAllFoodList());
+			return "rec/goalEditNutrition";
+		} catch (Exception e) {
+			e.printStackTrace();
+			ra.addFlashAttribute("message", e.getMessage());
+			ra.addFlashAttribute("url", "/rec/goalListNutrition");
+			return "redirect:/message/error";
+		}
+	}
+
+	// 식단 목표 수정 처리
+	@PostMapping("/goalEditNutrition")
+	public String goalEditNutritionPost(@ModelAttribute NutritionGoalVo vo, HttpSession session, RedirectAttributes ra) {
+		UserVo user = (UserVo) session.getAttribute("loginUser");
+		if (user == null) {
+			ra.addFlashAttribute("message", "로그인이 필요합니다.");
+			ra.addFlashAttribute("url", "/");
+			return "redirect:/message/error";
+		}
+
+		try {
+			vo.setUser_id(user.getUser_id());
+			recService.updateNutritionGoal(vo);
+			return "redirect:/message/goalEditNutritionOk";
+		} catch (IllegalArgumentException e) {
+			ra.addFlashAttribute("message", e.getMessage());
+			ra.addFlashAttribute("url", "/rec/goalEditNutrition?goal_id=" + vo.getGoal_id());
+			return "redirect:/message/error";
+		}
+	}
+	
+	// 식단 목표 삭제 처리
+	@GetMapping("/goalDeleteNutrition")
+	public String goalDeleteNutrition(@RequestParam("goal_id") int goal_id, HttpSession session, RedirectAttributes ra) {
+		UserVo user = (UserVo) session.getAttribute("loginUser");
+		if (user == null) {
+			ra.addFlashAttribute("message", "로그인이 필요합니다.");
+			ra.addFlashAttribute("url", "/");
+			return "redirect:/message/error";
+		}
+
+		try {
+			recService.deleteNutritionGoal(goal_id, user.getUser_id());
+			return "redirect:/message/goalDeleteNutritionOk";
+		} catch (IllegalArgumentException e) {
+			ra.addFlashAttribute("message", e.getMessage());
+			ra.addFlashAttribute("url", "/rec/goalListNutrition");
+			return "redirect:/message/error";
+		}
+	}
+	
+	@PostMapping("/goalUpdateNutrition")
+	public String goalUpdateNutrition(@ModelAttribute NutritionGoalVo vo, HttpSession session, RedirectAttributes ra) {
+		UserVo user = (UserVo) session.getAttribute("loginUser");
+		if (user == null) {
+			ra.addFlashAttribute("message", "로그인이 필요합니다.");
+			ra.addFlashAttribute("url", "/");
+			return "redirect:/message/error";
+		}
+
+		try {
+			vo.setUser_id(user.getUser_id());
+			recService.updateNutritionGoal(vo);
+			return "redirect:/message/goalUpdateNutritionOk";
+		} catch (IllegalArgumentException e) {
+			ra.addFlashAttribute("message", e.getMessage());
+			ra.addFlashAttribute("url", "/rec/goalListNutrition");
+			return "redirect:/message/error";
+		}
+	}
+
+
 
 
 

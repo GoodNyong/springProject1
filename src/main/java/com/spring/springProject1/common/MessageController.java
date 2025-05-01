@@ -108,6 +108,18 @@ public class MessageController {
 			model.addAttribute("message", "식단 목표 설정 마법 성공!");
 			model.addAttribute("url", "rec/goalListNutrition");
 		}
+		else if(msgFlag.equals("goalEditNutritionOk")) {
+			model.addAttribute("message", "식단 목표 수정 마법 성공!");
+			model.addAttribute("url", "rec/goalListNutrition");
+		}
+		else if(msgFlag.equals("goalDeleteNutritionOk")) {
+			model.addAttribute("message", "식단 목표 삭제 마법 성공!");
+			model.addAttribute("url", "rec/goalListNutrition");
+		}
+		else if(msgFlag.equals("goalUpdateNutritionOk")) {
+			model.addAttribute("message", "개별 식단 목표 수정 마법 성공!");
+			model.addAttribute("url", "rec/goalListNutrition");
+		}
 		else if(msgFlag.equals("error")) {
 			model.addAttribute("message", model.asMap().get("message")); // RedirectAttributes에서 받음
 			model.addAttribute("url", model.asMap().get("url"));

@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.spring.springProject1.common.eNum.GoalUnitEnum;
+import com.spring.springProject1.common.eNum.NutrientEnum;
 import com.spring.springProject1.common.vo.ExerciseGoalVo;
 import com.spring.springProject1.common.vo.FoodInfoVo;
 import com.spring.springProject1.common.vo.NutritionGoalVo;
@@ -543,18 +544,80 @@ public class RecServiceImpl implements RecService {
 
 		for (NutritionGoalVo vo : list) {
 			String label = "단위없음";
-
-			if (vo.getGoal_type() == 1 && vo.getNutrientEnum() != null) {
-				vo.setNutrient_name(vo.getNutrientEnum().getName());
-				label = vo.getNutrientEnum().getGoalUnitEnum().getLabel(); // ✅ Enum 기준 단위
+			if (vo.getGoal_type() == 1 && vo.getNutrient_id() != null) {
+				NutrientEnum n = NutrientEnum.findById(vo.getNutrient_id());
+				if (n != null) {
+					vo.setNutrient_name(n.getName());
+					vo.setGoal_unit_label(n.getGoalUnitEnum().getLabel());
+				}
 			}
-			else if (vo.getGoal_type() == 2 && vo.getGoal_unit() != null) {
-				GoalUnitEnum unitEnum = GoalUnitEnum.findByCode(vo.getGoal_unit());
-				if (unitEnum != null) label = unitEnum.getLabel(); // ✅ GoalUnitEnum 활용
+			else if (vo.getGoal_type() == 2 && vo.getFood_id() != null) {
+				FoodInfoVo food = recDao.getFoodById(vo.getFood_id());
+				if (food != null) {
+					vo.setFood_name(food.getName());
+					vo.setGoal_unit_label(GoalUnitEnum.findByCode(vo.getGoal_unit()).getLabel());
+				}
 			}
-			vo.setGoal_unit_label(label);
 		}
 		return list;
+	}
+
+	@Override
+	public NutritionGoalVo getNutritionGoalById(int goal_id, int user_id) {
+		NutritionGoalVo vo = recDao.getNutritionGoalById(goal_id, user_id);
+		if (vo == null) return null;
+
+		String label = "단위없음";
+
+		if (vo.getGoal_type() == 1 && vo.getNutrientEnum() != null) {
+			vo.setNutrient_name(vo.getNutrientEnum().getName());
+			label = vo.getNutrientEnum().getGoalUnitEnum().getLabel(); // ✅ 영양소 기준 단위
+		} else if (vo.getGoal_type() == 2 && vo.getGoal_unit() != null) {
+			GoalUnitEnum unitEnum = GoalUnitEnum.findByCode(vo.getGoal_unit());
+			if (unitEnum != null) label = unitEnum.getLabel(); // ✅ 식품 기준 단위
+		}
+
+		vo.setGoal_unit_label(label);
+		return vo;
+	}
+
+
+	@Override
+	public void updateNutritionGoal(NutritionGoalVo vo) {
+		if (vo.getUser_id() <= 0 || vo.getGoal_id() <= 0)
+			throw new IllegalArgumentException("사용자 정보를 다시 확인해주세요!");
+
+		if (vo.getGoal_type() != 1 && vo.getGoal_type() != 2)
+			throw new IllegalArgumentException("목표 유형을 선택해주세요!");
+
+		if (vo.getGoal_type() == 1 && vo.getNutrient_id() == null)
+			throw new IllegalArgumentException("영양소를 선택해주세요!");
+		if (vo.getGoal_type() == 2 && vo.getFood_id() == null)
+			throw new IllegalArgumentException("식품을 선택해주세요!");
+
+		if (vo.getTarget_value() == null || vo.getTarget_value() <= 0)
+			throw new IllegalArgumentException("목표 수치는 0보다 커야 해요!");
+
+		if (vo.getGoal_unit() == null || GoalUnitEnum.findByCode(vo.getGoal_unit()) == null)
+			throw new IllegalArgumentException("단위를 선택해주세요!");
+
+		if (vo.getStart_date() == null || vo.getEnd_date() == null)
+			throw new IllegalArgumentException("목표 기간을 입력해주세요!");
+
+		if (vo.getEnd_date().before(vo.getStart_date()))
+			throw new IllegalArgumentException("종료일은 시작일보다 늦어야 해요!");
+
+		int result = recDao.updateNutritionGoal(vo);
+		if (result == 0)
+			throw new IllegalArgumentException("이 식단 목표는 더 이상 수정할 수 없어요!");
+	}
+	
+	@Override
+	public void deleteNutritionGoal(int goal_id, int user_id) {
+		if (goal_id <= 0) throw new IllegalArgumentException("마법 목표 ID가 유효하지 않아요!");
+		int result = recDao.deleteNutritionGoal(goal_id, user_id);
+		if (result == 0)
+			throw new IllegalArgumentException("삭제할 수 없는 식단 목표입니다.");
 	}
 
 

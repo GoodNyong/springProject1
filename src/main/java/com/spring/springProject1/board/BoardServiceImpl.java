@@ -311,6 +311,20 @@ public class BoardServiceImpl implements BoardService {
 		return boardDao.setBoardReplyDelete(reply_id);
 	}
 
+	@Override
+	public int getBoardtotRecCntByUser(int user_id) {
+		return boardDao.getBoardtotRecCntByUser(user_id);
+	}
+
+	@Override
+	public List<BoardVo> getBoardListByUser(int user_id, int startIndexNo, int pageSize) {
+		List<BoardVo> vos = boardDao.getBoardListByUser(user_id, startIndexNo, pageSize);
+		for(BoardVo vo : vos) {
+			vo.setFormattedTime(CommonDateTimeFormatter.FormatDateTimeThree(vo.getCreated_at()));
+		}
+		return vos;
+	}
+
 }
 	
 	

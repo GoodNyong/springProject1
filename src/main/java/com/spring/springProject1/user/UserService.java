@@ -26,4 +26,6 @@ public interface UserService {
 
 	List<String> getUserRoles(Integer user_id);
 
+	int updateUser(UserVo vo);
+
 }

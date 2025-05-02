@@ -22,7 +22,7 @@
 	
 	<select id="getUserRoles" resultType="String">
 		select r.role_name from roles r
-		join user_roles ur on r.role_id = ur.role_id
+		join userroles ur on r.role_id = ur.role_id
 		where ur.user_id = #{user_id}
 	</select>
 	
@@ -38,13 +38,20 @@
 	    update users set is_verified = 1, updated_at = default where user_id = #{user_id}
 	</update>
 	
+	<update id="updateUser">
+	  update users set username = #{username}, phone_number = #{phone_number}, updated_at = now()
+  		where user_id = #{user_id}
+	</update>
+	
+	
+	
 	
 	<insert id="setUserJoinOk">
-		insert into users values (default, #{vo.username}, #{vo.email}, #{vo.encPassword}, #{vo.phone_number}, default, default, default, default, default)
+		insert into users values (default, #{vo.username}, #{vo.email}, #{vo.password}, #{vo.phone_number}, default, default, default, default, default)
 	</insert>
 	
 	<insert id="setUserRole">
-		insert into user_roles (user_id, role_id) values (#{user_id}, #{role_id})
+		insert into userroles (user_id, role_id) values (#{user_id}, #{role_id})
 	</insert>
 	
 	

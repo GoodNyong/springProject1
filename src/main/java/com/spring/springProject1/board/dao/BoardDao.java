@@ -64,5 +64,9 @@ public interface BoardDao {
 
 	int setBoardReplyDelete(@Param("reply_id") Integer reply_id);
 
+	int getBoardtotRecCntByUser(@Param("user_id") int user_id);
+
+	List<BoardVo> getBoardListByUser(@Param("user_id") int user_id, @Param("startIndexNo") int startIndexNo, @Param("pageSize") int pageSize);
+
 
 }

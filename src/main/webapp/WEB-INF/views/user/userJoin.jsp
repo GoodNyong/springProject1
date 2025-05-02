@@ -7,22 +7,32 @@
 <head>
 <meta charset="UTF-8">
 <title>userJoin.jsp</title>
+<style>
+  .form-wrapper {
+    max-width: 800px;
+    margin: 50px auto;
+    background: #f9f9f9;
+    border-radius: 8px;
+    padding: 30px;
+    box-shadow: 0 0 8px rgba(0,0,0,0.05);
+  }
+</style>
 <script>
-  'use strict'
+    'use strict'
+    
+    let usernameCheckSw = 0; // 이름 중복 체크 했는지
+    let emailVerifiedSw = 0; // 이메일 인증 했는지
+    let passwordValidSw = 0;  // 비밀번호 정규식에 부합하는지
+    let passwordConfirmSw = 0;  // 비밀번호 확인 일치하는지
+    let privacyPolicyCheckSw = 0; // 개인정보 처리방침 체크
+    
+    let usernameChecked = ""; //중복검사 완료한 이름
   
-  let usernameCheckSw = 0; // 이름 중복 체크 했는지
-  let emailVerifiedSw = 0; // 이메일 인증 했는지
-  let passwordValidSw = 0;  // 비밀번호 정규식에 부합하는지
-  let passwordConfirmSw = 0;  // 비밀번호 확인 일치하는지
-  let privacyPolicyCheckSw = 0; // 개인정보 처리방침 체크
-  
-  let usernameChecked = ""; //중복검사 완료한 이름
-
-  let codeConfirmStarted = null; //인증번호 발송 시작 시간
-  let curruntTimer = null; //현재 타이머
-  let timeLimit = 180; //제한시간 3분
-  
-  // 정규식정의...(아이디,닉네임(한글/영문,숫자,밑줄),성명(한글/영문),이메일,전화번화({2,3}/{3,4}/{4}))
+    let codeConfirmStarted = null; //인증번호 발송 시작 시간
+    let curruntTimer = null; //현재 타이머
+    let timeLimit = 180; //제한시간 3분
+    
+    // 정규식정의...(아이디,닉네임(한글/영문,숫자,밑줄),성명(한글/영문),이메일,전화번화({2,3}/{3,4}/{4}))
     let regMid = /^[a-zA-Z0-9_]{4,20}$/;
     let regNickName = /^[가-힣a-zA-Z0-9_]+$/;
     let regName = /^[가-힣a-zA-Z]+$/;
@@ -40,7 +50,13 @@
       let email = email1 + "@" + email2;
       let username = myform.username.value.trim();
       let password = myform.password.value.trim();
-      let password2 = myform.password2.value.trim();
+      let password2 = myform.password2.value.trim();	
+      let tel1 = myform.tel1.value.trim();
+      let tel2 = myform.tel2.value.trim();
+      let tel3 = myform.tel3.value.trim();
+      let phone_number = tel1 + tel2 + tel3 + " ";
+      console.log(tel2)
+      console.log(phone_number)
       
       // 이메일 인증 체크
       if (emailVerifiedSw !== 1) {
@@ -293,15 +309,17 @@
 <jsp:include page="/WEB-INF/views/include/bs5.jsp" />
 </head>
 <body>
-  <div class="container">
-    <h3 class="text-center">회 원 가 입</h3>
+<jsp:include page="/WEB-INF/views/include/navbar.jsp" />
+<div class="container">
+  <div class="form-wrapper">
+    <h3 class="text-center fw-bold mb-4">회 원 가 입</h3>
     <form name="myform" method="post" action="${ctp}/user/userJoin" enctype="multipart/form-data">
-    <table class="table table-bordered text-center">
+    <table class="table table-bordered text-center align-middle">
       <tr>
         <th>이메일</th>
         <td>
           <div>
-            <input type="text" name="email1" id="email1" required autofocus>@
+            <input type="text" name="email1" id="email1" required autofocus>@ 
             <select name="email2" id="email2">
               <option>naver.com</option>
               <option>hanmail.net</option>
@@ -311,7 +329,6 @@
               <option>hatmail.com</option>
               <option>nate.com</option>             
             </select>
-            <!-- controller로 email자체를 넘기기 위해 name속성을 일부러 hidden으로 부여 -->
             <input type="hidden" name="email" id="email">
             <input type="button" value="인증번호받기" onclick="emailCertification()" id="emailCertificationBtn">
             <span id="emailStatus"></span>
@@ -354,23 +371,28 @@
             <input type="text" value="010" name="tel1" id="tel1" readonly>
             <input type="text" name="tel2" id="tel2">
             <input type="text" name="tel3" id="tel3">
+            <input type="hidden" name="phone_number" id="phone_number">
           </div>
         </td>
       </tr>
     </table>
-    <div>
-      <div>
-        <label>
-          <input type="checkbox" name="privacy" onclick="privacyPolicyCheck()"/>
+    <div class="mt-3">
+      <div class="form-check mb-3">
+        <input class="form-check-input" type="checkbox" name="privacy" onclick="privacyPolicyCheck()" id="privacyCheck" />
+        <label class="form-check-label" for="privacyCheck">
           개인정보 처리방침에 동의합니다.
         </label>
-        <a href="${ctp}/privacyPolicy" target="_blank">[자세히 보기]</a>
+        <a href="${ctp}/privacyPolicy" target="_blank" class="ms-2">[자세히 보기]</a>
       </div>
-      <input type="button" value="회원가입" onclick="finalCheck()">
-      <input type="button" value="돌아가기" onclick="location.href='${ctp}';">
+      <div class="d-grid gap-2">
+        <input type="button" value="회원가입" onclick="finalCheck()" class="btn btn-primary" />
+        <input type="reset" value="초기화" class="btn btn-secondary" />
+        <input type="button" value="돌아가기" onclick="location.href='${ctp}';" class="btn btn-light" />
+      </div>
     </div>
     </form>
   </div>
-  <jsp:include page="/WEB-INF/views/include/footer.jsp" />
+</div>
+<jsp:include page="/WEB-INF/views/include/footer.jsp" />
 </body>
 </html>

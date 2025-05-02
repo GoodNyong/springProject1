@@ -22,6 +22,7 @@ pageContext.setAttribute("newLine", "\n");
     let ctp = '${ctp}';
     let board_id = ${vo.board_id}
     
+    
     $(function(){
       $(".baseReply").hide();
     });
@@ -315,7 +316,7 @@ pageContext.setAttribute("newLine", "\n");
     </div>
 
     <div style="background: #f8f9fa; padding: 8px; font-size: 14px; color: #6c757d; margin-bottom: 20px;">
-      ${vo.username} | ${vo.formattedTime} | ${vo.read_count}
+      <a href="${ctp}/board/boardListByUser/${vo.user_id}">${vo.username}</a> | ${vo.formattedTime} | ${vo.read_count}
       <c:if test="${not empty vo.updated_at}">
         <small class="text-muted">수정: ${vo.updated_at}</small>
       </c:if>

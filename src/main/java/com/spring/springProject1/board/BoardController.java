@@ -68,7 +68,7 @@ public class BoardController {
 		if (vo.getContent().indexOf("src=\"/") != -1)
 			boardService.imgCheck(vo.getContent());
 
-		vo.setContent(vo.getContent().replace("/data/ckeditor/", "/data/fileUpload/"));
+		vo.setContent(vo.getContent().replace("/data/ckeditor/", "/data/board/"));
 
 		int res = boardService.setBoardInput(vo);
 
@@ -139,7 +139,6 @@ public class BoardController {
 		// 게시글 가져오기
 		BoardVo vo = boardService.getBoardContent(board_id);
 		
-		//Integet imsiComm
 		
 		if (vo == null || vo.getIs_deleted() == 1) {
 			return "redirect:/message/boardContentNo"; // 🔥 삭제되었거나 없는 게시글
@@ -299,6 +298,25 @@ public class BoardController {
 		
 		
 		else return "redirect:/message/deleteError?board_id="+board_id;
+	}
+	
+	@RequestMapping(value = "/boardListByUser/{user_id}", method = RequestMethod.GET)
+	public String boardListByUserGet(@PathVariable int user_id, Model model,
+	                                 @RequestParam(name="pag", defaultValue = "1") int pag
+	    ) {
+	    int pageSize = 10; // 무조건 10개 고정
+
+	    int totRecCnt = boardService.getBoardtotRecCntByUser(user_id);
+	    PageVo pageVo = pagination.getPageVo(pag, pageSize, totRecCnt);
+
+	    List<BoardVo> vos = boardService.getBoardListByUser(user_id, pageVo.getStartIndexNo(), pageSize);
+
+	    model.addAttribute("vos", vos);
+	    model.addAttribute("pageVo", pageVo);
+	    model.addAttribute("category", "작성자글");
+	    model.addAttribute("listTitle", "작성자 게시글 목록");
+
+	    return "board/boardListByUser";
 	}
 	
 	 

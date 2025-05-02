@@ -8,6 +8,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>userFindPassword.jsp</title>
   <jsp:include page="/WEB-INF/views/include/bs5.jsp"/>
+  <style>
+    .form-wrapper {
+      max-width: 600px;
+      margin: 50px auto;
+      padding: 30px;
+      background-color: #f9f9f9;
+      border-radius: 8px;
+      box-shadow: 0 0 8px rgba(0,0,0,0.05);
+    }
+  </style>
   <script>
   	'use strict'
   	
@@ -19,22 +29,24 @@
   </script>
 </head>
 <body>
-<p><br/><p>
-  <h2>비밀번호 찾기</h2>
-  <div class="container">
+<jsp:include page="/WEB-INF/views/include/navbar.jsp" />
+<div class="container">
+  <div class="form-wrapper">
+    <h3 class="fw-bold text-center mb-4">비밀번호 찾기</h3>
     <form action="${ctp}/user/findPassword" method="post">
-      <table>
+      <table class="table table-borderless align-middle">
         <tr>
-          <td>이메일:
-            <input type="email" name="email" required>
-            <input type="submit" value="임시 비밀번호 받기" onclick="emailSendWating()" />
+          <td>
+            이메일:
+            <input type="email" name="email" class="form-control d-inline w-50" required />
+            <input type="submit" value="임시 비밀번호 받기" onclick="emailSendWating()" class="btn btn-outline-primary btn-sm ms-2" />
           </td>
         </tr>
-       </table>
-       <div id="demo"></div>
+      </table>
+      <div id="demo" class="mt-3"></div>
     </form>
   </div>
-<p><br/><p>
+</div>
 <jsp:include page="/WEB-INF/views/include/footer.jsp" />
 </body>
 </html>

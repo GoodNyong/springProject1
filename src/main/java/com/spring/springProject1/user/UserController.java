@@ -82,6 +82,7 @@ public class UserController {
 	  
 	  // 4. 최종 회원정보 저장
 	  int res = userService.setUserJoinOk(vo);
+	  vo = userService.getUserEmailCheck(vo.getEmail());
 	  
 	  // 5. 역할 부여
 	  userService.setUserRole(vo.getUser_id(), 4);
@@ -454,15 +455,59 @@ public class UserController {
         return "redirect:/message/userInvalidOk";
     }
     else if (passwordFlag.equals("p")) {
-        return "user/userPasswordReset";
+        return "user/userPasswordReset"; //바로 jsp로
     }
     else if (passwordFlag.equals("u")) {
-        return "redirect:/user/userEdit";
+        return "redirect:/user/userUpdate"; //controller로 다시 요청 왜? 값 가져가야지
+        //POST 요청이 필요하다면 redirect는 못 쓰고 forward나 form으로 넘겨야 함.
     }
     
     return "redirect:/user/main";
     //return "${ctp}/";
 	    
+	}
+	
+	//회원정보수정 폼 보기
+	@RequestMapping(value = "/userUpdate", method = RequestMethod.GET)
+	public String userUpdateGet(Model model, HttpSession session) {
+		
+		Integer user_id = (Integer) session.getAttribute("sUser_id");
+		UserVo vo = userService.getUserByUser_id(user_id);
+		
+		model.addAttribute("vo", vo);
+		return "user/userUpdate";
+	}
+	
+	//회원정보 수정 처리
+	@RequestMapping(value = "/userUpdate", method = RequestMethod.POST)
+	public String userUpdatePost(HttpSession session, String username, String phone_number) {
+	   Integer user_id = (Integer) session.getAttribute("sUser_id");
+	
+	   //기존 사용자 정보 가져오기
+	   UserVo vo = userService.getUserByUser_id(user_id);
+	
+	   //vo에 담기
+	   vo.setUsername(username);
+	   vo.setPhone_number(phone_number);
+	
+	   //DB 업데이트
+	   int res = userService.updateUser(vo);
+	
+	   // 세션도 최신값으로 반영
+	   session.setAttribute("sUsername", username);
+	   session.setAttribute("sPhone_number", phone_number);
+	
+	   if (res != 0) return "redirect:/message/userUpdateOk";
+	   else return "redirect:/message/userUpdateNo";
+	}
+	
+	@RequestMapping(value = "/userPage", method = RequestMethod.GET)
+	public String userPageGet(HttpSession session, Model model) {
+	    Integer user_id = (Integer) session.getAttribute("sUser_id");
+	    UserVo vo = userService.getUserByUser_id(user_id);
+
+	    model.addAttribute("vo", vo);
+	    return "user/userPage";
 	}
 
 }

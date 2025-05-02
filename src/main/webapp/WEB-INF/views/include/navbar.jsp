@@ -33,7 +33,7 @@
 			<c:choose>
 				<c:when test="${not empty sessionScope.sUser}">
 					<span class="navbar-text me-3"> 👋 ${sessionScope.sUser.username}님 </span>
-					<a class="btn btn-outline-secondary btn-sm me-2" href="${pageContext.request.contextPath}/user/mypage">마이페이지</a>
+					<a class="btn btn-outline-secondary btn-sm me-2" href="${pageContext.request.contextPath}/user/userPage">마이페이지</a>
 					<a class="btn btn-primary btn-sm" href="${pageContext.request.contextPath}/user/userLogout">로그아웃</a>
 				</c:when>
 				<c:otherwise>
@@ -62,8 +62,8 @@
                 <!-- 🔽 새 드롭다운: 마이페이지 -->
                 <li class="nav-item dropdown"><a class="nav-link dropdown-toggle" href="#" id="myPageDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false"> 마이페이지 </a>
                   <ul class="dropdown-menu" aria-labelledby="myPageDropdown">
-                    <li><a class="dropdown-item" href="${ctp}/user/userMain">내 정보 관리</a></li>
-                    <li><a class="dropdown-item" href="${ctp}/user/passwordCheck/i">회원정보 수정</a></li>
+                    <li><a class="dropdown-item" href="${ctp}/user/userPage">내 정보 관리</a></li>
+                    <li><a class="dropdown-item" href="${ctp}/user/passwordCheck/u">회원정보 수정</a></li>
                     <li><a class="dropdown-item" href="${ctp}/user/passwordCheck/p">비밀번호 변경</a></li>
                     <li><a class="dropdown-item" href="javascript:deleteCheck()">회원탈퇴</a></li>
                   </ul>
@@ -85,7 +85,7 @@
 				<li class="nav-item"><a class="nav-link" href="${pageContext.request.contextPath}/expert/feedbackList">피드백</a></li>
 				<%-- </c:if> --%>
 				<%-- <c:if test="${sessionScope.user.role eq 'admin'}"> --%>
-				<li class="nav-item"><a class="nav-link" href="${pageContext.request.contextPath}/admin/dashboard">관리자</a></li>
+				<li class="nav-item"><a class="nav-link" href="${pageContext.request.contextPath}/admin/adminMain">관리자</a></li>
 				<%-- </c:if> --%>
 				<%-- <c:if test="${sessionScope.user.role eq 'advertiser'}"> --%>
 				<li class="nav-item"><a class="nav-link" href="${pageContext.request.contextPath}/ad/dashboard">광고</a></li>

@@ -57,6 +57,10 @@ public interface BoardService {
 
 	int setBoardReplyDelete(Integer reply_id);
 
+	int getBoardtotRecCntByUser(int user_id);
+
+	List<BoardVo> getBoardListByUser(int user_id, int startIndexNo, int pageSize);
+
 	
 
 	

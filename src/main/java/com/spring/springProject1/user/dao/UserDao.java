@@ -30,6 +30,8 @@ public interface UserDao {
 
 	List<String> getUserRoles(@Param("user_id") Integer user_id);
 
+	int updateUser(@Param("vo") UserVo vo);
+
 
 	//void getRoleToUser(@Param("user_id") int user_id, @Param("role_id") int role_id);
 

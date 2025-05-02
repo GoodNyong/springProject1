@@ -53,8 +53,21 @@
 		select * from boardReply where comment_id = #{comment_id} and is_deleted = 0
 		order by created_at asc
 	</select>
-	<select id="getBoardReply">
+	
+	<select id="getBoardReply" resultType="com.spring.springProject1.board.BoardReplyVo">
 		select * from boardReply where reply_id = #{reply_id}
+	</select>
+	
+	<select id="getBoardtotRecCntByUser" resultType="int">
+	  select count(*) from board
+	  where user_id = #{user_id} and is_deleted = 0
+	</select>
+	
+	<select id="getBoardListByUser" resultType="com.spring.springProject1.board.BoardVo">
+	  SELECT * FROM board
+	  WHERE user_id = #{user_id} AND is_deleted = 0
+	  ORDER BY board_id DESC
+	  LIMIT #{startIndexNo}, #{pageSize}
 	</select>
 
 

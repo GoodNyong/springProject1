@@ -67,5 +67,10 @@ public class UserServiceImpl implements UserService {
 	public List<String> getUserRoles(Integer user_id) {
 		return userDao.getUserRoles(user_id);
 	}
+
+	@Override
+	public int updateUser(UserVo vo) {
+		return userDao.updateUser(vo);
+	}
 	
 }

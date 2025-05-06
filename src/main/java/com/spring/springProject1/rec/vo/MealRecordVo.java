@@ -1,4 +1,4 @@
-package com.spring.springProject1.rec;
+package com.spring.springProject1.rec.vo;
 
 import java.util.Date;
 

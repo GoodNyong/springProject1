@@ -7,10 +7,13 @@
 	<div class="container-fluid d-flex justify-content-between align-items-center">
 
 		<!-- 로고 -->
-		<a class="navbar-brand fw-bold text-primary" href="${pageContext.request.contextPath}/">Blinkos</a>
+		<a class="navbar-brand d-flex align-items-center fw-bold text-primary" href="${ctp}/">
+			<img alt="Blinkos" src="${ctp}/resources/img/favicon.png" class="m-0 p-0">
+			<span class="m-0 p-0">Blinkos</span>
+		</a>
 
 		<!-- 로그인/로그아웃 버튼(모바일) + 햄버거 버튼-->
-		<div class="d-flex d-lg-none align-items-center  gap-2">
+		<div class="d-flex d-lg-none align-items-center gap-2">
 			<c:choose>
 				<c:when test="${not empty sessionScope.loginUser}">
 					<span class="navbar-text me-3">👋 ${sessionScope.user.nickname}님</span>

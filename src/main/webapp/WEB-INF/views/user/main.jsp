@@ -32,27 +32,18 @@
 		</div>
 	</section>
 
-
-	<!-- 목표 달성률 -->
-	<!-- <section class="mb-5">
-		<h5>🎯 목표 달성 현황</h5>
-		<div class="progress" style="height: 24px;">
-			<div class="progress-bar bg-info" role="progressbar" style="width: 68%;" aria-valuenow="68" aria-valuemin="0" aria-valuemax="100">68% 완료</div>
-		</div>
-	</section> -->
-	
 	<!-- 목표 달성률 (운동 + 식단) -->
 	<section class="row mb-4">
 		<div class="col-md-6">
 			<h5>🏃 운동 목표 달성률</h5>
 			<div class="progress mb-3" style="height: 24px;">
-				<div class="progress-bar bg-info" style="width: 60%;">60%</div>
+				<div class="progress-bar bg-info" style="width: ${exerciseRate}%;">${exerciseRate}%</div>
 			</div>
 		</div>
 		<div class="col-md-6">
 			<h5>🍱 식단 목표 달성률</h5>
 			<div class="progress mb-3" style="height: 24px;">
-				<div class="progress-bar bg-success" style="width: 80%;">80%</div>
+				<div class="progress-bar bg-success" style="width: ${mealRate}%;">${mealRate}%</div>
 			</div>
 		</div>
 	</section>

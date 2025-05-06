@@ -53,7 +53,8 @@
 				<div class="mb-3">
 					<label class="form-label">섭취량</label>
 					<div class="input-group">
-						<input type="number" name="amount" id="amount" class="form-control" placeholder="예: 200" step="0.1" min="0.1" required /> <select name="unit" id="unit" class="form-select" required>
+						<input type="number" name="amount" id="amount" class="form-control" placeholder="예: 200" step="0.1" min="0.1" required />
+						<select name="unit" id="unit" class="form-select" required>
 							<option value="">단위 선택</option>
 							<option value="g">g</option>
 							<option value="ml">ml</option>

@@ -1,4 +1,4 @@
-package com.spring.springProject1.common;
+package com.spring.springProject1.common.vo;
 
 import java.util.Date;
 
@@ -27,4 +27,14 @@ public class ExerciseGoalVo {
 
 	@DateTimeFormat(pattern = "yyyy-MM-dd")
 	private Date end_date;
+	
+	private String goal_unit_label; // 출력 전용 단위명
+	
+	private String exercise_name; // 운동 이름 (조인 결과)
+
+	private String Changed; // "true"일 경우 수정대상
+	
+	private boolean expired; // 종료일 기준 상태 여부 (오늘 이전이면 true)
+
+
 }

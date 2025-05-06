@@ -8,7 +8,12 @@ import com.spring.springProject1.common.vo.ExerciseGoalVo;
 import com.spring.springProject1.common.vo.FoodInfoVo;
 import com.spring.springProject1.common.vo.NutritionGoalVo;
 import com.spring.springProject1.rec.vo.ExerciseRecordVo;
+import com.spring.springProject1.rec.vo.ExerciseSummaryVo;
+import com.spring.springProject1.rec.vo.GoalProgressVo;
+import com.spring.springProject1.rec.vo.GoalStatsVo;
 import com.spring.springProject1.rec.vo.MealRecordVo;
+import com.spring.springProject1.rec.vo.MealSummaryVo;
+import com.spring.springProject1.rec.vo.NutritionProgressVo;
 
 public interface RecService {
 
@@ -57,11 +62,11 @@ public interface RecService {
 	void multiUpdateExerciseGoal(List<ExerciseGoalVo> goalList);
 
 	void multiDeleteExerciseGoal(HttpServletRequest request, int user_id);
-	
+
 	void setNutritionGoal(NutritionGoalVo vo); // 식단 목표 등록
-	
+
 	List<FoodInfoVo> getAllFoodList(); // 식품 전체 목록 조회 (목표 설정용)
-	
+
 	List<NutritionGoalVo> getNutritionGoalList(int user_id);
 
 	NutritionGoalVo getNutritionGoalById(int goal_id, int user_id);
@@ -70,7 +75,24 @@ public interface RecService {
 
 	void deleteNutritionGoal(int goal_id, int user_id);
 
-	
+	void multiUpdateNutritionGoal(List<NutritionGoalVo> goalList);
 
+	void multiDeleteNutritionGoal(HttpServletRequest request, int user_id);
+
+	GoalStatsVo getExerciseGoalStats(int userId);
+
+	GoalStatsVo getNutritionGoalStats(int userId);
+
+	double getExerciseGoalAchievementRate(int userId);
+
+	double getMealGoalAchievementRate(int userId);
+
+	List<ExerciseSummaryVo> getExerciseDailySummary(int user_id);
+
+	List<GoalProgressVo> getExerciseGoalProgress(int user_id);
+
+	List<MealSummaryVo> getMealDailySummary(int user_id);
+
+	List<NutritionProgressVo> getNutritionGoalProgress(int user_id);
 
 }

@@ -44,7 +44,7 @@
 				</thead>
 				<tbody>
 					<c:forEach var="vo" items="${exerciseGoalList}" varStatus="st">
-						<tr>
+						<tr data-index="${status.index}" data-expired="${vo.expired}">
 							<td>${st.count}</td>
 							<td>${vo.exercise_name}</td>
 							<td><c:choose>
@@ -67,7 +67,18 @@
 									<c:when test="${vo.set_by == 1}">🙋‍♂️ 본인</c:when>
 									<c:otherwise>🧙 전문가</c:otherwise>
 								</c:choose></td>
-							<td><a href="${ctp}/rec/goalEditExercise?goal_id=${vo.goal_id}" class="btn btn-sm btn-outline-secondary me-1">수정</a> <a href="javascript:void(0);" class="btn btn-sm btn-outline-danger" onclick="confirmSingleGoalDelete(${vo.goal_id});">삭제</a> <input type="hidden" name="goal_id" value="${vo.goal_id}" /></td>
+							<td>
+								<c:choose>
+									<c:when test="${vo.expired}">
+										<span class="text-muted">종료됨</span>
+									</c:when>
+									<c:otherwise>
+										<button type="button" class="btn btn-primary" onclick="editGoal(${vo.goal_id})">수정</button>
+									</c:otherwise>
+								</c:choose>
+								<a href="javascript:void(0);" class="btn btn-sm btn-outline-danger" onclick="confirmSingleGoalDelete(${vo.goal_id});">삭제</a>
+								<input type="hidden" name="goal_id" value="${vo.goal_id}" />
+							</td>
 						</tr>
 					</c:forEach>
 				</tbody>
@@ -178,108 +189,79 @@ document.addEventListener('DOMContentLoaded', function () {
 		toggleSelectAllBtn.classList.toggle('d-none', !isEditMode);
 
 		rows.forEach((row, index) => {
+			const isExpired = row.getAttribute("data-expired") === "true";
+
 			const cells = row.querySelectorAll('td');
 			const [noCell, nameCell, typeCell, valueCell, dateCell, setByCell, controlCell] = cells;
 
 			if (isEditMode) {
-				//const goalId = row.querySelector("a.btn-outline-secondary").href.split("goal_id=")[1];
 				const goalIdInput = row.querySelector("input[name='goal_id']");
-				if (!goalIdInput) {
-				    console.warn("⚠️ goal_id 누락 → 행 무시됨");
-				    return;
-				}
+				if (!goalIdInput) return;
 				const goalId = goalIdInput.value;
 
-				// 기존			
-				// const targetValue = valueCell.textContent.trim().split(' ')[0];
-				// 수정(목표 수치 숫자만 추출)
 				const targetValueRaw = valueCell.textContent.trim();
 				const targetValue = parseFloat(targetValueRaw.replace(/[^\d.]/g, ''));
-				
-				
-				// const goalUnit = valueCell.textContent.trim().split(' ')[1];
-				const unitLabel = valueCell.textContent.replace(/^[\d.,\s]+/, '').trim(); // 예: "300 kcal" → "kcal"
-				const labelToCodeMap = {
-					    "분": "01", "시간": "02",
-					    "kcal": "11", "J": "12",
-					    "회": "21", "세트": "22"
-					};
+				const unitLabel = valueCell.textContent.replace(/^[\d.,\s]+/, '').trim();
+				const labelToCodeMap = { "분": "01", "시간": "02", "kcal": "11", "J": "12", "회": "21", "세트": "22" };
 				const unitCode = labelToCodeMap[unitLabel] || "";
-				
-				//const [start, end] = dateCell.textContent.trim().split("~").map(s => s.trim());
+
 				const dateText = dateCell.textContent.trim();
 				let start = "", end = "";
 				if (dateText.includes("~")) {
-				    [start, end] = dateText.split("~").map(s => s.trim());
+					[start, end] = dateText.split("~").map(s => s.trim());
 				}
 
-				// 기준 셀을 select로 변환
 				const currentTypeText = typeCell.textContent.trim();
 				const typeMap = { "시간": "1", "칼로리": "2", "횟수": "3" };
-				const reverseTypeMap = { "1": "시간", "2": "칼로리", "3": "횟수" };
 				const typeCode = typeMap[currentTypeText] || "1";
-				
+
 				const exerciseName = nameCell.textContent.trim();
-				const exerciseNameToId = {
-					"걷기": "1", "러닝": "2", "사이클링": "3", "근력 운동": "4"
-				};
+				const exerciseNameToId = { "걷기": "1", "러닝": "2", "사이클링": "3", "근력 운동": "4" };
 				const exerciseId = exerciseNameToId[exerciseName] || "1";
-				
-				nameCell.innerHTML = "<select name='exercise_id' style='min-width: 120px;' class='form-select form-select-sm'>" +
+
+				nameCell.innerHTML = "<select name='exercise_id' class='form-select form-select-sm'" +
+					(isExpired ? " disabled" : "") + ">" +
 					"<option value='1'" + (exerciseId === "1" ? " selected" : "") + ">걷기</option>" +
 					"<option value='2'" + (exerciseId === "2" ? " selected" : "") + ">러닝</option>" +
 					"<option value='3'" + (exerciseId === "3" ? " selected" : "") + ">사이클링</option>" +
 					"<option value='4'" + (exerciseId === "4" ? " selected" : "") + ">근력 운동</option>" +
 				"</select>";
 
-				typeCell.innerHTML = "<select name='target_type' style='min-width: 90px;' class='form-select form-select-sm'>" +
-				  "<option value='1'" + (typeCode === '1' ? " selected" : "") + ">시간</option>" +
-				  "<option value='2'" + (typeCode === '2' ? " selected" : "") + ">칼로리</option>" +
-				  "<option value='3'" + (typeCode === '3' ? " selected" : "") + ">횟수</option>" +
+				typeCell.innerHTML = "<select name='target_type' class='form-select form-select-sm'" +
+					(isExpired ? " disabled" : "") + ">" +
+					"<option value='1'" + (typeCode === '1' ? " selected" : "") + ">시간</option>" +
+					"<option value='2'" + (typeCode === '2' ? " selected" : "") + ">칼로리</option>" +
+					"<option value='3'" + (typeCode === '3' ? " selected" : "") + ">횟수</option>" +
 				"</select>";
 
-				// 버전 01
-				// valueCell.innerHTML = "<input type='number' name='target_value' class='form-control form-control-sm' value='" + targetValue + "' step='0.1' min='0.1' />";
-				
-				// 버전 02
-				// valueCell.innerHTML =
-				// 	 "<div class='input-group'>" +
-				// 	 "<input type='number' name='target_value' class='form-control form-control-sm' value='" + targetValue + "' step='0.1' min='0.1' required />" +
-				// 	 "<select name='goal_unit' class='form-select form-select-sm' required>" +
-				// 	 "<option value='01'" + (goalUnit === '분' ? " selected" : "") + ">분</option>" +
-				// 	 "<option value='11'" + (goalUnit === 'kcal' ? " selected" : "") + ">kcal</option>" +
-				// 	 "<option value='21'" + (goalUnit === '회' ? " selected" : "") + ">회</option>" +
-				// 	 "</select>" +
-				// 	 "</div>";
-				
-				// 현재(목표 수치 + 단위 :단위 select는 JS로 채움)
 				valueCell.innerHTML =
 					"<div class='input-group'>" +
-					"<input type='number' name='target_value' class='form-control form-control-sm' value='" + targetValue + "' step='0.1' min='0.1' required />" +
-					"<select name='goal_unit' class='form-select form-select-sm' required></select>" +
+					"<input type='number' name='target_value' class='form-control form-control-sm' value='" + targetValue + "' step='0.1' min='0.1' required" +
+					(isExpired ? " disabled" : "") + " />" +
+					"<select name='goal_unit' class='form-select form-select-sm' required" +
+					(isExpired ? " disabled" : "") + "></select>" +
 					"</div>";
-				
+
 				const targetTypeSelect = typeCell.querySelector("select[name='target_type']");
 				const goalUnitSelect = valueCell.querySelector("select[name='goal_unit']");
-				
-				// updateUnitSelect(goalUnitSelect, targetType, goalUnit === '분' ? "01" : goalUnit === 'kcal' ? "11" : "21");
 				updateUnitSelect(goalUnitSelect, typeCode, unitCode);
-				
-				// 기준 변경 시 단위 select 자동 변경
+
 				targetTypeSelect.addEventListener("change", function () {
 					updateUnitSelect(goalUnitSelect, this.value, "");
 				});
-				
-				// 날짜 셀 수정 (시작일 read-only)
+
 				dateCell.innerHTML =
-					"<input type='date' name='start_date' class='form-control form-control-sm mb-1' value='" + start + "' readonly/>" +
-					"<input type='date' name='end_date' class='form-control form-control-sm' value='" + end + "'  required/>";
+					"<input type='date' name='start_date' class='form-control form-control-sm mb-1' value='" + start + "' readonly />" +
+					"<input type='date' name='end_date' class='form-control form-control-sm' value='" + end + "' required" +
+					(isExpired ? " disabled" : "") + " />";
 
-				// 제어 버튼
 				controlCell.innerHTML = "<input type='hidden' name='goal_id' value='" + goalId + "' />" +
-					"<button class='btn btn-sm btn-outline-success text-nowrap' onclick='submitSingleGoalEdit(this)'>개별저장</button>";
+					(isExpired
+						? "<span class='text-muted'>수정불가</span>"
+						: "<button class='btn btn-sm btn-outline-success' onclick='submitSingleGoalEdit(this)'>개별저장</button>");
 
-				const inputs = row.querySelectorAll("input");
+				// 변경 감지
+				const inputs = row.querySelectorAll("input, select");
 				inputs.forEach(input => {
 					input.addEventListener('change', () => {
 						let changed = row.querySelector("input[name='goalList[" + index + "].changed']");
@@ -294,30 +276,29 @@ document.addEventListener('DOMContentLoaded', function () {
 					});
 				});
 
-				/* row.addEventListener("click", (e) => {
-					if (e.target.closest("button") || e.target.tagName === "A") return;
-
-					row.classList.toggle("table-success");
-					row.dataset.selected = row.classList.contains("table-success");
-					updateGoalEditButtonLabel();
-				}); */
+				// ✅ 클릭 시 행 선택 (삭제용) 허용
 				row.addEventListener("click", (e) => {
 					if (e.target.closest("button") || e.target.tagName === "A") return;
 
+					if (e.target.tagName === "INPUT" || e.target.tagName === "SELECT") {
+						if (e.target.disabled) {
+							row.classList.toggle("table-success");
+							row.dataset.selected = row.classList.contains("table-success");
+							updateGoalEditButtonLabel();
+						}
+						return;
+					}
+
 					row.classList.toggle("table-success");
 					row.dataset.selected = row.classList.contains("table-success");
-					
-					const selectedCount = table.querySelectorAll("tbody tr.table-success").length;
-					const totalCount    = table.querySelectorAll("tbody tr").length;
-					selectAllBtn.textContent = selectedCount > 0 ? "❌선택해제" : "✔️전체선택";
 					updateGoalEditButtonLabel();
 				});
+
 			} else {
 				location.reload();
 			}
 		});
 	});
-
 	cancelBtn.addEventListener('click', function () {
 		location.reload();
 	});

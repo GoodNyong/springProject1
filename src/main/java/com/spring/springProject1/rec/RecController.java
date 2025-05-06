@@ -6,6 +6,8 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -13,6 +15,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -22,15 +25,22 @@ import com.spring.springProject1.common.vo.ExerciseGoalVo;
 import com.spring.springProject1.common.vo.FoodInfoVo;
 import com.spring.springProject1.common.vo.NutritionGoalVo;
 import com.spring.springProject1.rec.vo.ExerciseRecordVo;
+import com.spring.springProject1.rec.vo.ExerciseSummaryVo;
+import com.spring.springProject1.rec.vo.GoalProgressVo;
 import com.spring.springProject1.rec.vo.MealRecordVo;
+import com.spring.springProject1.rec.vo.MealSummaryVo;
+import com.spring.springProject1.rec.vo.NutritionProgressVo;
 import com.spring.springProject1.rec.wrapper.ExerciseGoalListWrapper;
 import com.spring.springProject1.rec.wrapper.ExerciseRecordListWrapper;
 import com.spring.springProject1.rec.wrapper.MealRecordListWrapper;
+import com.spring.springProject1.rec.wrapper.NutritionGoalListWrapper;
 import com.spring.springProject1.user.UserVo;
 
 @Controller
 @RequestMapping("/rec")
 public class RecController {
+
+	private static final Logger logger = LoggerFactory.getLogger(RecController.class);
 
 	@Autowired
 	private RecService recService;
@@ -494,13 +504,16 @@ public class RecController {
 
 	// 목표 목록 허브 페이지 호출
 	@GetMapping("/goalList")
-	public String goalListPageGet(HttpSession session, RedirectAttributes ra) {
+	public String goalListPageGet(HttpSession session, Model model, RedirectAttributes ra) {
 		UserVo user = (UserVo) session.getAttribute("loginUser");
 		if (user == null) {
 			ra.addFlashAttribute("message", "로그인이 필요합니다.");
 			ra.addFlashAttribute("url", "/");
 			return "redirect:/message/error";
 		}
+		int userId = user.getUser_id();
+		model.addAttribute("exStats", recService.getExerciseGoalStats(userId));
+		model.addAttribute("nuStats", recService.getNutritionGoalStats(userId));
 		return "rec/goalList";
 	}
 
@@ -676,7 +689,7 @@ public class RecController {
 			return "redirect:/message/error";
 		}
 	}
-	
+
 	// 운동 목표 목록 페이지 - 수정모드 - 다중 삭제
 	@PostMapping("/goalMultiDeleteExercise")
 	public String goalMultiDeleteExercisePost(HttpServletRequest request, HttpSession session, RedirectAttributes ra) {
@@ -696,9 +709,9 @@ public class RecController {
 			return "redirect:/message/error";
 		}
 	}
-	
+
 // 식단 목표-------------------------------------------------------------------------------
-	
+
 	// 식단 목표 설정 페이지 호출
 	@GetMapping("/goalInputNutrition")
 	public String goalInputNutritionGet(HttpSession session, RedirectAttributes ra, Model model) {
@@ -757,15 +770,16 @@ public class RecController {
 			model.addAttribute("unitList", Arrays.asList(GoalUnitEnum.values())); // 전체 단위
 			return "rec/goalListNutrition";
 		} catch (Exception e) {
-			ra.addFlashAttribute("message", "식단 목표 목록을 불러오는 데 실패했어요! " + e.getMessage());
+			ra.addFlashAttribute("message", "식단 목표 목록을 불러오는 데 실패했어요! ");
 			ra.addFlashAttribute("url", "/user/main");
 			return "redirect:/message/error";
 		}
 	}
-	
+
 	// 식단 목표 수정 페이지 호출
 	@GetMapping("/goalEditNutrition")
-	public String goalEditNutritionGet(@RequestParam("goal_id") int goal_id, HttpSession session, Model model, RedirectAttributes ra) {
+	public String goalEditNutritionGet(@RequestParam("goal_id") int goal_id, HttpSession session, Model model,
+			RedirectAttributes ra) {
 		UserVo user = (UserVo) session.getAttribute("loginUser");
 		if (user == null) {
 			ra.addFlashAttribute("message", "로그인이 필요합니다.");
@@ -794,7 +808,8 @@ public class RecController {
 
 	// 식단 목표 수정 처리
 	@PostMapping("/goalEditNutrition")
-	public String goalEditNutritionPost(@ModelAttribute NutritionGoalVo vo, HttpSession session, RedirectAttributes ra) {
+	public String goalEditNutritionPost(@ModelAttribute NutritionGoalVo vo, HttpSession session,
+			RedirectAttributes ra) {
 		UserVo user = (UserVo) session.getAttribute("loginUser");
 		if (user == null) {
 			ra.addFlashAttribute("message", "로그인이 필요합니다.");
@@ -812,10 +827,11 @@ public class RecController {
 			return "redirect:/message/error";
 		}
 	}
-	
+
 	// 식단 목표 삭제 처리
 	@GetMapping("/goalDeleteNutrition")
-	public String goalDeleteNutrition(@RequestParam("goal_id") int goal_id, HttpSession session, RedirectAttributes ra) {
+	public String goalDeleteNutrition(@RequestParam("goal_id") int goal_id, HttpSession session,
+			RedirectAttributes ra) {
 		UserVo user = (UserVo) session.getAttribute("loginUser");
 		if (user == null) {
 			ra.addFlashAttribute("message", "로그인이 필요합니다.");
@@ -832,7 +848,8 @@ public class RecController {
 			return "redirect:/message/error";
 		}
 	}
-	
+
+	// 식단 목표 - 수정 모드 - 개별 저장(단건 수정)
 	@PostMapping("/goalUpdateNutrition")
 	public String goalUpdateNutrition(@ModelAttribute NutritionGoalVo vo, HttpSession session, RedirectAttributes ra) {
 		UserVo user = (UserVo) session.getAttribute("loginUser");
@@ -853,10 +870,104 @@ public class RecController {
 		}
 	}
 
+	// 식단 목표 - 수정 모드 - 다중 수정
+	@PostMapping("/goalMultiUpdateNutrition")
+	public String goalMultiUpdateNutrition(@ModelAttribute NutritionGoalListWrapper wrapper, HttpSession session,
+			RedirectAttributes ra) {
+		UserVo user = (UserVo) session.getAttribute("loginUser");
+		if (user == null) {
+			ra.addFlashAttribute("message", "로그인이 필요합니다.");
+			ra.addFlashAttribute("url", "/");
+			return "redirect:/message/error";
+		}
+		wrapper.getGoalList().forEach(vo -> vo.setUser_id(user.getUser_id()));
+		try {
+			recService.multiUpdateNutritionGoal(wrapper.getGoalList());
+			return "redirect:/message/goalMultiUpdateNutritionOk";
+		} catch (Exception e) {
+			ra.addFlashAttribute("message", e.getMessage());
+			ra.addFlashAttribute("url", "/rec/goalListNutrition");
+			return "redirect:/message/error";
+		}
+	}
 
+	// 식단 목표 - 수정 모드 - 다중 삭제
+	@PostMapping("/goalMultiDeleteNutrition")
+	public String goalMultiDeleteNutrition(HttpServletRequest request, HttpSession session, RedirectAttributes ra) {
+		UserVo user = (UserVo) session.getAttribute("loginUser");
+		if (user == null) {
+			ra.addFlashAttribute("message", "로그인이 필요합니다.");
+			ra.addFlashAttribute("url", "/");
+			return "redirect:/message/error";
+		}
+		try {
+			recService.multiDeleteNutritionGoal(request, user.getUser_id());
+			return "redirect:/message/goalMultiDeleteNutritionOk";
+		} catch (Exception e) {
+			ra.addFlashAttribute("message", e.getMessage());
+			ra.addFlashAttribute("url", "/rec/goalListNutrition");
+			return "redirect:/message/error";
+		}
+	}
 
+//	--------------------------리포트---------------------------------
 
+	// 리포트 허브
+	@RequestMapping(value = "/report", method = RequestMethod.GET)
+	public String reportHub(HttpSession session, RedirectAttributes ra) {
+		UserVo user = (UserVo) session.getAttribute("loginUser");
+		if (user == null) {
+			ra.addFlashAttribute("message", "로그인이 필요합니다.");
+			ra.addFlashAttribute("url", "/");
+			return "redirect:/message/error";
+		}
+		return "rec/reportHub";
+	}
 
+	// 운동 리포트
+	@GetMapping("/reportExercise")
+	public String reportExerciseGet(Model model, HttpSession session, RedirectAttributes ra) {
+		UserVo user = (UserVo) session.getAttribute("loginUser");
+		if (user == null) {
+			ra.addFlashAttribute("message", "로그인이 필요합니다.");
+			ra.addFlashAttribute("url", "/");
+			return "redirect:/message/error";
+		}
+		try {
+			List<ExerciseSummaryVo> dailyList = recService.getExerciseDailySummary(user.getUser_id());
+			List<GoalProgressVo> goalList = recService.getExerciseGoalProgress(user.getUser_id());
+			model.addAttribute("dailyList", dailyList);
+			model.addAttribute("goalList", goalList);
+			return "rec/reportExercise";
+		} catch (Exception e) {
+			logger.error("reportExerciseGet() error", e);
+			ra.addFlashAttribute("message", "운동 리포트 로드 실패");
+			ra.addFlashAttribute("url", "/user/main");
+			return "redirect:/message/error";
+		}
+	}
 
+	// 식단 리포트
+	@GetMapping("/reportMeal")
+	public String reportMealGet(Model model, HttpSession session, RedirectAttributes ra) {
+		UserVo user = (UserVo) session.getAttribute("loginUser");
+		if (user == null) {
+			ra.addFlashAttribute("message", "로그인이 필요합니다.");
+			ra.addFlashAttribute("url", "/");
+			return "redirect:/message/error";
+		}
+		try {
+			List<MealSummaryVo> dailyList = recService.getMealDailySummary(user.getUser_id());
+			List<NutritionProgressVo> goalList = recService.getNutritionGoalProgress(user.getUser_id());
+			model.addAttribute("dailyList", dailyList);
+			model.addAttribute("goalList", goalList);
+			return "rec/reportMeal";
+		} catch (Exception e) {
+			logger.error("reportMeal error", e);
+			ra.addFlashAttribute("message", "식단 리포트 로드 실패!");
+			ra.addFlashAttribute("url", "/user/main");
+			return "redirect:/message/error";
+		}
+	}
 
 }

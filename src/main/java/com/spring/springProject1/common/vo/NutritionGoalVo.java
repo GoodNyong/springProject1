@@ -37,8 +37,10 @@ public class NutritionGoalVo {
 	private String nutrient_name;       // Enum 기반 name 출력용
 	private String food_name;           // Mapper에서 조인된 값
 	private String goal_unit_label;     // 단위명 표시용
-
 	
+	private String Changed; // "true"일 경우 수정대상
+	
+	private boolean expired; // 종료일 기준 상태 여부 (오늘 이전이면 true)
 	
     /*
      * nutrient_id 필드의 정수 값을 기반으로 NutrientEnum 객체를 반환합니다.

@@ -18,14 +18,14 @@
 		<li class="list-group-item d-flex justify-content-between align-items-center py-4">
 			<div>
 				<h5 class="mb-2 text-primary fw-bold">🏃 운동 목표</h5>
-				<p class="text-muted small mb-2">총 3개 설정됨 · 평균 달성률 72%</p>
+				<p class="text-muted small mb-2">총 ${exStats.count}개 설정됨 · 평균 달성률 ${exStats.avgRate}%</p>
 				<a href="${ctp}/rec/goalListExercise" class="btn btn-outline-primary btn-sm">운동 목표 보기</a>
 			</div>
 		</li>
 		<li class="list-group-item d-flex justify-content-between align-items-center py-4">
 			<div>
 				<h5 class="mb-2 text-success fw-bold">🍱 식단 목표</h5>
-				<p class="text-muted small mb-2">총 2개 설정됨 · 평균 달성률 55%</p>
+				<p class="text-muted small mb-2">총 ${nuStats.count}개 설정됨 · 평균 달성률 ${nuStats.avgRate}%</p>
 				<a href="${ctp}/rec/goalListNutrition" class="btn btn-outline-success btn-sm">식단 목표 보기</a>
 			</div>
 		</li>

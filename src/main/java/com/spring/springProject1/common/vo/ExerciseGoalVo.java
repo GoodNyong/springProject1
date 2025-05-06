@@ -33,5 +33,8 @@ public class ExerciseGoalVo {
 	private String exercise_name; // 운동 이름 (조인 결과)
 
 	private String Changed; // "true"일 경우 수정대상
+	
+	private boolean expired; // 종료일 기준 상태 여부 (오늘 이전이면 true)
+
 
 }

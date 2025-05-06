@@ -4,18 +4,24 @@ import java.util.Date;
 
 import javax.servlet.http.HttpSession;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+
+import com.spring.springProject1.rec.RecService;
 
 @Controller
 @RequestMapping("/user")
 public class UserController {
 
+	@Autowired
+	private RecService recService;
 	
 	@GetMapping("/main")
-	public String mainPageGet(HttpSession session) {
+	public String mainPageGet(HttpSession session, Model model) {
 	    UserVo loginUser = new UserVo();
 	    loginUser.setUser_id(1); // 존재하는 더미 유저 ID
 	    loginUser.setUsername("테스트유저");
@@ -28,7 +34,14 @@ public class UserController {
 	    loginUser.set_premium(false);
 
 	    session.setAttribute("loginUser", loginUser);
-		
+	    
+	    int userId = loginUser.getUser_id();
+	    double exerciseRate = recService.getExerciseGoalAchievementRate(userId);
+	    double mealRate = recService.getMealGoalAchievementRate(userId);
+	    
+	    model.addAttribute("exerciseRate", (int) exerciseRate);
+	    model.addAttribute("mealRate", (int) mealRate);
+	    
 		return "user/main";
 	}
 	

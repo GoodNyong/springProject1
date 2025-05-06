@@ -44,7 +44,7 @@
 				</thead>
 				<tbody>
 					<c:forEach var="vo" items="${nutritionGoalList}" varStatus="st">
-						<tr>
+						<tr data-index="${status.index}" data-expired="${vo.expired}">
 							<td>${st.count}</td>
 							<td>
 								<c:choose>
@@ -78,7 +78,14 @@
 								</c:choose>
 							</td>
 							<td>
-								<a href="${ctp}/rec/goalEditNutrition?goal_id=${vo.goal_id}" class="btn btn-sm btn-outline-secondary me-1">수정</a>
+								<c:choose>
+									<c:when test="${vo.expired}">
+										<span class="text-muted">종료됨</span>
+									</c:when>
+									<c:otherwise>
+										<button type="button" class="btn btn-primary" onclick="editGoal(${vo.goal_id})">수정</button>
+									</c:otherwise>
+								</c:choose>
 								<a href="javascript:void(0);" class="btn btn-sm btn-outline-danger" onclick="confirmSingleGoalDelete(${vo.goal_id});">삭제</a>
 								<input type="hidden" name="goal_id" value="${vo.goal_id}" />
 								<input type="hidden" class="goalType" value="${vo.goal_type}" />
@@ -101,7 +108,7 @@
     const ctp = "${ctp}";
     let isEditMode = false, editBtn, cancelBtn, selectAllBtn;
 
-    /* JSTL->JS 데이터 주입 */
+    /* JSTL → JS 데이터 */
     const nutrientArr = [
         <c:forEach var="n" items="${nutrientList}">
             {id:${n.id},name:"${n.name}",unit:"${n.unit}",goalUnit:${n.goalUnitCode}},
@@ -115,313 +122,317 @@
             {code:${u.code},label:"${u.label}",isInt:${u.integerOnly},goalType:${u.goalType}},
         </c:forEach>];
 
-
-    //단일 삭제
-    function confirmSingleGoalDelete(goalId) {
-        const confirmBox = document.querySelector("#wizard-delete-confirm");
-        const yesBtn = document.getElementById("wizard-confirm-yes");
-        const noBtn = document.getElementById("wizard-confirm-no");
-
-        confirmBox.classList.remove("d-none");
-
-        yesBtn.onclick = () => {
-            confirmBox.classList.add("d-none");
+    /* 단일 삭제 */
+    function confirmSingleGoalDelete(goalId){
+        const box = document.querySelector("#wizard-delete-confirm");
+        box.classList.remove("d-none");
+        document.getElementById("wizard-confirm-yes").onclick = function(){
+            box.classList.add("d-none");
             location.href = ctp + "/rec/goalDeleteNutrition?goal_id=" + goalId;
         };
-
-        noBtn.onclick = () => {
-            confirmBox.classList.add("d-none");
+        document.getElementById("wizard-confirm-no").onclick = function(){
+            box.classList.add("d-none");
         };
     }
 
-    // 수정모드
-    document.addEventListener('DOMContentLoaded', function () {
-        editBtn = document.getElementById('toggleEditModeBtn');
-        cancelBtn = document.getElementById('cancelEditModeBtn');
-        const table = document.querySelector('table');
-        // 전체 선택 버튼 생성 및 삽입
+    // 수정 모드
+    document.addEventListener("DOMContentLoaded", function(){
+        editBtn   = document.getElementById("toggleEditModeBtn");
+        cancelBtn = document.getElementById("cancelEditModeBtn");
+        const table = document.querySelector("table");
+        if(!editBtn || !cancelBtn || !table) return;
 
+        /* 전체 선택 버튼 동적 생성 */
         const toggleSelectAllBtn = document.createElement("button");
-        toggleSelectAllBtn.className = "btn btn-outline-dark me-1 d-none";
         toggleSelectAllBtn.id = "toggleSelectAllBtn";
+        toggleSelectAllBtn.className = "btn btn-outline-dark me-1 d-none";
         toggleSelectAllBtn.textContent = "✔️전체선택";
         editBtn.parentNode.insertBefore(toggleSelectAllBtn, editBtn);
-        selectAllBtn = toggleSelectAllBtn; // 전역변수로 연결
+        selectAllBtn = toggleSelectAllBtn;
 
-        if (!editBtn || !cancelBtn || !table) return;
-
-        editBtn.addEventListener('click', function () {
-            if (isEditMode) {
-                toggleSelectAllBtn.classList.remove('d-none');
-                return;
+        /* 수정모드 토글 */
+       /*  editBtn.addEventListener("click", function(){
+            if(isEditMode){
+                if(!submitGoalMultiUpdate()) return;
+            }else{
+                enterEditMode();
             }
+        }); */
+        
+     	// 수정모드 토글 및 분기 처리
+	     editBtn.addEventListener("click", function(){
+	         if(isEditMode){
+	             // 삭제 대상이 있는지 우선 확인
+	             const anySelected = [...document.querySelectorAll("tbody tr")]
+	                                  .some(r=>r.classList.contains("table-success"));
+	             if(anySelected){
+	                 if(!submitGoalMultiDelete()) return;  // 다중 삭제
+	             } else {
+	                 if(!submitGoalMultiUpdate()) return;  // 다중 수정
+	             }
+	         } else {
+	             enterEditMode();
+	         }
+	     });
 
-            isEditMode = true;
-            editBtn.textContent = '✅저장하기';
-            cancelBtn.classList.remove('d-none');
-
-            const rows = table.querySelectorAll('tbody tr');
-
-            rows.forEach((row, index) => {
-                const goalId = row.querySelector("input[name='goal_id']").value;
-                const goalType = row.querySelector("input[class='goalType']").value;
-                const itemName = row.querySelector("input[class='itemName']").value;
-                const goalUnitCode = row.querySelector("input[class='goalUnitCode']").value;
-                const cells = row.querySelectorAll('td');
-                const [noCell, typeCell, itemCell, valueCell, dateCell, setByCell, controlCell] = cells;
-
-                typeCell.innerHTML = "<select name='goal_type' class='form-select form-select-sm'>" +
-                    "<option value='1'" + (goalType === "1" ? " selected" : "") + ">영양소</option>" +
-                    "<option value='2'" + (goalType === "2" ? " selected" : "") + ">식품</option>" +
-                    "</select>";
-
-                const unitSelectWrapper = document.createElement("div");
-                unitSelectWrapper.className = "input-group";
-
-                const valueInput = document.createElement("input");
-                valueInput.type = "number";
-                valueInput.name = "target_value";
-                valueInput.className = "form-control form-control-sm";
-                valueInput.step = "0.1";
-                valueInput.required = true;
-                valueInput.value = parseFloat(valueCell.textContent.trim().replace(/[^\d.]/g, ''));
-
-                const goalUnitSelect = document.createElement("select");
-                goalUnitSelect.name = "goal_unit";
-                goalUnitSelect.className = "form-select form-select-sm";
-
-                unitSelectWrapper.appendChild(valueInput);
-                unitSelectWrapper.appendChild(goalUnitSelect);
-                valueCell.innerHTML = "";
-                valueCell.appendChild(unitSelectWrapper);
-
-
-                // 초기 렌더링
-                renderItemCell(itemCell, goalType, itemName, goalUnitSelect);
-                renderGoalUnit(goalUnitSelect, goalUnitCode, goalType);
-
-                // goal_type 변경 시 동적 렌더링
-                const goalTypeSelect = typeCell.querySelector("select[name='goal_type']");
-                goalTypeSelect.addEventListener("change", function () {
-                    const newType = this.value;
-                    renderItemCell(itemCell, newType, "", goalUnitSelect);
-                    const itemSelect = itemCell.querySelector("select");
-
-                    if (newType === "1") {
-                        // 영양소 선택 → nutrient.goalUnit 자동 적용
-                        const nutrientId = parseInt(itemSelect.value);
-                        const nutrient = nutrientArr.find(n => n.id === nutrientId);
-                        const unitCode = nutrient ? nutrient.goalUnit : null;
-                        renderGoalUnit(goalUnitSelect, unitCode, "single");
-
-                        itemSelect.addEventListener("change", function () {
-                            const nutrient = nutrientArr.find(n => n.id == parseInt(this.value));
-                            renderGoalUnit(goalUnitSelect, nutrient?.goalUnit, "single");
-                        });
-                    } else {
-                        // 식품 선택 → 식단 단위 전체 출력
-                        renderGoalUnit(goalUnitSelect, null, "multi");
-                    }
-                });
-
-                // 날짜 셀
-                const [start, end] = dateCell.textContent.trim().split("~").map(s => s.trim());
-                dateCell.innerHTML =
-                    "<input type='date' name='start_date' class='form-control form-control-sm mb-1' value='" + start + "' readonly />" +
-                    "<input type='date' name='end_date' class='form-control form-control-sm' value='" + end + "' required />";
-
-                // 제어 셀
-                controlCell.innerHTML =
-                    "<input type='hidden' name='goal_id' value='" + goalId + "' />" +
-                    "<button class='btn btn-sm btn-outline-success' onclick='submitSingleGoalEdit(this)'>개별저장</button>";
-
-                // 변경 감지
-                row.querySelectorAll("input, select").forEach(input => {
-                    input.addEventListener("change", () => {
-                        let changed = row.querySelector("input[name='goalList[" + index + "].changed']");
-                        if (!changed) {
-                            changed = document.createElement("input");
-                            changed.type = "hidden";
-                            changed.name = "goalList[" + index + "].changed";
-                            changed.value = "true";
-                            row.appendChild(changed);
-                        }
-                    });
-                });
-
-                row.addEventListener("click", (e) => {
-                    if (e.target.closest("button") || e.target.tagName === "A") return;
-
-                    row.classList.toggle("table-success");
-                    row.dataset.selected = row.classList.contains("table-success");
-
-                    const selectedCount = table.querySelectorAll("tbody tr.table-success").length;
-                    selectAllBtn.textContent = selectedCount > 0 ? "❌선택해제" : "✔️전체선택";
-                    updateGoalEditButtonLabel();
-                });
-
-            });
-
+        cancelBtn.addEventListener("click", function(){
+            toggleSelectAllBtn.classList.add("d-none");
+            location.reload();
         });
 
-        toggleSelectAllBtn.addEventListener("click", () => {
+        toggleSelectAllBtn.addEventListener("click", function(){
             const rows = document.querySelectorAll("tbody tr");
-            const shouldDeselect = [...rows].some(row => row.classList.contains("table-success"));
-
-            rows.forEach(row => {
-                if (shouldDeselect) {
-                    row.classList.remove("table-success");
-                    row.removeAttribute("data-selected");
-                } else {
-                    row.classList.add("table-success");
-                    row.setAttribute("data-selected", "true");
+            const deselect = [...rows].some(r => r.classList.contains("table-success"));
+            rows.forEach(r=>{
+                if(deselect){
+                    r.classList.remove("table-success");
+                    r.removeAttribute("data-selected");
+                }else{
+                    r.classList.add("table-success");
+                    r.setAttribute("data-selected","true");
                 }
             });
-
-            toggleSelectAllBtn.textContent = shouldDeselect ? "✔️전체선택" : "❌선택해제";
+            selectAllBtn.textContent = deselect ? "✔️전체선택" : "❌선택해제";
             updateGoalEditButtonLabel();
         });
 
-        cancelBtn.addEventListener('click', () => location.reload());
-        toggleSelectAllBtn.classList.remove('d-none');
+        /* ---------- 내부 함수 ---------- */
+        function enterEditMode(){
+            isEditMode = true;
+            editBtn.textContent = "✅적용하기";
+            cancelBtn.classList.remove("d-none");
+            selectAllBtn.classList.remove("d-none");
 
-    });
+            const rows = table.querySelectorAll("tbody tr");
+            rows.forEach(function(row, idx){
+                row.dataset.index = idx;
+                buildEditableRow(row);
+            });
+        }
 
-    //목표 항목 변경 시 단위 자동 업데이트
-    function bindAutoUnitOnNutrientChange(nutrientSelect, unitSelect) {
-        nutrientSelect.addEventListener("change", function () {
-            const selectedId = parseInt(this.value);
-            const nutrient = nutrientArr.find(n => n.id === selectedId);
-            const unitCode = nutrient ? nutrient.goalUnit : null;
-            const unitMeta = unitArr.find(u => u.code === unitCode);
+        function buildEditableRow(row){
+        	    const isExpired = row.getAttribute("data-expired") === "true";
 
-            unitSelect.innerHTML = ""; // 초기화
-            if (unitMeta) {
-                const opt = document.createElement("option");
-                opt.value = unitMeta.code;
-                opt.textContent = unitMeta.label;
-                opt.selected = true;
-                unitSelect.appendChild(opt);
+        	    const goalId = row.querySelector("input[name='goal_id']").value;
+        	    const goalType = row.querySelector(".goalType").value;
+        	    const itemName = row.querySelector(".itemName").value;
+        	    const goalUnitCode = row.querySelector(".goalUnitCode").value;
+
+        	    const cells = row.querySelectorAll("td");
+        	    const typeCell  = cells[1];
+        	    const itemCell  = cells[2];
+        	    const valueCell = cells[3];
+        	    const dateCell  = cells[4];
+        	    const ctrlCell  = cells[6];
+
+        	    /* 목표 유형 select */
+        	    typeCell.innerHTML =
+        	        "<select name='goal_type' class='form-select form-select-sm'" +
+        	        (isExpired ? " disabled" : "") + ">" +
+        	        "<option value='1'" + (goalType==="1"?" selected":"") + ">영양소</option>" +
+        	        "<option value='2'" + (goalType==="2"?" selected":"") + ">식품</option>" +
+        	        "</select>";
+
+        	    /* 목표 수치 + 단위 */
+        	    const vNum = parseFloat(valueCell.textContent.trim().replace(/[^\d.]/g,""));
+        	    valueCell.innerHTML =
+        	        "<div class='input-group'>" +
+        	            "<input type='number' name='target_value' class='form-control form-control-sm' step='0.1' value='"+vNum+"' required" +
+        	            (isExpired ? " disabled" : "") + "/>" +
+        	            "<select name='goal_unit' class='form-select form-select-sm' required" +
+        	            (isExpired ? " disabled" : "") + "></select>" +
+        	        "</div>";
+
+        	    const goalUnitSel = valueCell.querySelector("select[name='goal_unit']");
+        	    renderItemCell(itemCell, goalType, itemName, goalUnitSel);
+        	    renderGoalUnit(goalUnitSel, goalUnitCode, goalType);
+
+        	    typeCell.querySelector("select[name='goal_type']").addEventListener("change", function(){
+        	        const newType = this.value;
+        	        renderItemCell(itemCell, newType, "", goalUnitSel);
+        	        if(newType==="1"){
+        	            const nId = parseInt(itemCell.querySelector("select").value);
+        	            const unit = (nutrientArr.find(n=>n.id===nId)||{}).goalUnit;
+        	            renderGoalUnit(goalUnitSel, unit, "single");
+        	        }else{
+        	            renderGoalUnit(goalUnitSel, null, "multi");
+        	        }
+        	    });
+
+        	    /* 기간 */
+        	    const dates = dateCell.textContent.trim().split("~");
+        	    const s = dates[0].trim(), e = dates[1].trim();
+        	    dateCell.innerHTML =
+        	        "<input type='date' name='start_date' class='form-control form-control-sm mb-1' value='"+s+"' readonly/>" +
+        	        "<input type='date' name='end_date' class='form-control form-control-sm' value='"+e+"' required" +
+        	        (isExpired ? " disabled" : "") + "/>";
+
+        	    /* 제어 셀 */
+        	    ctrlCell.innerHTML =
+        	        "<input type='hidden' name='goal_id' value='"+goalId+"'/>" +
+        	        (isExpired
+        	            ? "<span class='text-muted'>수정불가</span>"
+        	            : "<button class='btn btn-sm btn-outline-success' onclick='submitSingleGoalEdit(this)'>개별저장</button>");
+
+        	    /* 변경 감지 */
+        	    row.querySelectorAll("input,select").forEach(function(el){
+        	        el.addEventListener("change", function(){
+        	            markRowChanged(row);
+        	        });
+        	    });
+
+        	    /* 행 선택 토글 */
+        	    row.addEventListener("click", function(e){
+        	        if(e.target.closest("button")||e.target.tagName==="A") return;
+        	        row.classList.toggle("table-success");
+        	        row.dataset.selected = row.classList.contains("table-success");
+        	        updateGoalEditButtonLabel();
+        	    });
+        	}
+
+        function markRowChanged(row){
+            if(row.dataset.changed!=="true"){
+                row.dataset.changed = "true";
+                const hidden = createHidden("goalList["+row.dataset.index+"].changed","true");
+                row.appendChild(hidden);
             }
-        });
-    }
+            updateGoalEditButtonLabel();
+        }
 
-    // 버튼 상태 업데이트 함수
-    function updateGoalEditButtonLabel() {
+        /* 다중 저장 */
+        function submitGoalMultiUpdate(){
+            const changedRows = [...document.querySelectorAll("tbody tr")].filter(r=>r.dataset.changed==="true");
+            if(changedRows.length===0){
+                showWizardMessage("수정할 목표가 없어요! 행을 선택하거나 내용을 바꿔주세요.");
+                return false;
+            }
+
+            const form = document.createElement("form");
+            form.method = "post";
+            form.action = ctp + "/rec/goalMultiUpdateNutrition";
+
+            let idx = 0, valid = true;
+            changedRows.forEach(function(row){
+                if(!validateFormOnSubmit(row)){ valid=false; return; }
+                ["goal_id","goal_type","nutrient_id","food_id",
+                 "target_value","goal_unit","start_date","end_date"].forEach(function(nm){
+                    const el = row.querySelector("[name='"+nm+"']");
+                    if(el) form.appendChild(createHidden("goalList["+idx+"]."+nm, el.value));
+                });
+                form.appendChild(createHidden("goalList["+idx+"].changed","true"));
+                idx++;
+            });
+
+            if(!valid) return false;
+            document.body.appendChild(form); form.submit();
+            return true;
+        }
+
+    }); /* DOMContentLoaded 끝 */
+
+    /* ---------------- 공통 유틸 ---------------- */
+    function updateGoalEditButtonLabel(){
         const rows = document.querySelectorAll("tbody tr");
         let selected = 0, changed = 0;
-
-        rows.forEach(row => {
-            if (row.classList.contains("table-success")) selected++;
-            if (row.querySelector("input[name*='.changed']")) changed++;
+        rows.forEach(function(r){
+            if(r.classList.contains("table-success")) selected++;
+            if(r.dataset.changed==="true") changed++;
         });
-
+        /* if(editBtn){
+            editBtn.textContent = changed>0 ? "✅적용하기" : "✏️수정모드";
+        } */
         if (editBtn) {
-            if (changed > 0) {
-                editBtn.textContent = "✅적용하기";
-            } else if (selected > 0) {
-                editBtn.textContent = "🗑️선택삭제";
-            } else {
-                editBtn.textContent = "✅적용하기";
-            }
+            if (selected > 0) editBtn.textContent = "🗑️선택삭제";
+            else editBtn.textContent = changed > 0 ? "✅적용하기" : "✏️수정모드";
         }
-        if (selectAllBtn) {
-            selectAllBtn.textContent = selected > 0 ? "❌선택해제" : "✔️전체선택";
+        if(selectAllBtn){
+            selectAllBtn.textContent = selected>0 ? "❌선택해제" : "✔️전체선택";
         }
     }
 
-    // 목표 단위 렌더링
-    function renderGoalUnit(selectEl, codeOrNull, mode) {
-        selectEl.innerHTML = "";
-        if (mode === "single") {
-            const unitMeta = unitArr.find(u => u.code == codeOrNull);
-            if (unitMeta) {
-                const opt = document.createElement("option");
-                opt.value = u.code;
-                opt.textContent = u.label;
-                opt.selected = true;
-                selectEl.appendChild(opt);
+    function renderGoalUnit(sel, code, mode){
+        sel.innerHTML = "";
+        if(mode==="single"){
+            const meta = unitArr.find(u=>u.code==code);
+            if(meta){
+                const o = document.createElement("option");
+                o.value = meta.code; o.textContent = meta.label; o.selected = true;
+                sel.appendChild(o);
             }
-        } else {
-            unitArr.filter(u => u.goalType == 2).forEach(u => {
-                const opt = document.createElement("option");
-                opt.value = u.code;
-                opt.textContent = u.label;
-                if (u.code == codeOrNull) opt.selected = true;
-                selectEl.appendChild(opt);
+        }else{
+            unitArr.filter(u=>u.goalType==2).forEach(function(u){
+                const o = document.createElement("option");
+                o.value = u.code; o.textContent = u.label;
+                if(u.code==code) o.selected = true;
+                sel.appendChild(o);
             });
         }
     }
 
-    // 목표 항목 렌더링
-    function renderItemCell(cell, goalTypeVal, selectedName, unitSelect) {
-        const select = document.createElement("select");
-        select.name = goalTypeVal === "1" ? "nutrient_id" : "food_id";
-        select.className = "form-select form-select-sm";
-
-        const arr = goalTypeVal === "1" ? nutrientArr : foodArr;
-        arr.forEach(obj => {
+    function renderItemCell(cell, typeVal, selectedName, unitSel){
+        const sel = document.createElement("select");
+        sel.name = typeVal==="1" ? "nutrient_id" : "food_id";
+        sel.className = "form-select form-select-sm";
+        const arr = typeVal==="1" ? nutrientArr : foodArr;
+        arr.forEach(function(o){
             const opt = document.createElement("option");
-            opt.value = obj.id;
-            opt.textContent = obj.name;
-            if (obj.name === selectedName) opt.selected = true;
-            select.appendChild(opt);
+            opt.value = o.id; opt.textContent = o.name;
+            if(o.name===selectedName) opt.selected = true;
+            sel.appendChild(opt);
         });
-        cell.innerHTML = "";
-        cell.appendChild(select);
+        cell.innerHTML = ""; cell.appendChild(sel);
 
-        // goalType이 영양소인 경우: 단위 자동 지정
-        if (goalTypeVal === "1" && unitSelect) {
-            function setUnitByNutrientId(nutrientId) {
-                const nutrient = nutrientArr.find(n => n.id === parseInt(nutrientId));
-                const unitCode = nutrient ? nutrient.goalUnit : null;
-                const unitMeta = unitArr.find(u => u.code === unitCode);
-                unitSelect.innerHTML = "";
-                if (unitMeta) {
-                    const opt = document.createElement("option");
-                    opt.value = unitMeta.code;
-                    opt.textContent = unitMeta.label;
-                    opt.selected = true;
-                    unitSelect.appendChild(opt);
-                }
+        if(typeVal==="1" && unitSel){
+            function setUnit(id){
+                const nt = nutrientArr.find(n=>n.id===parseInt(id))||{};
+                renderGoalUnit(unitSel, nt.goalUnit, "single");
             }
-            setUnitByNutrientId(select.value); // 초기 렌더링
-
-            select.addEventListener("change", function () {
-                setUnitByNutrientId(this.value);
-            });
+            setUnit(sel.value);
+            sel.addEventListener("change", function(){ setUnit(this.value); });
         }
     }
 
-    // 개별 저장(수정 모드 - 단일 수정)
-    function submitSingleGoalEdit(button) {
-        const row = button.closest("tr");
-        if (!validateFormOnSubmit(row)) return;
-
-        const form = document.createElement("form");
-        form.method = "POST";
-        form.action = ctp + "/rec/goalUpdateNutrition";
-
-        const names = [
-            "goal_id", "goal_type", "target_value", "goal_unit",
-            "start_date", "end_date", "nutrient_id", "food_id"
-        ];
-
-        names.forEach(name => {
-            const el = row.querySelector("[name='" + name + "']");
-            if (el) {
-                const hidden = document.createElement("input");
-                hidden.type = "hidden";
-                hidden.name = name;
-                hidden.value = el.value;
-                form.appendChild(hidden);
-            }
-        });
-
-        document.body.appendChild(form);
-        form.submit();
+    function createHidden(nm, val){
+        const i = document.createElement("input");
+        i.type = "hidden"; i.name = nm; i.value = val; return i;
     }
+
+    /* 단건 저장 */
+    function submitSingleGoalEdit(btn){
+        const row = btn.closest("tr");
+        if(!validateFormOnSubmit(row)) return;
+        const form = document.createElement("form");
+        form.method = "post";
+        form.action = ctp + "/rec/goalUpdateNutrition";
+        ["goal_id","goal_type","target_value","goal_unit",
+         "start_date","end_date","nutrient_id","food_id"].forEach(function(nm){
+            const el = row.querySelector("[name='"+nm+"']");
+            if(el) form.appendChild(createHidden(nm, el.value));
+        });
+        document.body.appendChild(form); form.submit();
+    }
+    
+    /* 다중 삭제 */
+    function submitGoalMultiDelete(){
+    	  const selectedRows = [...document.querySelectorAll("tbody tr")]
+    	    .filter(r=>r.classList.contains("table-success"));
+    	  if(selectedRows.length===0){
+    	    showWizardMessage("삭제할 목표를 선택하세요.");
+    	    return false;
+    	  }
+    	  const form = document.createElement("form");
+    	  form.method = "post";
+    	  form.action = ctp + "/rec/goalMultiDeleteNutrition";
+    	  selectedRows.forEach((row,idx)=>{
+    	    const id = row.querySelector("input[name='goal_id']").value;
+    	    form.appendChild(createHidden("goalList["+idx+"].goal_id", id));
+    	  });
+    	  document.body.appendChild(form);
+    	  form.submit();
+    	  return true;
+    	}
 
 </script>
+
 
 <jsp:include page="/WEB-INF/views/include/footer.jsp" />

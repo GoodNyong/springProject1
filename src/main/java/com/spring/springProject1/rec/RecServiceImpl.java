@@ -17,10 +17,17 @@ import com.spring.springProject1.common.vo.FoodInfoVo;
 import com.spring.springProject1.common.vo.NutritionGoalVo;
 import com.spring.springProject1.rec.dao.RecDao;
 import com.spring.springProject1.rec.vo.ExerciseRecordVo;
+import com.spring.springProject1.rec.vo.ExerciseSummaryVo;
+import com.spring.springProject1.rec.vo.GoalProgressVo;
+import com.spring.springProject1.rec.vo.GoalStatsVo;
 import com.spring.springProject1.rec.vo.MealRecordVo;
+import com.spring.springProject1.rec.vo.MealSummaryVo;
+import com.spring.springProject1.rec.vo.NutritionProgressVo;
 
 @Service
 public class RecServiceImpl implements RecService {
+
+	Date today = new Date(); // 현재 날짜
 
 	@Autowired
 	private RecDao recDao;
@@ -396,6 +403,8 @@ public class RecServiceImpl implements RecService {
 					break;
 			}
 			vo.setGoal_unit_label(label);
+			if (vo.getEnd_date() != null && vo.getEnd_date().before(today))
+				vo.setExpired(true); // 종료일 기준 분기 처리
 		}
 		return list;
 	}
@@ -478,7 +487,8 @@ public class RecServiceImpl implements RecService {
 
 		while (true) {
 			String param = request.getParameter("goalList[" + index + "].goal_id");
-			if (param == null) break;
+			if (param == null)
+				break;
 
 			try {
 				int id = Integer.parseInt(param);
@@ -496,7 +506,7 @@ public class RecServiceImpl implements RecService {
 		if (result == 0)
 			throw new IllegalArgumentException("삭제 가능한 마법 목표가 없어요. 다시 확인해 주세요.");
 	}
-	
+
 	@Override
 	public void setNutritionGoal(NutritionGoalVo vo) {
 		if (vo.getUser_id() <= 0 || vo.getGoal_type() == 0)
@@ -517,10 +527,10 @@ public class RecServiceImpl implements RecService {
 		} else if (vo.getGoal_type() == 2) { // 식품 목표
 			if (vo.getTarget_value() == null || vo.getGoal_unit() == null) // 필수 입력 확인
 				throw new IllegalArgumentException("수치와 단위를 모두 입력해 주세요.");
-			
+
 			// 단위 코드 -> 문자열
 			GoalUnitEnum unitEnum = GoalUnitEnum.findByCode(vo.getGoal_unit());
-			
+
 			if (unitEnum == null)
 				throw new IllegalArgumentException("유효하지 않은 단위입니다.");
 			// 섭취량 주입
@@ -543,21 +553,22 @@ public class RecServiceImpl implements RecService {
 		List<NutritionGoalVo> list = recDao.getNutritionGoalList(user_id);
 
 		for (NutritionGoalVo vo : list) {
-			String label = "단위없음";
+//			String label = "단위없음";
 			if (vo.getGoal_type() == 1 && vo.getNutrient_id() != null) {
 				NutrientEnum n = NutrientEnum.findById(vo.getNutrient_id());
 				if (n != null) {
 					vo.setNutrient_name(n.getName());
 					vo.setGoal_unit_label(n.getGoalUnitEnum().getLabel());
 				}
-			}
-			else if (vo.getGoal_type() == 2 && vo.getFood_id() != null) {
+			} else if (vo.getGoal_type() == 2 && vo.getFood_id() != null) {
 				FoodInfoVo food = recDao.getFoodById(vo.getFood_id());
 				if (food != null) {
 					vo.setFood_name(food.getName());
 					vo.setGoal_unit_label(GoalUnitEnum.findByCode(vo.getGoal_unit()).getLabel());
 				}
 			}
+			if (vo.getEnd_date() != null && vo.getEnd_date().before(today))
+				vo.setExpired(true); // 종료일 기준 상태 처리
 		}
 		return list;
 	}
@@ -565,7 +576,8 @@ public class RecServiceImpl implements RecService {
 	@Override
 	public NutritionGoalVo getNutritionGoalById(int goal_id, int user_id) {
 		NutritionGoalVo vo = recDao.getNutritionGoalById(goal_id, user_id);
-		if (vo == null) return null;
+		if (vo == null)
+			return null;
 
 		String label = "단위없음";
 
@@ -574,13 +586,13 @@ public class RecServiceImpl implements RecService {
 			label = vo.getNutrientEnum().getGoalUnitEnum().getLabel(); // ✅ 영양소 기준 단위
 		} else if (vo.getGoal_type() == 2 && vo.getGoal_unit() != null) {
 			GoalUnitEnum unitEnum = GoalUnitEnum.findByCode(vo.getGoal_unit());
-			if (unitEnum != null) label = unitEnum.getLabel(); // ✅ 식품 기준 단위
+			if (unitEnum != null)
+				label = unitEnum.getLabel(); // ✅ 식품 기준 단위
 		}
 
 		vo.setGoal_unit_label(label);
 		return vo;
 	}
-
 
 	@Override
 	public void updateNutritionGoal(NutritionGoalVo vo) {
@@ -611,15 +623,198 @@ public class RecServiceImpl implements RecService {
 		if (result == 0)
 			throw new IllegalArgumentException("이 식단 목표는 더 이상 수정할 수 없어요!");
 	}
-	
+
 	@Override
 	public void deleteNutritionGoal(int goal_id, int user_id) {
-		if (goal_id <= 0) throw new IllegalArgumentException("마법 목표 ID가 유효하지 않아요!");
+		if (goal_id <= 0)
+			throw new IllegalArgumentException("마법 목표 ID가 유효하지 않아요!");
 		int result = recDao.deleteNutritionGoal(goal_id, user_id);
 		if (result == 0)
 			throw new IllegalArgumentException("삭제할 수 없는 식단 목표입니다.");
 	}
 
+	@Override
+	@Transactional
+	public void multiUpdateNutritionGoal(List<NutritionGoalVo> list) {
+		if (list == null || list.isEmpty())
+			throw new IllegalArgumentException("수정할 목표가 없습니다.");
 
+		for (NutritionGoalVo vo : list) {
+			if (!"true".equalsIgnoreCase(vo.getChanged()))
+				continue;
+			// …(기존 단건 검증 로직 재사용)…(생략)
+			if (recDao.updateNutritionGoal(vo) == 0)
+				throw new IllegalArgumentException("일부 목표는 수정할 수 없습니다.");
+		}
+	}
+
+	@Override
+	@Transactional
+	public void multiDeleteNutritionGoal(HttpServletRequest request, int userId) {
+		List<Integer> goalIdList = new ArrayList<>();
+		int idx = 0;
+		while (true) {
+			String param = request.getParameter("goalList[" + idx + "].goal_id");
+			if (param == null)
+				break;
+			try {
+				goalIdList.add(Integer.parseInt(param));
+			} catch (NumberFormatException e) {
+				throw new IllegalArgumentException("목표 ID에 숫자가 아닌 값이 있어요.");
+			}
+			idx++;
+		}
+		if (goalIdList.isEmpty())
+			throw new IllegalArgumentException("삭제할 식단 목표를 선택해주세요.");
+		int result = recDao.deleteNutritionGoals(goalIdList, userId);
+		if (result == 0)
+			throw new IllegalArgumentException("삭제 가능한 식단 목표가 없습니다.");
+	}
+
+	@Override
+	public GoalStatsVo getExerciseGoalStats(int userId) {
+		return recDao.getExerciseGoalStats(userId);
+	}
+
+	@Override
+	public GoalStatsVo getNutritionGoalStats(int userId) {
+		return recDao.getNutritionGoalStats(userId);
+	}
+
+	@Override
+	public double getExerciseGoalAchievementRate(int userId) {
+		List<ExerciseGoalVo> goals = recDao.getActiveExerciseGoals(userId);
+		if (goals == null || goals.isEmpty())
+			return 0;
+
+		double targetTotal = 0;
+		double progressTotal = 0;
+
+		for (ExerciseGoalVo g : goals) {
+			targetTotal += g.getTarget_value();
+			Double p = recDao.getExerciseProgressForGoal(userId, g.getExercise_id(), g.getStart_date(), g.getEnd_date(),
+					g.getTarget_type());
+			progressTotal += (p == null ? 0 : p);
+		}
+		if (targetTotal == 0)
+			return 0;
+		return Math.min((progressTotal / targetTotal) * 100, 100);
+	}
+
+	@Override
+	public double getMealGoalAchievementRate(int userId) {
+		List<NutritionGoalVo> goals = recDao.getActiveNutritionGoals(userId);
+		if (goals == null || goals.isEmpty())
+			return 0;
+
+		double targetTotal = 0;
+		double progressTotal = 0;
+
+		for (NutritionGoalVo g : goals) {
+			targetTotal += g.getTarget_value();
+
+			Double p;
+			if (g.getGoal_type() == 2) { // 식품 기준
+				p = recDao.getFoodProgressForGoal(userId, g.getFood_id(), g.getStart_date(), g.getEnd_date());
+			} else { // 영양소 기준
+				p = recDao.getNutrientProgressForGoal(userId, g.getNutrient_id(), g.getStart_date(), g.getEnd_date());
+			}
+			progressTotal += (p == null ? 0 : p);
+		}
+		if (targetTotal == 0)
+			return 0;
+		return Math.min((progressTotal / targetTotal) * 100, 100);
+	}
+
+	public List<ExerciseSummaryVo> getExerciseDailySummary(int user_id) {
+		return recDao.getExerciseDailySummary(user_id);
+	}
+
+	public List<GoalProgressVo> getExerciseGoalProgress(int user_id) {
+		List<GoalProgressVo> list = recDao.getExerciseGoalProgress(user_id);
+		System.out.println("list : " + list);
+		Date today = new Date();
+		for (GoalProgressVo vo : list) {
+			// 단위 코드 → 라벨
+			String label = "단위없음";
+			switch (vo.getGoal_unit()) {
+				case 1:
+					label = "분";
+					break;
+				case 2:
+					label = "시간";
+					break;
+				case 11:
+					label = "kcal";
+					break;
+				case 12:
+					label = "J";
+					break;
+				case 21:
+					label = "회";
+					break;
+				case 22:
+					label = "세트";
+					break;
+			}
+			vo.setGoal_unit_label(label);
+			if (vo.getEnd_date() != null && vo.getEnd_date().before(today))
+				vo.setExpired(true);
+		}
+		return list;
+	}
+
+	@Override
+	public List<MealSummaryVo> getMealDailySummary(int user_id) {
+		return recDao.getMealDailySummary(user_id);
+	}
+
+	@Override
+	public List<NutritionProgressVo> getNutritionGoalProgress(int user_id) {
+		List<NutritionProgressVo> list = recDao.getNutritionGoalProgress(user_id);
+		Date today = new Date();
+
+		for (NutritionProgressVo vo : list) {
+
+			// 영양소 목표
+			if (vo.getGoal_type() == 1 && vo.getNutrient_id() != null) {
+				NutrientEnum n = NutrientEnum.findById(vo.getNutrient_id());
+				if (n != null) {
+					vo.setGoal_name(n.getName());
+					// DB 값이 잘못 저장된 경우를 대비해 goal_unit 보정
+					if (vo.getGoal_unit() == 0) {
+						vo.setGoal_unit(n.getGoalUnitCode());
+					}
+					// label 보정
+					GoalUnitEnum unitEnum = n.getGoalUnitEnum();
+					if (unitEnum != null) {
+						vo.setGoal_unit_label(unitEnum.getLabel());
+					}
+				}
+			}
+
+			// 식품 목표
+			else if (vo.getGoal_type() == 2 && vo.getFood_id() != null) {
+				FoodInfoVo food = recDao.getFoodById(vo.getFood_id());
+				if (food != null) {
+					vo.setGoal_name(food.getName());
+				}
+
+				// goal_unit → label 매핑 (GoalUnitEnum)
+				GoalUnitEnum unitEnum = GoalUnitEnum.findByCode(vo.getGoal_unit());
+				if (unitEnum != null) {
+					vo.setGoal_unit_label(unitEnum.getLabel());
+				} else {
+					vo.setGoal_unit_label("단위없음");
+				}
+			}
+
+			// 만료 여부
+			if (vo.getEnd_date() != null && vo.getEnd_date().before(today)) {
+				vo.setExpired(true);
+			}
+		}
+		return list;
+	}
 
 }

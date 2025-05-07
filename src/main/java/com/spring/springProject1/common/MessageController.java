@@ -167,7 +167,7 @@ public class MessageController {
 		}
 		else if(msgFlag.equals("passwordEncryptNoMain")) {
 			model.addAttribute("message", "비밀번호 암호화 중 오류가 발생했습니다.");
-			model.addAttribute("url", "user/userMain");
+			model.addAttribute("url", "user/main");
 		}
 		else if(msgFlag.equals("userLoginOk")) {
 		  model.addAttribute("message", username + " 님, 환영합니다! 로그인에 성공했습니다.");

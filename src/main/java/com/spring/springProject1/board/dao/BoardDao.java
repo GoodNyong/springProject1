@@ -23,7 +23,7 @@ public interface BoardDao {
 
 	void setBoardViewLog(@Param("board_id") int board_id, @Param("sUser_id") int sUser_id, @Param("host_ip") String host_ip);
 
-	BoardViewLogVo getBoardViewLog(@Param("board_id") int board_id, @Param("user_id") int user_id);
+	BoardViewLogVo getBoardViewLog(@Param("board_id") int board_id, @Param("viewer_id") int viewer_id);
 
 	BoardVo getBoardContent(@Param("board_id") int board_id);
 

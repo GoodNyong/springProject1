@@ -23,10 +23,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.spring.springProject1.common.ARIAUtil;
 import com.spring.springProject1.common.SecurityUtil;
-
 import com.spring.springProject1.rec.RecService;
 
 @Controller
@@ -42,30 +42,31 @@ public class UserController {
 	@Autowired
 	private RecService recService;
 	
-//	@GetMapping("/main")
-//	public String mainPageGet(HttpSession session, Model model) {
-//	    UserVo loginUser = new UserVo();
-//	    loginUser.setUser_id(1); // 존재하는 더미 유저 ID
-//	    loginUser.setUsername("테스트유저");
-//	    loginUser.setEmail("test@example.com");
-//	    loginUser.setPassword("encryptedPw"); // 실제 비밀번호는 무관
-//	    loginUser.setPhone_number("01012345678");
-//	    loginUser.set_verified(true);
-//	    loginUser.setCreated_at(new Date());
-//	    loginUser.setUpdated_at(new Date());
-//	    loginUser.set_premium(false);
-//
-//	    session.setAttribute("loginUser", loginUser);
-//	    
-//	    int userId = loginUser.getUser_id();
-//	    double exerciseRate = recService.getExerciseGoalAchievementRate(userId);
-//	    double mealRate = recService.getMealGoalAchievementRate(userId);
-//	    
-//	    model.addAttribute("exerciseRate", (int) exerciseRate);
-//	    model.addAttribute("mealRate", (int) mealRate);
-//	    
-//		return "user/main";
-//	}
+	@GetMapping("/main")
+	public String mainPageGet(HttpSession session, Model model, RedirectAttributes ra) {
+		Integer userId = (Integer) session.getAttribute("loginUser"); UserVo user = userService.getUserByUser_id(userId);
+		if (user == null) {
+			ra.addFlashAttribute("message", "로그인이 필요합니다.");
+			ra.addFlashAttribute("url", "/");
+			return "redirect:/message/error";
+		}
+	    System.out.println("userId : " + userId);
+	    double exerciseRate = recService.getExerciseGoalAchievementRate(userId);
+	    System.out.println("exerciseRate : " + exerciseRate);
+	    double mealRate = recService.getMealGoalAchievementRate(userId);
+	    System.out.println("mealRate : " + mealRate);
+	    
+	    model.addAttribute("exerciseRate", (int) exerciseRate);
+	    model.addAttribute("mealRate", (int) mealRate);
+	    
+		return "user/main";
+	}
+	
+	// user 등록폼
+		@RequestMapping(value = "/userJoin", method = RequestMethod.GET)
+		public String userJoinGet() {
+			return "user/userJoin";
+		}
 	
 	// user 회원가입 처리
 	@RequestMapping(value = "/userJoin", method = RequestMethod.POST)
@@ -166,7 +167,7 @@ public class UserController {
 	  	return "redirect:/message/increaseLoginFail";
 	  }
 	  
-	  if (vo.getLogin_fail_count() >= 5) {
+	  if (vo.getLogin_fail() >= 5) {
 	  	return "redirect:/message/LoginLocked";
 	  }
 	  
@@ -178,10 +179,10 @@ public class UserController {
 	  
 	  //로그인 성공 처리
 	  session.setAttribute("sUser", vo);
-	  session.setAttribute("sUser_id", vo.getUser_id());
-		session.setAttribute("sEmail", vo.getEmail());
-		session.setAttribute("sUsername", vo.getUsername());
-		session.setAttribute("sRoles", roles);
+	  session.setAttribute("loginUser", vo.getUser_id());
+	  session.setAttribute("sEmail", vo.getEmail());
+	  session.setAttribute("sUsername", vo.getUsername());
+	  session.setAttribute("sRoles", roles);
 	  session.setMaxInactiveInterval(1800);
 	  
 	  //임시비밀 번호로 로그인 하면 강제로 비밀번호 변경
@@ -450,7 +451,7 @@ public class UserController {
 	//비밀번호 확인 후 보내기 처리
 	@RequestMapping(value = "/passwordCheck/{passwordFlag}", method = RequestMethod.POST)
 	public String passwordCheckPost(HttpSession session, String checkPassword, @PathVariable String passwordFlag) {
-		Integer user_id = (Integer) session.getAttribute("sUser_id");
+		Integer user_id = (Integer) session.getAttribute("loginUser");
 		UserVo vo = userService.getUserByUser_id(user_id);
 	
 		// 암호화된 비밀번호와 비교
@@ -490,7 +491,7 @@ public class UserController {
 	@RequestMapping(value = "/userUpdate", method = RequestMethod.GET)
 	public String userUpdateGet(Model model, HttpSession session) {
 		
-		Integer user_id = (Integer) session.getAttribute("sUser_id");
+		Integer user_id = (Integer) session.getAttribute("loginUser");
 		UserVo vo = userService.getUserByUser_id(user_id);
 		
 		model.addAttribute("vo", vo);
@@ -500,7 +501,7 @@ public class UserController {
 	//회원정보 수정 처리
 	@RequestMapping(value = "/userUpdate", method = RequestMethod.POST)
 	public String userUpdatePost(HttpSession session, String username, String phone_number) {
-	   Integer user_id = (Integer) session.getAttribute("sUser_id");
+	   Integer user_id = (Integer) session.getAttribute("loginUser");
 	
 	   //기존 사용자 정보 가져오기
 	   UserVo vo = userService.getUserByUser_id(user_id);
@@ -508,7 +509,7 @@ public class UserController {
 	   //vo에 담기
 	   vo.setUsername(username);
 	   vo.setPhone_number(phone_number);
-	
+	   System.out.println("vo : " + vo);
 	   //DB 업데이트
 	   int res = userService.updateUser(vo);
 	
@@ -522,9 +523,8 @@ public class UserController {
 	
 	@RequestMapping(value = "/userPage", method = RequestMethod.GET)
 	public String userPageGet(HttpSession session, Model model) {
-	    Integer user_id = (Integer) session.getAttribute("sUser_id");
+	    Integer user_id = (Integer) session.getAttribute("loginUser");
 	    UserVo vo = userService.getUserByUser_id(user_id);
-
 	    model.addAttribute("vo", vo);
 	    return "user/userPage";
 	}

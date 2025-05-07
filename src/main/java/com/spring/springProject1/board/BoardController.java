@@ -109,7 +109,7 @@ public class BoardController {
 	public String boardContentGet(@PathVariable int board_id, @PathVariable String category, HttpSession session, HttpServletRequest request, Model model) {
 		
 
-		Integer sUser_id = (Integer) session.getAttribute("sUser_id");
+		Integer sUser_id = (Integer) session.getAttribute("loginUser");
 		if (sUser_id == null) {
 	    return "redirect:/user/userLogin"; // 🔥 로그인 페이지로 리다이렉트
 		}
@@ -125,7 +125,7 @@ public class BoardController {
 		boardService.setBoardViewLog(board_id, sUser_id, request.getRemoteAddr());
 
 		// 로그인 된 사용자 좋아요 여부 조회
-		boolean isLiked = boardService.checkIsLiked(board_id, sUser_id);
+//		boolean isLiked = boardService.checkIsLiked(board_id, sUser_id);
 
 		
 		System.out.println("category" + category);
@@ -150,7 +150,7 @@ public class BoardController {
 		// 모델 담기
 		model.addAttribute("vo", vo);
 		model.addAttribute("commentVos", commentVos);
-		model.addAttribute("isLiked", isLiked);
+//		model.addAttribute("isLiked", isLiked);
 		model.addAttribute("preVo", preVo);
 		model.addAttribute("nextVo", nextVo);
 		//model.addAttribute("commentList", commentList);
@@ -163,7 +163,7 @@ public class BoardController {
 	@ResponseBody
 	@RequestMapping(value = "/updateBoardLike", method = RequestMethod.POST)
 	public String updateBoardLikePost(Integer board_id, HttpSession session) {
-	  Integer user_id = (Integer) session.getAttribute("sUser_id");
+	  Integer user_id = (Integer) session.getAttribute("loginUser");
 	  if (user_id == null) {
 	    return "nologin";
 	  }
@@ -202,7 +202,7 @@ public class BoardController {
 	@ResponseBody
 	@RequestMapping(value = "/commentInput", method = RequestMethod.POST)
 	public String commentInputPost(Integer board_id, String content, HttpSession session, HttpServletRequest request) {
-	  Integer user_id = (Integer) session.getAttribute("sUser_id");
+	  Integer user_id = (Integer) session.getAttribute("loginUser");
 	  String username = (String) session.getAttribute("sUsername");
 
 	  if (user_id == null || username == null) {
@@ -218,7 +218,7 @@ public class BoardController {
 	@ResponseBody
 	@RequestMapping(value = "/replyInput", method = RequestMethod.POST)
 	public String replyInputPost(Integer comment_id, String content, HttpSession session, HttpServletRequest request) {
-		Integer user_id = (Integer) session.getAttribute("sUser_id");
+		Integer user_id = (Integer) session.getAttribute("loginUser");
 		String username = (String) session.getAttribute("sUsername");
 		
 		if (user_id == null || username == null) {
@@ -241,7 +241,7 @@ public class BoardController {
 	@ResponseBody
 	@RequestMapping(value = "/reportInput", method = RequestMethod.POST)
 	public String reportInputPost(HttpSession session, String part, Integer board_id, Integer comment_id, Integer reply_id, String reason) {
-		Integer user_id = (Integer) session.getAttribute("sUser_id");
+		Integer user_id = (Integer) session.getAttribute("loginUser");
 		
 		if (user_id == null) {
 			return "nologin";
@@ -255,7 +255,7 @@ public class BoardController {
 	//삭제 처리
 	@RequestMapping(value = "/boardDelete", method = RequestMethod.POST)
 	public String boardDeletePOST(HttpSession session, Integer board_id, Integer comment_id, Integer reply_id, String part, String category) {
-		Integer user_id = (Integer) session.getAttribute("sUser_id");
+		Integer user_id = (Integer) session.getAttribute("loginUser");
 		
 		if(part.equals("boardContent")) {
 			//본인이나 관리자인지 한번 더 확인

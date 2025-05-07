@@ -19,5 +19,5 @@ public class UserVo {
 	private LocalDateTime created_at;
 	private LocalDateTime updated_at;
 	private int is_premium;
-	private int login_fail_count;
+	private int login_fail;
 }

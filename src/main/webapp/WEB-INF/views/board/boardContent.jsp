@@ -18,7 +18,7 @@ pageContext.setAttribute("newLine", "\n");
 <script>
     'use strict';
     
-    let sUser_id = '${sessionScope.sUser_id}';
+    let sUser_id = '${sessionScope.loginUser}';
     let ctp = '${ctp}';
     let board_id = ${vo.board_id}
     
@@ -325,7 +325,7 @@ pageContext.setAttribute("newLine", "\n");
     <div style="font-size: 16px; margin-bottom: 30px;">${vo.content}</div>
 
     <div class="d-flex gap-2 mb-4">
-      <c:if test="${sessionScope.sUser_id eq vo.user_id}">
+      <c:if test="${sessionScope.loginUser eq vo.user_id}">
         <a href="${ctp}/board/boardUpdateForm?board_id=${vo.board_id}" class="btn btn-outline-success btn-sm">수정</a>
         <form id="deleteContentForm" action="${ctp}/board/boardDelete" method="post">
           <input type="hidden" name="board_id" value="${vo.board_id}" />

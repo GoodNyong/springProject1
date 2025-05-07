@@ -27,7 +27,7 @@
 	</select>
 	
 	<update id="resetLoginFail">
-		UPDATE users SET login_fail_count = 0 WHERE email = #{email}
+		UPDATE users SET login_fail = 0 WHERE email = #{email}
 	</update>
 	
 	<update id="updatePassword">
@@ -38,9 +38,13 @@
 	    update users set is_verified = 1, updated_at = default where user_id = #{user_id}
 	</update>
 	
-	<update id="updateUser">
+	<!-- <update id="updateUser">
 	  update users set username = #{username}, phone_number = #{phone_number}, updated_at = now()
   		where user_id = #{user_id}
+	</update> -->
+	<update id="updateUser">
+		update users set username = #{vo.username}, phone_number = #{vo.phone_number}, updated_at = now()
+		where user_id = #{vo.user_id}
 	</update>
 	
 	
@@ -58,7 +62,7 @@
 	
 	
 	<update id="increaseLoginFail">
-		update users set login_fail_count = login_fail_count + 1 where email = #{email}
+		update users set login_fail = login_fail + 1 where email = #{email}
 	</update>
 	
 

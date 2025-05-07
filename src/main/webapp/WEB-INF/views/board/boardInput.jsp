@@ -59,7 +59,7 @@
       <button type="reset" class="btn btn-secondary">초기화</button>
       <button type="button" class="btn btn-light" onclick="location.href='${ctp}/board/boardList/all'">목록</button>
     </div>
-    <input type="hidden" name="user_id" value="${sUser_id}"/>
+    <input type="hidden" name="user_id" value="${loginUser}"/>
     <input type="hidden" name="username" value="${sUsername}"/>
   </form>
 </div>

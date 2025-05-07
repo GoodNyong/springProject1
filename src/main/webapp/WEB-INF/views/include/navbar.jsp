@@ -91,13 +91,13 @@
 		<div class="d-none d-lg-flex align-items-center">
 			<c:choose>
 				<c:when test="${not empty sessionScope.loginUser}">
-					<span class="navbar-text me-3">👋 ${sessionScope.user.nickname}님</span>
-					<a class="btn btn-outline-secondary btn-sm me-2" href="${ctp}/user/mypage">마이페이지</a>
-					<a class="btn btn-primary btn-sm" href="${ctp}/user/logout">로그아웃</a>
+					<span class="navbar-text me-3">👋 ${sUsername}님</span>
+					<a class="btn btn-outline-secondary btn-sm me-2" href="${ctp}/user/userPage">마이페이지</a>
+					<a class="btn btn-primary btn-sm" href="${ctp}/user/userLogout">로그아웃</a>
 				</c:when>
 				<c:otherwise>
-					<a class="btn btn-outline-primary me-2" href="${ctp}/user/login">로그인</a>
-					<a class="btn btn-primary" href="${ctp}/user/userInput">회원가입</a>
+					<a class="btn btn-outline-primary me-2" href="${ctp}/user/userLogin">로그인</a>
+					<a class="btn btn-primary" href="${ctp}/user/userJoin">회원가입</a>
 				</c:otherwise>
 			</c:choose>
 		</div>

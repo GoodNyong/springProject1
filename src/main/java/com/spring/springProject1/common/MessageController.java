@@ -28,30 +28,116 @@ public class MessageController {
 			@RequestParam(name = "board_id", defaultValue = "", required = false) String board_id) {
 			
 		
-		if(msgFlag.equals("userBehaviorLogInputOk")) {
-			model.addAttribute("message", "insert DB success");
-			model.addAttribute("url", "rec/test");
+		if(msgFlag.equals("exerciseRecordInputOk")) {
+			model.addAttribute("message", "운동 기록 마법 성공!");
+			model.addAttribute("url", "user/main");
 		}
-		else if(msgFlag.equals("userBehaviorLogInputNo")) {
-			model.addAttribute("message", "insert DB failed");
-			model.addAttribute("url", "rec/test");
+		else if(msgFlag.equals("exerciseRecordUpdateOk")) {
+			model.addAttribute("message", "개별 운동 기록 수정 마법 성공!");
+			model.addAttribute("url", "rec/exerciseRecordList");
 		}
-		else if(msgFlag.equals("deleteLogOk")) {
-			model.addAttribute("message", "delete DB success");
-			model.addAttribute("url", "rec/test");
+		else if(msgFlag.equals("exerciseRecordEditOk")) {
+			model.addAttribute("message", "운동 기록 수정 마법 성공!");
+			model.addAttribute("url", "rec/exerciseRecordList");
 		}
-		else if(msgFlag.equals("deleteLogNo")) {
-			model.addAttribute("message", "delete DB failed");
-			model.addAttribute("url", "rec/test");
+		else if(msgFlag.equals("exerciseRecordDeleteOk")) {
+			model.addAttribute("message", "운동 기록 삭제 마법 성공!");
+			model.addAttribute("url", "rec/exerciseRecordList");
 		}
-		else if(msgFlag.equals("updateLogOk")) {
-			model.addAttribute("message", "update DB success");
-			model.addAttribute("url", "rec/test");
+		else if (msgFlag.equals("exerciseRecordMultiUpdateOk")) {
+			model.addAttribute("message", "다중 운동 수정 마법 성공!");
+			model.addAttribute("url", "rec/exerciseRecordList");
 		}
-		else if(msgFlag.equals("updateLogNo")) {
-			model.addAttribute("message", "update DB failed");
-			model.addAttribute("url", "rec/test");
+		else if(msgFlag.equals("exerciseRecordMultiDeleteOk")) {
+			model.addAttribute("message", "다중 운동 삭제 마법 성공!");
+			model.addAttribute("url", "rec/exerciseRecordList");
 		}
+		else if(msgFlag.equals("exerciseRecordMultiInputOk")) {
+			model.addAttribute("message", "다중 운동 기록 마법 성공!");
+			model.addAttribute("url", "rec/exerciseRecordList");
+		}
+		else if(msgFlag.equals("mealRecordInputOk")) {
+			model.addAttribute("message", "식단 기록 마법 성공!");
+			model.addAttribute("url", "user/main");
+		}
+		else if(msgFlag.equals("mealRecordMultiInputOk")) {
+			model.addAttribute("message", "다중 식단 기록 마법 성공!");
+			model.addAttribute("url", "user/main");
+		}
+		else if(msgFlag.equals("mealRecordEditOk")) {
+			model.addAttribute("message", "식단 기록 수정 마법 성공!");
+			model.addAttribute("url", "rec/mealRecordList");
+		}
+		else if(msgFlag.equals("mealRecordDeleteOk")) {
+			model.addAttribute("message", "식단 기록 삭제 마법 성공!");
+			model.addAttribute("url", "rec/mealRecordList");
+		}
+		else if(msgFlag.equals("mealRecordUpdateOk")) {
+			model.addAttribute("message", "개별 식단 기록 수정 마법 성공!");
+			model.addAttribute("url", "rec/mealRecordList");
+		}
+		else if(msgFlag.equals("mealRecordMultiUpdateOk")) {
+			model.addAttribute("message", "다중 식단 기록 수정 마법 성공!");
+			model.addAttribute("url", "rec/mealRecordList");
+		}
+		else if(msgFlag.equals("mealRecordMultiDeleteOk")) {
+			model.addAttribute("message", "다중 식단 기록 삭제 마법 성공!");
+			model.addAttribute("url", "rec/mealRecordList");
+		}
+		else if(msgFlag.equals("goalInputExerciseOk")) {
+			model.addAttribute("message", "운동 목표 설정 마법 성공!");
+			model.addAttribute("url", "rec/goalListExercise");
+		}
+		else if(msgFlag.equals("goalEditExerciseOk")) {
+			model.addAttribute("message", "운동 목표 수정 마법 성공!");
+			model.addAttribute("url", "rec/goalListExercise");
+		}
+		else if(msgFlag.equals("goalDeleteExerciseOk")) {
+			model.addAttribute("message", "운동 목표 삭제 마법 성공!");
+			model.addAttribute("url", "rec/goalListExercise");
+		}
+		else if(msgFlag.equals("goalEditExerciseOk")) {
+			model.addAttribute("message", "개별 운동 목표 수정 마법 성공!");
+			model.addAttribute("url", "rec/goalListExercise");
+		}
+		else if(msgFlag.equals("goalMultiUpdateExerciseOk")) {
+			model.addAttribute("message", "다중 운동 목표 수정 마법 성공!");
+			model.addAttribute("url", "rec/goalListExercise");
+		}
+		else if(msgFlag.equals("goalMultiDeleteExerciseOk")) {
+			model.addAttribute("message", "다중 운동 목표 삭제 마법 성공!");
+			model.addAttribute("url", "rec/goalListExercise");
+		}
+		else if(msgFlag.equals("goalInputNutritionOk")) {
+			model.addAttribute("message", "식단 목표 설정 마법 성공!");
+			model.addAttribute("url", "rec/goalListNutrition");
+		}
+		else if(msgFlag.equals("goalEditNutritionOk")) {
+			model.addAttribute("message", "식단 목표 수정 마법 성공!");
+			model.addAttribute("url", "rec/goalListNutrition");
+		}
+		else if(msgFlag.equals("goalDeleteNutritionOk")) {
+			model.addAttribute("message", "식단 목표 삭제 마법 성공!");
+			model.addAttribute("url", "rec/goalListNutrition");
+		}
+		else if(msgFlag.equals("goalUpdateNutritionOk")) {
+			model.addAttribute("message", "개별 식단 목표 수정 마법 성공!");
+			model.addAttribute("url", "rec/goalListNutrition");
+		}
+		else if(msgFlag.equals("goalMultiUpdateNutritionOk")) {
+			model.addAttribute("message", "다중 식단 목표 수정 마법 성공!");
+			model.addAttribute("url", "rec/goalListNutrition");
+		}
+		else if(msgFlag.equals("goalMultiDeleteNutritionOk")) {
+			model.addAttribute("message", "다중 식단 목표 삭제 마법 성공!");
+			model.addAttribute("url", "rec/goalListNutrition");
+		}
+		else if(msgFlag.equals("error")) {
+			model.addAttribute("message", model.asMap().get("message")); // RedirectAttributes에서 받음
+			model.addAttribute("url", model.asMap().get("url"));
+		}
+
+		
 		
 		
 		

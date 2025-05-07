@@ -1,0 +1,53 @@
+@charset "UTF-8";
+/* wizard-helper.css */
+#helper_wizard-img {
+  transition: transform 0.3s ease, filter 0.3s ease;
+}
+
+.wizard-focus-effect {
+  animation: sparkle 0.6s ease-in-out;
+}
+
+@keyframes sparkle {
+  0%, 100% { filter: brightness(1); transform: scale(1); }
+  50% { filter: brightness(1.4); transform: scale(1.05); }
+}
+
+.wizard-message {
+	position: absolute;
+	top: 0;
+	left: 50%;
+	transform: translateX(-50%);
+	background: #f8f9fa;
+	border: 2px solid #007bff;
+	border-radius: 12px;
+	padding: 10px 18px;
+	color: #007bff;
+	font-weight: bold;
+	white-space: nowrap;
+	animation: fadeInUp 0.5s ease-out;
+	z-index: 10;
+}
+
+.wizard-confirm-box {
+	position: absolute;
+	top: 60px; /* 마법사 메시지 바로 아래 */
+	left: 50%;
+	transform: translateX(-50%);
+	background-color: #fff8f0;
+	border: 2px solid #ffcc99;
+	padding: 14px 20px;
+	border-radius: 12px;
+	box-shadow: 0 0 10px rgba(0,0,0,0.1);
+	width: 270px;
+	z-index: 9;
+	text-align: center;
+}
+
+.wizard-confirm-box .confirm-text {
+	font-weight: bold;
+	color: #d2691e;
+	margin-bottom: 12px;
+	white-space: normal;
+	line-height: 1.4;
+}

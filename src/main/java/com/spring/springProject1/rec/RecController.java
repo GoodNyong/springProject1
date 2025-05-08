@@ -34,6 +34,7 @@ import com.spring.springProject1.rec.wrapper.ExerciseGoalListWrapper;
 import com.spring.springProject1.rec.wrapper.ExerciseRecordListWrapper;
 import com.spring.springProject1.rec.wrapper.MealRecordListWrapper;
 import com.spring.springProject1.rec.wrapper.NutritionGoalListWrapper;
+import com.spring.springProject1.user.UserService;
 import com.spring.springProject1.user.UserVo;
 
 @Controller
@@ -44,13 +45,16 @@ public class RecController {
 
 	@Autowired
 	private RecService recService;
+	
+	@Autowired
+	private UserService userService;
 
 //	운동 기록 부분----------------------------------------------------------------
 
 	// 운동 기록 입력 페이지 호출
 	@GetMapping("/exerciseRecordInput")
 	public String exerciseRecordInputGet(HttpSession session, RedirectAttributes ra) {
-		UserVo user = (UserVo) session.getAttribute("loginUser");
+		Integer userId = (Integer) session.getAttribute("loginUser"); UserVo user = userService.getUserByUser_id(userId);
 		if (user == null) {
 			ra.addFlashAttribute("message", "로그인이 필요합니다.");
 			ra.addFlashAttribute("url", "/");
@@ -62,7 +66,7 @@ public class RecController {
 	// 운동 기록 입력 처리
 	@PostMapping("/exerciseRecordInput")
 	public String exerciseRecordInputPost(ExerciseRecordVo vo, HttpSession session, RedirectAttributes ra) {
-		UserVo user = (UserVo) session.getAttribute("loginUser");
+		Integer userId = (Integer) session.getAttribute("loginUser"); UserVo user = userService.getUserByUser_id(userId);
 		if (user == null) {
 			ra.addFlashAttribute("message", "로그인이 필요합니다.");
 			ra.addFlashAttribute("url", "/");
@@ -82,7 +86,7 @@ public class RecController {
 	// 운동 기록 목록 페이지 호출
 	@GetMapping("/exerciseRecordList")
 	public String exerciseRecordListGet(HttpSession session, Model model, RedirectAttributes ra) {
-		UserVo user = (UserVo) session.getAttribute("loginUser");
+		Integer userId = (Integer) session.getAttribute("loginUser"); UserVo user = userService.getUserByUser_id(userId);
 		if (user == null) {
 			ra.addFlashAttribute("message", "로그인이 필요합니다.");
 			ra.addFlashAttribute("url", "/");
@@ -102,7 +106,7 @@ public class RecController {
 	// 운동 기록 단일 수정 처리
 	@PostMapping("/exerciseRecordUpdate")
 	public String exerciseRecordUpdatePost(ExerciseRecordVo vo, HttpSession session, RedirectAttributes ra) {
-		UserVo user = (UserVo) session.getAttribute("loginUser");
+		Integer userId = (Integer) session.getAttribute("loginUser"); UserVo user = userService.getUserByUser_id(userId);
 		if (user == null) {
 			ra.addFlashAttribute("message", "로그인이 필요합니다.");
 			ra.addFlashAttribute("url", "/");
@@ -123,7 +127,7 @@ public class RecController {
 	// 운동 기록 수정 페이지 호출
 	@GetMapping("/exerciseRecordEdit")
 	public String exerciseRecordEdit(@RequestParam("record_id") int record_id, HttpSession session, Model model) {
-		UserVo user = (UserVo) session.getAttribute("loginUser");
+		Integer userId = (Integer) session.getAttribute("loginUser"); UserVo user = userService.getUserByUser_id(userId);
 		if (user == null) {
 			model.addAttribute("message", "로그인이 필요합니다.");
 			model.addAttribute("url", "/");
@@ -144,7 +148,7 @@ public class RecController {
 	// 운동 기록 수정 페이지에서 수정 처리
 	@PostMapping("/exerciseRecordEdit")
 	public String exerciseRecordEditPost(ExerciseRecordVo vo, HttpSession session, RedirectAttributes ra) {
-		UserVo user = (UserVo) session.getAttribute("loginUser");
+		Integer userId = (Integer) session.getAttribute("loginUser"); UserVo user = userService.getUserByUser_id(userId);
 		if (user == null) {
 			ra.addFlashAttribute("message", "로그인이 필요합니다.");
 			ra.addFlashAttribute("url", "/");
@@ -166,7 +170,7 @@ public class RecController {
 	@GetMapping("/exerciseRecordDelete")
 	public String exerciseRecordDelete(@RequestParam("record_id") int record_id, HttpSession session,
 			RedirectAttributes ra) {
-		UserVo user = (UserVo) session.getAttribute("loginUser");
+		Integer userId = (Integer) session.getAttribute("loginUser"); UserVo user = userService.getUserByUser_id(userId);
 		if (user == null) {
 			ra.addFlashAttribute("message", "로그인이 필요합니다.");
 			ra.addFlashAttribute("url", "/");
@@ -187,7 +191,7 @@ public class RecController {
 	@PostMapping("/exerciseRecordMultiUpdate")
 	public String exerciseRecordMultiUpdatePost(@ModelAttribute ExerciseRecordListWrapper exerciseRecordListWrapper,
 			HttpSession session, RedirectAttributes ra) {
-		UserVo user = (UserVo) session.getAttribute("loginUser");
+		Integer userId = (Integer) session.getAttribute("loginUser"); UserVo user = userService.getUserByUser_id(userId);
 
 		if (user == null) {
 			ra.addFlashAttribute("message", "로그인이 필요합니다.");
@@ -216,7 +220,7 @@ public class RecController {
 	@PostMapping("/exerciseRecordMultiDelete")
 	public String exerciseRecordMultiDeletePost(HttpServletRequest request, HttpSession session,
 			RedirectAttributes ra) {
-		UserVo user = (UserVo) session.getAttribute("loginUser");
+		Integer userId = (Integer) session.getAttribute("loginUser"); UserVo user = userService.getUserByUser_id(userId);
 
 		if (user == null) {
 			ra.addFlashAttribute("message", "로그인이 필요합니다.");
@@ -243,7 +247,7 @@ public class RecController {
 	@PostMapping("/exerciseRecordMultiInput")
 	public String exerciseRecordMultiInputPost(@ModelAttribute ExerciseRecordListWrapper exerciseRecordListWrapper,
 			HttpSession session, RedirectAttributes ra) {
-		UserVo user = (UserVo) session.getAttribute("loginUser");
+		Integer userId = (Integer) session.getAttribute("loginUser"); UserVo user = userService.getUserByUser_id(userId);
 		if (user == null) {
 			ra.addFlashAttribute("message", "로그인이 필요합니다.");
 			ra.addFlashAttribute("url", "/");
@@ -270,7 +274,7 @@ public class RecController {
 	// 식단 기록 단일 입력 페이지 호출
 	@GetMapping("/mealRecordInput")
 	public String mealRecordInputGet(HttpSession session, RedirectAttributes ra) {
-		UserVo user = (UserVo) session.getAttribute("loginUser");
+		Integer userId = (Integer) session.getAttribute("loginUser"); UserVo user = userService.getUserByUser_id(userId);
 		if (user == null) {
 			ra.addFlashAttribute("message", "로그인이 필요합니다.");
 			ra.addFlashAttribute("url", "/");
@@ -282,7 +286,7 @@ public class RecController {
 	// 식닥 기록 단일 입력 처리
 	@PostMapping("/mealRecordInput")
 	public String mealRecordInputPost(MealRecordVo vo, HttpSession session, RedirectAttributes ra) {
-		UserVo user = (UserVo) session.getAttribute("loginUser");
+		Integer userId = (Integer) session.getAttribute("loginUser"); UserVo user = userService.getUserByUser_id(userId);
 		if (user == null) {
 			ra.addFlashAttribute("message", "로그인이 필요합니다.");
 			ra.addFlashAttribute("url", "/");
@@ -302,7 +306,7 @@ public class RecController {
 	// 식단 기록 목록 조회
 	@GetMapping("/mealRecordList")
 	public String mealRecordListGet(Model model, HttpSession session, RedirectAttributes ra) {
-		UserVo user = (UserVo) session.getAttribute("loginUser");
+		Integer userIdBySession = (Integer) session.getAttribute("loginUser"); UserVo user = userService.getUserByUser_id(userIdBySession);
 		if (user == null) {
 			ra.addFlashAttribute("message", "로그인이 필요합니다.");
 			ra.addFlashAttribute("url", "/");
@@ -324,7 +328,7 @@ public class RecController {
 	// 식단 다중 입력 페이지 호출
 	@GetMapping("/mealRecordMultiInput")
 	public String mealRecordMultiInputGet(HttpSession session, RedirectAttributes ra) {
-		UserVo user = (UserVo) session.getAttribute("loginUser");
+		Integer userId = (Integer) session.getAttribute("loginUser"); UserVo user = userService.getUserByUser_id(userId);
 		if (user == null) {
 			ra.addFlashAttribute("message", "로그인이 필요합니다.");
 			ra.addFlashAttribute("url", "/");
@@ -337,7 +341,7 @@ public class RecController {
 	@PostMapping("/mealRecordMultiInput")
 	public String mealRecordMultiInputPost(@ModelAttribute MealRecordListWrapper mealRecordListWrapper,
 			HttpSession session, RedirectAttributes ra) {
-		UserVo user = (UserVo) session.getAttribute("loginUser");
+		Integer userId = (Integer) session.getAttribute("loginUser"); UserVo user = userService.getUserByUser_id(userId);
 		if (user == null) {
 			ra.addFlashAttribute("message", "로그인이 필요합니다.");
 			ra.addFlashAttribute("url", "/user/login");
@@ -361,7 +365,7 @@ public class RecController {
 	// 식단 기록 수정 페이지 호출
 	@GetMapping("/mealRecordEdit")
 	public String mealRecordEdit(@RequestParam("record_id") int meal_id, HttpSession session, Model model) {
-		UserVo user = (UserVo) session.getAttribute("loginUser");
+		Integer userId = (Integer) session.getAttribute("loginUser"); UserVo user = userService.getUserByUser_id(userId);
 		if (user == null) {
 			model.addAttribute("message", "로그인이 필요합니다.");
 			model.addAttribute("url", "/");
@@ -382,7 +386,7 @@ public class RecController {
 	// 식단 기록 수정 처리
 	@PostMapping("/mealRecordEdit")
 	public String mealRecordEditPost(MealRecordVo vo, HttpSession session, RedirectAttributes ra) {
-		UserVo user = (UserVo) session.getAttribute("loginUser");
+		Integer userId = (Integer) session.getAttribute("loginUser"); UserVo user = userService.getUserByUser_id(userId);
 		if (user == null) {
 			ra.addFlashAttribute("message", "로그인이 필요합니다.");
 			ra.addFlashAttribute("url", "/");
@@ -402,7 +406,7 @@ public class RecController {
 	// 식단 기록 단일 삭제
 	@GetMapping("/mealRecordDelete")
 	public String mealRecordDelete(@RequestParam("record_id") int mealId, HttpSession session, Model model) {
-		UserVo user = (UserVo) session.getAttribute("loginUser");
+		Integer userId = (Integer) session.getAttribute("loginUser"); UserVo user = userService.getUserByUser_id(userId);
 		if (user == null) {
 			model.addAttribute("message", "로그인이 필요합니다.");
 			model.addAttribute("url", "/");
@@ -422,7 +426,7 @@ public class RecController {
 	// 식단 기록 단일 수정 처리
 	@PostMapping("/mealRecordUpdate")
 	public String mealRecordUpdatePost(MealRecordVo vo, HttpSession session, RedirectAttributes ra) {
-		UserVo user = (UserVo) session.getAttribute("loginUser");
+		Integer userId = (Integer) session.getAttribute("loginUser"); UserVo user = userService.getUserByUser_id(userId);
 		if (user == null) {
 			ra.addFlashAttribute("message", "로그인이 필요합니다.");
 			ra.addFlashAttribute("url", "/");
@@ -443,7 +447,7 @@ public class RecController {
 	@PostMapping("/mealRecordMultiUpdate")
 	public String mealRecordMultiUpdatePost(@ModelAttribute MealRecordListWrapper mealRecordListWrapper,
 			HttpSession session, RedirectAttributes ra) {
-		UserVo user = (UserVo) session.getAttribute("loginUser");
+		Integer userId = (Integer) session.getAttribute("loginUser"); UserVo user = userService.getUserByUser_id(userId);
 
 		if (user == null) {
 			ra.addFlashAttribute("message", "로그인이 필요합니다.");
@@ -471,7 +475,7 @@ public class RecController {
 	// 식단 기록 다중 삭제 처리
 	@PostMapping("/mealRecordMultiDelete")
 	public String mealRecordMultiDelete(HttpServletRequest request, HttpSession session, RedirectAttributes ra) {
-		UserVo user = (UserVo) session.getAttribute("loginUser");
+		Integer userId = (Integer) session.getAttribute("loginUser"); UserVo user = userService.getUserByUser_id(userId);
 		if (user == null) {
 			ra.addFlashAttribute("message", "로그인이 필요합니다.");
 			ra.addFlashAttribute("url", "/");
@@ -493,7 +497,7 @@ public class RecController {
 	// 목표 설정 허브 페이지 호출
 	@GetMapping("/goalInput")
 	public String goalInputPageGet(HttpSession session, RedirectAttributes ra) {
-		UserVo user = (UserVo) session.getAttribute("loginUser");
+		Integer userId = (Integer) session.getAttribute("loginUser"); UserVo user = userService.getUserByUser_id(userId);
 		if (user == null) {
 			ra.addFlashAttribute("message", "로그인이 필요합니다.");
 			ra.addFlashAttribute("url", "/");
@@ -505,7 +509,7 @@ public class RecController {
 	// 목표 목록 허브 페이지 호출
 	@GetMapping("/goalList")
 	public String goalListPageGet(HttpSession session, Model model, RedirectAttributes ra) {
-		UserVo user = (UserVo) session.getAttribute("loginUser");
+		Integer userIdBySession = (Integer) session.getAttribute("loginUser"); UserVo user = userService.getUserByUser_id(userIdBySession);
 		if (user == null) {
 			ra.addFlashAttribute("message", "로그인이 필요합니다.");
 			ra.addFlashAttribute("url", "/");
@@ -522,7 +526,7 @@ public class RecController {
 	// 운동 목표 설정 페이지 호출
 	@GetMapping("/goalInputExercise")
 	public String goalInputExerciseGet(HttpSession session, RedirectAttributes ra) {
-		UserVo user = (UserVo) session.getAttribute("loginUser");
+		Integer userId = (Integer) session.getAttribute("loginUser"); UserVo user = userService.getUserByUser_id(userId);
 		if (user == null) {
 			ra.addFlashAttribute("message", "로그인이 필요합니다.");
 			ra.addFlashAttribute("url", "/");
@@ -534,7 +538,7 @@ public class RecController {
 	// 운동 목표 설정 처리
 	@PostMapping("/goalInputExerciseOk")
 	public String goalInputExerciseOk(@ModelAttribute ExerciseGoalVo vo, HttpSession session, RedirectAttributes ra) {
-		UserVo user = (UserVo) session.getAttribute("loginUser");
+		Integer userId = (Integer) session.getAttribute("loginUser"); UserVo user = userService.getUserByUser_id(userId);
 		if (user == null) {
 			ra.addFlashAttribute("message", "로그인이 필요합니다.");
 			ra.addFlashAttribute("url", "/");
@@ -558,7 +562,7 @@ public class RecController {
 	// 운동 목표 목록 조회
 	@GetMapping("/goalListExercise")
 	public String goalListExerciseGet(Model model, HttpSession session, RedirectAttributes ra) {
-		UserVo user = (UserVo) session.getAttribute("loginUser");
+		Integer userId = (Integer) session.getAttribute("loginUser"); UserVo user = userService.getUserByUser_id(userId);
 		if (user == null) {
 			ra.addFlashAttribute("message", "로그인이 필요합니다.");
 			ra.addFlashAttribute("url", "/");
@@ -580,7 +584,7 @@ public class RecController {
 	@GetMapping("/goalEditExercise")
 	public String goalEditExerciseGet(@RequestParam("goal_id") int goal_id, HttpSession session, Model model,
 			RedirectAttributes ra) {
-		UserVo user = (UserVo) session.getAttribute("loginUser");
+		Integer userId = (Integer) session.getAttribute("loginUser"); UserVo user = userService.getUserByUser_id(userId);
 		if (user == null) {
 			ra.addFlashAttribute("message", "로그인이 필요합니다.");
 			ra.addFlashAttribute("url", "/");
@@ -607,7 +611,7 @@ public class RecController {
 	// 운동 목표 수정 페이지에서 수정 처리
 	@PostMapping("/goalEditExercise")
 	public String goalEditExercisePost(@ModelAttribute ExerciseGoalVo vo, HttpSession session, RedirectAttributes ra) {
-		UserVo user = (UserVo) session.getAttribute("loginUser");
+		Integer userId = (Integer) session.getAttribute("loginUser"); UserVo user = userService.getUserByUser_id(userId);
 		if (user == null) {
 			ra.addFlashAttribute("message", "로그인이 필요합니다.");
 			ra.addFlashAttribute("url", "/");
@@ -628,7 +632,7 @@ public class RecController {
 	// 운동 목표 목록 페이지 - 삭제 처리
 	@GetMapping("/goalDeleteExercise")
 	public String goalDeleteExercise(@RequestParam("goal_id") int goal_id, HttpSession session, RedirectAttributes ra) {
-		UserVo user = (UserVo) session.getAttribute("loginUser");
+		Integer userId = (Integer) session.getAttribute("loginUser"); UserVo user = userService.getUserByUser_id(userId);
 		if (user == null) {
 			ra.addFlashAttribute("message", "로그인이 필요합니다.");
 			ra.addFlashAttribute("url", "/");
@@ -649,7 +653,7 @@ public class RecController {
 	@PostMapping("/goalUpdateExercise")
 	public String goalUpdateExercisePost(@ModelAttribute ExerciseGoalVo vo, HttpSession session,
 			RedirectAttributes ra) {
-		UserVo user = (UserVo) session.getAttribute("loginUser");
+		Integer userId = (Integer) session.getAttribute("loginUser"); UserVo user = userService.getUserByUser_id(userId);
 		if (user == null) {
 			ra.addFlashAttribute("message", "로그인이 필요합니다.");
 			ra.addFlashAttribute("url", "/");
@@ -670,7 +674,7 @@ public class RecController {
 	@PostMapping("/goalMultiUpdateExercise")
 	public String goalMultiUpdateExercisePost(@ModelAttribute ExerciseGoalListWrapper wrapper, HttpSession session,
 			RedirectAttributes ra) {
-		UserVo user = (UserVo) session.getAttribute("loginUser");
+		Integer userId = (Integer) session.getAttribute("loginUser"); UserVo user = userService.getUserByUser_id(userId);
 		if (user == null) {
 			ra.addFlashAttribute("message", "로그인이 필요합니다.");
 			ra.addFlashAttribute("url", "/");
@@ -693,7 +697,7 @@ public class RecController {
 	// 운동 목표 목록 페이지 - 수정모드 - 다중 삭제
 	@PostMapping("/goalMultiDeleteExercise")
 	public String goalMultiDeleteExercisePost(HttpServletRequest request, HttpSession session, RedirectAttributes ra) {
-		UserVo user = (UserVo) session.getAttribute("loginUser");
+		Integer userId = (Integer) session.getAttribute("loginUser"); UserVo user = userService.getUserByUser_id(userId);
 		if (user == null) {
 			ra.addFlashAttribute("message", "로그인이 필요합니다.");
 			ra.addFlashAttribute("url", "/");
@@ -715,7 +719,7 @@ public class RecController {
 	// 식단 목표 설정 페이지 호출
 	@GetMapping("/goalInputNutrition")
 	public String goalInputNutritionGet(HttpSession session, RedirectAttributes ra, Model model) {
-		UserVo user = (UserVo) session.getAttribute("loginUser");
+		Integer userId = (Integer) session.getAttribute("loginUser"); UserVo user = userService.getUserByUser_id(userId);
 		if (user == null) {
 			ra.addFlashAttribute("message", "로그인이 필요합니다.");
 			ra.addFlashAttribute("url", "/");
@@ -733,7 +737,7 @@ public class RecController {
 	// 식단 목표 설정 처리
 	@PostMapping("/goalInputNutritionOk")
 	public String goalInputNutritionOk(@ModelAttribute NutritionGoalVo vo, HttpSession session, RedirectAttributes ra) {
-		UserVo user = (UserVo) session.getAttribute("loginUser");
+		Integer userId = (Integer) session.getAttribute("loginUser"); UserVo user = userService.getUserByUser_id(userId);
 		if (user == null) {
 			ra.addFlashAttribute("message", "로그인이 필요합니다.");
 			ra.addFlashAttribute("url", "/");
@@ -755,7 +759,7 @@ public class RecController {
 	// 식단 목표 목록 조회
 	@GetMapping("/goalListNutrition")
 	public String goalListNutritionGet(Model model, HttpSession session, RedirectAttributes ra) {
-		UserVo user = (UserVo) session.getAttribute("loginUser");
+		Integer userId = (Integer) session.getAttribute("loginUser"); UserVo user = userService.getUserByUser_id(userId);
 		if (user == null) {
 			ra.addFlashAttribute("message", "로그인이 필요합니다.");
 			ra.addFlashAttribute("url", "/");
@@ -780,7 +784,7 @@ public class RecController {
 	@GetMapping("/goalEditNutrition")
 	public String goalEditNutritionGet(@RequestParam("goal_id") int goal_id, HttpSession session, Model model,
 			RedirectAttributes ra) {
-		UserVo user = (UserVo) session.getAttribute("loginUser");
+		Integer userId = (Integer) session.getAttribute("loginUser"); UserVo user = userService.getUserByUser_id(userId);
 		if (user == null) {
 			ra.addFlashAttribute("message", "로그인이 필요합니다.");
 			ra.addFlashAttribute("url", "/");
@@ -810,7 +814,7 @@ public class RecController {
 	@PostMapping("/goalEditNutrition")
 	public String goalEditNutritionPost(@ModelAttribute NutritionGoalVo vo, HttpSession session,
 			RedirectAttributes ra) {
-		UserVo user = (UserVo) session.getAttribute("loginUser");
+		Integer userId = (Integer) session.getAttribute("loginUser"); UserVo user = userService.getUserByUser_id(userId);
 		if (user == null) {
 			ra.addFlashAttribute("message", "로그인이 필요합니다.");
 			ra.addFlashAttribute("url", "/");
@@ -832,7 +836,7 @@ public class RecController {
 	@GetMapping("/goalDeleteNutrition")
 	public String goalDeleteNutrition(@RequestParam("goal_id") int goal_id, HttpSession session,
 			RedirectAttributes ra) {
-		UserVo user = (UserVo) session.getAttribute("loginUser");
+		Integer userId = (Integer) session.getAttribute("loginUser"); UserVo user = userService.getUserByUser_id(userId);
 		if (user == null) {
 			ra.addFlashAttribute("message", "로그인이 필요합니다.");
 			ra.addFlashAttribute("url", "/");
@@ -852,7 +856,7 @@ public class RecController {
 	// 식단 목표 - 수정 모드 - 개별 저장(단건 수정)
 	@PostMapping("/goalUpdateNutrition")
 	public String goalUpdateNutrition(@ModelAttribute NutritionGoalVo vo, HttpSession session, RedirectAttributes ra) {
-		UserVo user = (UserVo) session.getAttribute("loginUser");
+		Integer userId = (Integer) session.getAttribute("loginUser"); UserVo user = userService.getUserByUser_id(userId);
 		if (user == null) {
 			ra.addFlashAttribute("message", "로그인이 필요합니다.");
 			ra.addFlashAttribute("url", "/");
@@ -874,7 +878,7 @@ public class RecController {
 	@PostMapping("/goalMultiUpdateNutrition")
 	public String goalMultiUpdateNutrition(@ModelAttribute NutritionGoalListWrapper wrapper, HttpSession session,
 			RedirectAttributes ra) {
-		UserVo user = (UserVo) session.getAttribute("loginUser");
+		Integer userId = (Integer) session.getAttribute("loginUser"); UserVo user = userService.getUserByUser_id(userId);
 		if (user == null) {
 			ra.addFlashAttribute("message", "로그인이 필요합니다.");
 			ra.addFlashAttribute("url", "/");
@@ -894,7 +898,7 @@ public class RecController {
 	// 식단 목표 - 수정 모드 - 다중 삭제
 	@PostMapping("/goalMultiDeleteNutrition")
 	public String goalMultiDeleteNutrition(HttpServletRequest request, HttpSession session, RedirectAttributes ra) {
-		UserVo user = (UserVo) session.getAttribute("loginUser");
+		Integer userId = (Integer) session.getAttribute("loginUser"); UserVo user = userService.getUserByUser_id(userId);
 		if (user == null) {
 			ra.addFlashAttribute("message", "로그인이 필요합니다.");
 			ra.addFlashAttribute("url", "/");
@@ -915,7 +919,7 @@ public class RecController {
 	// 리포트 허브
 	@RequestMapping(value = "/report", method = RequestMethod.GET)
 	public String reportHub(HttpSession session, RedirectAttributes ra) {
-		UserVo user = (UserVo) session.getAttribute("loginUser");
+		Integer userId = (Integer) session.getAttribute("loginUser"); UserVo user = userService.getUserByUser_id(userId);
 		if (user == null) {
 			ra.addFlashAttribute("message", "로그인이 필요합니다.");
 			ra.addFlashAttribute("url", "/");
@@ -927,7 +931,7 @@ public class RecController {
 	// 운동 리포트
 	@GetMapping("/reportExercise")
 	public String reportExerciseGet(Model model, HttpSession session, RedirectAttributes ra) {
-		UserVo user = (UserVo) session.getAttribute("loginUser");
+		Integer userId = (Integer) session.getAttribute("loginUser"); UserVo user = userService.getUserByUser_id(userId);
 		if (user == null) {
 			ra.addFlashAttribute("message", "로그인이 필요합니다.");
 			ra.addFlashAttribute("url", "/");
@@ -950,7 +954,7 @@ public class RecController {
 	// 식단 리포트
 	@GetMapping("/reportMeal")
 	public String reportMealGet(Model model, HttpSession session, RedirectAttributes ra) {
-		UserVo user = (UserVo) session.getAttribute("loginUser");
+		Integer userId = (Integer) session.getAttribute("loginUser"); UserVo user = userService.getUserByUser_id(userId);
 		if (user == null) {
 			ra.addFlashAttribute("message", "로그인이 필요합니다.");
 			ra.addFlashAttribute("url", "/");

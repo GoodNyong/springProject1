@@ -295,45 +295,47 @@
 
 	<!-- 목표별 달성률(칼로리 기준) -->
 	<select id="getNutritionGoalProgress" parameterType="int" resultType="NutritionProgressVo">
-	SELECT ng.goal_id, ng.goal_type , ng.nutrient_id ,
-	CASE WHEN ng.goal_type = 2 THEN fiGoal.name ELSE '' END AS goal_name ,
-	ng.target_value AS target_value,
-	CASE
-	WHEN ng.goal_type = 2 THEN
-	SUM(fi.calories)
-	WHEN ng.nutrient_id = 101 THEN SUM(fi.carbohydrates)
-	WHEN ng.nutrient_id = 102 THEN SUM(fi.protein)
-	WHEN ng.nutrient_id = 103 THEN SUM(fi.fat)
-	WHEN ng.nutrient_id = 104 THEN SUM(fi.calories)
-	ELSE 0
-	END AS actual_value ,
-	CASE
-	WHEN ng.target_value = 0 THEN 0
-	ELSE ROUND(
-	( CASE
-	WHEN ng.goal_type = 2 THEN SUM(fi.calories)
-	WHEN ng.nutrient_id = 101 THEN SUM(fi.carbohydrates)
-	WHEN ng.nutrient_id = 102 THEN SUM(fi.protein)
-	WHEN ng.nutrient_id = 103 THEN SUM(fi.fat)
-	WHEN ng.nutrient_id = 104 THEN SUM(fi.calories)
-	ELSE 0
-	END
-	/ ng.target_value ) * 100 , 1)
-	END AS progress_rate ,
-	ng.goal_unit ,
-	ng.end_date
-	FROM NutritionGoal ng
-	LEFT JOIN FoodInfo fiGoal ON ng.food_id = fiGoal.food_id
-	LEFT JOIN MealRecord mr
-	LEFT JOIN FoodInfo fi ON fi.food_id = mr.food_id
-	ON mr.user_id = ng.user_id
-	AND mr.meal_date BETWEEN ng.start_date AND ng.end_date
-	AND ( (ng.goal_type = 2 AND mr.food_id = ng.food_id)
-	OR ng.goal_type = 1
-	)
-	WHERE ng.user_id = #{user_id}
-	GROUP BY ng.goal_id
-	ORDER BY ng.start_date DESC
+		SELECT ng.goal_id, ng.goal_type , ng.nutrient_id ,
+		CASE WHEN ng.goal_type = 2 THEN fiGoal.name ELSE '' END AS goal_name ,
+		ng.target_value AS target_value,
+		CASE
+		WHEN ng.goal_type = 2 THEN
+		SUM(fi.calories)
+		WHEN ng.nutrient_id = 101 THEN SUM(fi.carbohydrates)
+		WHEN ng.nutrient_id = 102 THEN SUM(fi.protein)
+		WHEN ng.nutrient_id = 103 THEN SUM(fi.fat)
+		WHEN ng.nutrient_id = 104 THEN SUM(fi.calories)
+		ELSE 0
+		END AS actual_value ,
+		CASE
+		WHEN
+		ng.target_value = 0 THEN 0
+		ELSE ROUND(
+		( CASE
+		WHEN ng.goal_type = 2 THEN SUM(fi.calories)
+		WHEN ng.nutrient_id = 101 THEN SUM(fi.carbohydrates)
+		WHEN ng.nutrient_id = 102 THEN SUM(fi.protein)
+		WHEN ng.nutrient_id = 103 THEN SUM(fi.fat)
+		WHEN ng.nutrient_id = 104 THEN SUM(fi.calories)
+		ELSE 0
+		END
+		/ ng.target_value ) * 100 , 1)
+		END AS progress_rate ,
+		ng.goal_unit ,
+		ng.end_date
+		FROM NutritionGoal ng
+		LEFT JOIN FoodInfo fiGoal ON ng.food_id = fiGoal.food_id
+		LEFT JOIN MealRecord mr
+		LEFT JOIN FoodInfo fi ON fi.food_id =
+		mr.food_id
+		ON mr.user_id = ng.user_id
+		AND mr.meal_date BETWEEN ng.start_date AND ng.end_date
+		AND ( (ng.goal_type = 2 AND mr.food_id = ng.food_id)
+		OR ng.goal_type = 1
+		)
+		WHERE ng.user_id = #{user_id}
+		GROUP BY ng.goal_id
+		ORDER BY ng.start_date DESC
 	</select>
 
 

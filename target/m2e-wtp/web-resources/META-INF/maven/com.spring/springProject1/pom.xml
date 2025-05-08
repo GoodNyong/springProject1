@@ -285,8 +285,13 @@
 			<artifactId>quartz</artifactId>
 			<version>2.3.2</version>
 		</dependency>
-
-
+		
+		<!-- Java 8 LocalDateTime 지원 모듈 -->
+		<dependency>
+		  <groupId>com.fasterxml.jackson.datatype</groupId>
+		  <artifactId>jackson-datatype-jsr310</artifactId>
+		  <version>2.14.2</version> <!-- 현재 jackson-databind와 맞는 버전 -->
+		</dependency>
 
 	</dependencies>
 	<build>

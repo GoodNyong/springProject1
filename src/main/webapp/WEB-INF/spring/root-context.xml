@@ -34,6 +34,7 @@
 										com.spring.springProject1.api.dao,
 										com.spring.springProject1.content.dao,
 										com.spring.springProject1.expert.dao,
+										com.spring.springProject1.board.dao,
 										com.spring.springProject1.user.dao"/>
 	
 	<!-- Transaction(트랜잭션) 라이브러리 Bean 등록 -->
@@ -45,8 +46,8 @@
 	<bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
 		<property name="host" value="smtp.gmail.com" />
 		<property name="port" value="587" />
-		<property name="username" value="gy990213@gmail.com" />
-		<property name="password" value="wgfobccphoxprylg" />
+		<property name="username" value="alho4164@gmail.com" />
+		<property name="password" value="grlgkkprihakfpay" />
 		<property name="javaMailProperties">
 			<props>
 			  <prop key="mail.transport.protocol">smtp</prop>

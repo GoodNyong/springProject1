@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.spring.springProject1.board.dao.BoardDao">
+
+	<select id="getBoardTotRecCnt" resultType="int">
+		select count(*) from board where is_deleted = 0
+	</select>
+
+	<select id="getBoardList" resultType="com.spring.springProject1.board.BoardVo">
+		select * from board where is_deleted = 0
+		<if test="category != 'all'">
+			and category = #{category}
+		</if>
+		order by board_id desc limit #{startIndexNo}, #{pageSize}
+	</select>
+
+	<select id="getBoardViewLog" resultType="com.spring.springProject1.board.BoardViewLogVo">
+		select * from boardViewLog
+		where board_id = #{board_id} and viewer_id = #{viewer_id}
+		order by viewed_at desc limit 1
+	</select>
+
+	<select id="getBoardContent" resultType="com.spring.springProject1.board.BoardVo">
+		select * from board where board_id = #{board_id}
+	</select>
+
+	<select id="getBoardCommentList" resultType="com.spring.springProject1.board.BoardCommentVo">
+		SELECT bc.*,
+		(SELECT COUNT(*) FROM boardreply
+		WHERE comment_id = bc.comment_id AND deleted_at IS NULL) AS reply_count
+		FROM boardcomment bc
+		WHERE bc.board_id = #{board_id} AND bc.deleted_at IS NULL
+		ORDER BY bc.comment_id;
+	</select>
+	
+	<select id="getBoardComment">
+		select * from boardComment where comment_id = #{comment_id}
+	</select>
+
+	
+	<select id="getBoardLike" resultType="com.spring.springProject1.board.BoardLikeVo">
+		select * from boardLike where board_id = #{board_id} and user_id =
+		#{sUser_id}
+	</select>
+
+	<!-- <![CDATA[조건식..]]> -->
+	<select id="getPreNextBoardContent" resultType="com.spring.springProject1.board.BoardVo">
+		select * from board where category = #{category} and is_deleted = 0 and
+		(<if test='preNext == "pre"'> <![CDATA[board_id < #{board_id}]]></if>
+		<if test='preNext != "pre"'> <![CDATA[board_id > #{board_id}]]></if>)
+		order by board_id <if test='preNext == "pre"'> desc </if> limit 1;
+	</select>
+	
+	<select id="getBoardReplyList" resultType="com.spring.springProject1.board.BoardReplyVo">
+		select * from boardReply where comment_id = #{comment_id} and is_deleted = 0
+		order by created_at asc
+	</select>
+	
+	<select id="getBoardReply" resultType="com.spring.springProject1.board.BoardReplyVo">
+		select * from boardReply where reply_id = #{reply_id}
+	</select>
+	
+	<select id="getBoardtotRecCntByUser" resultType="int">
+	  select count(*) from board
+	  where user_id = #{user_id} and is_deleted = 0
+	</select>
+	
+	<select id="getBoardListByUser" resultType="com.spring.springProject1.board.BoardVo">
+	  SELECT * FROM board
+	  WHERE user_id = #{user_id} AND is_deleted = 0
+	  ORDER BY board_id DESC
+	  LIMIT #{startIndexNo}, #{pageSize}
+	</select>
+
+
+
+	<update id="increaseReadCount">
+		update board set read_count = read_count + 1
+		where board_id = #{board_id}
+	</update>
+	
+	<update id="increaseLikeCount">
+	    update board set like_count = like_count + 1
+	    where board_id = #{board_id}
+	</update>
+	
+	<update id="decreaseLikeCount">
+	    update board set like_count = like_count - 1
+	    where board_id = #{board_id}
+	</update>
+	
+	<update id="increaseBoardCommentCount">
+		update board set comment_count = comment_count + 1 where board_id = #{board_id}
+	</update>
+
+	<update id="increaseCommentLikeCount">
+	    update boardComment set like_count = like_count + 1
+	    where comment_id = #{comment_id}
+	</update>
+	
+	<update id="setBoardDelete">
+		update board set is_deleted = 1, deleted_at = now() where board_id = #{board_id}
+	</update>
+	
+	<update id="setBoardCommentDelete">
+		update boardComment set is_deleted = 1, deleted_at = now() where comment_id = #{comment_id}
+	</update>
+	
+	<update id="setBoardReplyDelete">
+		update boardReply set is_deleted = 1, deleted_at = now() where reply_id = #{reply_id}
+	</update>
+	
+	
+
+
+
+	<!-- <insert id="setBoardInput" useGeneratedKeys="true"
+		keyProperty="board_id">
+		insert into board values (default,
+		#{vo.user_id}, #{vo.username}, #{vo.category}, #{vo.title}, #{vo.content},
+		#{vo.host_ip},
+		default, default, default, default, default,default, default, NOW(), default,
+		default)
+	</insert> -->
+	<insert id="setBoardInput" parameterType="BoardVo" useGeneratedKeys="true" keyProperty="board_id">
+		insert into board
+		(user_id, username, category, title, content, host_ip,
+		is_open, read_count, like_count, comment_count,
+		is_reported, is_notice, created_at, updated_at, is_deleted)
+		values
+		(#{vo.user_id}, #{vo.username}, #{vo.category}, #{vo.title}, #{vo.content}, #{vo.host_ip},
+		default, default, default, default,
+		default, default, default, default, default)
+	</insert>
+
+	<insert id="setBoardFile">
+		insert into boardFile values (default,
+		#{fileVo.board_id}, #{fileVo.file_name}, #{fileVo.file_url}, #{fileVo.file_size},
+		#{fileVo.file_type}, now())
+	</insert>
+
+	<insert id="setBoardViewLog">
+		insert into boardViewLog values (default, #{board_id}, #{sUser_id},
+		#{host_ip}, default)
+	</insert>
+	
+	<insert id="setBoardLike">
+    	insert into boardLike values (default, #{board_id}, #{user_id}, default)
+	</insert>
+	
+	<insert id="setBoardComment">
+	  	<!-- insert into boardComment values (default, #{board_id}, #{user_id}, #{username}, #{content}, #{host_ip}, default, default, default, default, default) -->
+	  	insert into boardComment values (default, #{board_id}, #{user_id}, #{username}, #{content}, #{host_ip}, default, default, default, default)
+	</insert>
+	
+	<insert id="setBoardReply">
+	  	insert into boardReply values (default, #{comment_id}, #{user_id}, #{username}, #{content}, #{host_ip}, default, default, default, default)
+	</insert>
+	
+	<insert id="setBoardReport">
+		insert into boardReport values(default, #{part}, #{board_id}, #{comment_id}, #{reply_id}, #{user_id}, #{reason}, default, default)
+	</insert>
+
+
+
+	
+	<delete id="deleteBoardLike">
+	    delete from boardLike where board_id = #{board_id} and user_id = #{user_id}
+	</delete>
+	
+	
+
+	<!-- <insert id="setBoardInput"> insert into board values ( default, #{user_id}, 
+		#{username}, #{category}, #{title}, #{content}, #{host_ip}, default, default, 
+		default, default, default, default, default, default, default, default) </insert> -->
+
+</mapper>

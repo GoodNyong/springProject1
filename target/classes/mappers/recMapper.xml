@@ -2,92 +2,466 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.spring.springProject1.rec.dao.RecDao">
 
-	<!-- select -->
-	<select id="getUserBehaviorLogList" resultType="com.spring.springProject1.rec.UserBehaviorLogVo">
-		SELECT * FROM UserBehaviorLog ORDER BY behavior_id DESC
-	</select>
-	
-
-
 	<!-- insert -->
-	<insert id="setUserBehaviorLogInput" parameterType="com.spring.springProject1.rec.UserBehaviorLogVo">
-		insert into UserBehaviorLog values (default, #{vo.user_id}, #{vo.content_id}, #{vo.event_type}, default);
+	<insert id="setExerciseRecord">
+		INSERT INTO ExerciseRecord (
+		user_id, exercise_id, duration_minutes,
+		calories_burned, activity_date, source_platform
+		)
+		VALUES (
+		#{user_id}, #{exercise_id}, #{duration_minutes},
+		#{calories_burned}, #{activity_date}, #{source_platform}
+		)
 	</insert>
+
+	<insert id="setMealRecord" parameterType="MealRecordVo">
+		INSERT INTO MealRecord (
+		user_id, food_id, meal_time, quantity, meal_date, recorded_at
+		)
+		VALUES (
+		#{user_id}, #{food_id}, #{meal_time}, #{quantity}, #{meal_date}, NOW()
+		)
+	</insert>
+
+	<insert id="insertExerciseGoal" parameterType="ExerciseGoalVo">
+		insert into ExerciseGoal
+		(goal_id, user_id, exercise_id, set_by, expert_id,
+		target_value, target_type, goal_unit, start_date, end_date)
+		values
+		(default, #{user_id}, #{exercise_id}, #{set_by}, #{expert_id},
+		#{target_value}, #{target_type}, #{goal_unit}, #{start_date}, #{end_date})
+	</insert>
+
+	<!-- 식단 목표 등록 -->
+	<insert id="insertNutritionGoal" parameterType="NutritionGoalVo">
+		insert into NutritionGoal
+		(goal_id, user_id, goal_type, nutrient_id, food_id, set_by, expert_id,
+		quantity, target_value, goal_unit, start_date, end_date)
+		values
+		(default, #{user_id}, #{goal_type}, #{nutrient_id}, #{food_id}, #{set_by}, #{expert_id},
+		#{quantity}, #{target_value}, #{goal_unit}, #{start_date}, #{end_date})
+	</insert>
+
+
+
+
+	<!-- select -->
+	<select id="getExerciseRecordList" resultType="ExerciseRecordVo">
+		SELECT er.*, ei.name AS exercise_name
+		FROM ExerciseRecord er
+		JOIN ExerciseInfo ei ON er.exercise_id = ei.exercise_id
+		WHERE er.user_id = #{user_id}
+		AND ei.is_active = true
+		ORDER BY er.activity_date DESC
+	</select>
+
+	<select id="getExerciseRecordById" resultType="ExerciseRecordVo">
+		SELECT er.*, ei.name AS exercise_name
+		FROM ExerciseRecord er
+		JOIN ExerciseInfo ei ON er.exercise_id = ei.exercise_id
+		WHERE er.record_id = #{record_id}
+		AND er.user_id = #{user_id}
+	</select>
+
+	<select id="getMealRecordList" resultType="MealRecordVo">
+		SELECT mr.*, fi.name AS food_name
+		FROM MealRecord mr
+		JOIN FoodInfo fi ON mr.food_id = fi.food_id
+		WHERE mr.user_id = #{user_id}
+		AND fi.is_active = TRUE
+		ORDER BY mr.meal_date DESC
+	</select>
+
+	<select id="getMealRecordById" resultType="MealRecordVo">
+		SELECT mr.*, fi.name AS food_name
+		FROM MealRecord mr
+		JOIN FoodInfo fi ON mr.food_id = fi.food_id
+		WHERE mr.meal_id = #{meal_id}
+		AND mr.user_id = #{user_id}
+		AND fi.is_active = TRUE
+	</select>
+
+	<select id="getExerciseGoalList" parameterType="int" resultType="ExerciseGoalVo">
+		SELECT
+		g.goal_id, g.user_id, g.exercise_id, g.set_by, g.expert_id,
+		g.target_value, g.target_type, g.goal_unit,
+		g.start_date, g.end_date,
+		e.name as exercise_name
+		FROM ExerciseGoal g
+		JOIN ExerciseInfo e on g.exercise_id = e.exercise_id
+		WHERE g.user_id = #{user_id}
+		ORDER by g.start_date asc
+	</select>
+
+	<select id="getExerciseGoalById" resultType="ExerciseGoalVo">
+		SELECT g.*, e.name AS exercise_name
+		FROM ExerciseGoal g
+		JOIN ExerciseInfo e ON g.exercise_id = e.exercise_id
+		WHERE g.goal_id = #{goal_id}
+		AND g.user_id = #{user_id}
+	</select>
+
+	<!-- 식품 전체 목록 조회 -->
+	<select id="getAllFoodList" resultType="FoodInfoVo">
+		select food_id, name, category, calories, carbohydrates,
+		protein, fat, source, is_active
+		from FoodInfo
+		where is_active = 1
+		order by name asc
+	</select>
+
+	<select id="getNutritionGoalList" parameterType="int" resultType="NutritionGoalVo">
+		select
+		ng.goal_id, ng.user_id, ng.goal_type, ng.nutrient_id, ng.food_id,
+		ng.set_by, ng.expert_id, ng.quantity,
+		ng.target_value, ng.goal_unit, ng.start_date, ng.end_date,
+		fi.name as food_name
+		from NutritionGoal ng
+		left join FoodInfo fi on ng.food_id = fi.food_id
+		where ng.user_id = #{user_id}
+		order by ng.start_date desc
+	</select>
+
+	<select id="getNutritionGoalById" resultType="NutritionGoalVo">
+		SELECT g.*,
+		f.name AS food_name
+		FROM NutritionGoal g
+		LEFT JOIN FoodInfo f ON g.food_id = f.food_id
+		WHERE g.goal_id = #{goal_id}
+		AND g.user_id = #{user_id}
+	</select>
+
+	<select id="getFoodById" parameterType="int" resultType="com.spring.springProject1.common.vo.FoodInfoVo">
+		select * from FoodInfo
+		where food_id = #{foodId} and is_active = 1
+	</select>
+
+	<select id="getExerciseGoalStats" resultType="GoalStatsVo">
+		SELECT
+		COUNT(*) AS count,
+		IFNULL(ROUND(AVG(rate), 1), 0) AS avgRate
+		FROM (
+		SELECT
+		g.goal_id,
+		CASE g.target_type
+		WHEN 1 THEN IFNULL(SUM(r.duration_minutes), 0) / g.target_value
+		WHEN 2 THEN IFNULL(SUM(r.calories_burned), 0) / g.target_value
+		WHEN 3 THEN IFNULL(COUNT(r.record_id), 0) / g.target_value
+		ELSE 0
+		END * 100 AS rate
+		FROM ExerciseGoal g
+		LEFT JOIN ExerciseRecord r
+		ON g.exercise_id = r.exercise_id
+		AND r.activity_date BETWEEN g.start_date AND g.end_date
+		WHERE g.user_id = #{userId}
+		GROUP BY g.goal_id
+		) sub
+	</select>
+
+	<select id="getNutritionGoalStats" resultType="GoalStatsVo">
+		SELECT
+		COUNT(*) AS count,
+		IFNULL(ROUND(AVG(rate), 1), 0) AS avgRate
+		FROM (
+		SELECT
+		g.goal_id,
+		CASE g.goal_type
+		-- 영양소 기준: 해당 영양소의 총 섭취량
+		WHEN 1 THEN
+		CASE g.nutrient_id
+		WHEN 101 THEN IFNULL(SUM(f.carbohydrates), 0)
+		WHEN 102 THEN IFNULL(SUM(f.protein), 0)
+		WHEN 103 THEN IFNULL(SUM(f.fat), 0)
+		WHEN 104 THEN IFNULL(SUM(f.calories), 0)
+		ELSE 0
+		END / g.target_value
+		-- 식품 기준: 해당 음식 기록 수 기준
+		WHEN 2 THEN IFNULL(COUNT(r.meal_id), 0) / g.target_value
+		ELSE 0
+		END * 100 AS rate
+		FROM nutritiongoal g
+		LEFT JOIN mealrecord r
+		ON g.user_id = r.user_id
+		AND r.meal_date BETWEEN g.start_date AND g.end_date
+		AND (
+		(g.goal_type = 1 AND g.food_id IS NULL)
+		OR (g.goal_type = 2 AND g.food_id = r.food_id)
+		)
+		LEFT JOIN foodinfo f
+		ON r.food_id = f.food_id
+		WHERE g.user_id = #{userId}
+		GROUP BY g.goal_id
+		) sub
+	</select>
+
+	<!-- 🔹 진행 중인 운동 목표 목록 -->
+	<select id="getActiveExerciseGoals" resultType="ExerciseGoalVo">
+		SELECT * FROM ExerciseGoal
+		WHERE user_id = #{userId}
+		AND CURDATE() BETWEEN start_date AND end_date
+	</select>
+
+	<!-- 🔹 목표별 운동 기록 누적 -->
+	<select id="getExerciseProgressForGoal" resultType="double">
+		<choose>
+			<when test="type == 1">
+				SELECT IFNULL(SUM(duration_minutes),0)
+				FROM ExerciseRecord
+				WHERE user_id = #{userId}
+				AND exercise_id = #{exerciseId}
+				AND activity_date BETWEEN #{from} AND #{to}
+			</when>
+			<otherwise>
+				SELECT IFNULL(SUM(calories_burned),0)
+				FROM ExerciseRecord
+				WHERE user_id = #{userId}
+				AND exercise_id = #{exerciseId}
+				AND activity_date BETWEEN #{from} AND #{to}
+			</otherwise>
+		</choose>
+	</select>
+
+	<!-- 🔹 진행 중인 식단 목표 목록 -->
+	<select id="getActiveNutritionGoals" resultType="NutritionGoalVo">
+		SELECT * FROM NutritionGoal
+		WHERE user_id = #{userId}
+		AND CURDATE() BETWEEN start_date AND end_date
+	</select>
+
+	<!-- 식품 기준 진행 -->
+	<select id="getFoodProgressForGoal" resultType="double">
+		SELECT IFNULL(SUM(quantity),0)
+		FROM MealRecord
+		WHERE user_id = #{userId}
+		AND food_id = #{foodId}
+		AND meal_date BETWEEN #{from} AND #{to}
+	</select>
+
+	<!-- 🔹 영양소 기준 진행 (탄수=101, 단백=102, 지방=103) -->
+	<select id="getNutrientProgressForGoal" resultType="double">
+		SELECT IFNULL(SUM(
+		(CASE #{nutrient}
+		WHEN 101 THEN f.carbohydrates -- g
+		WHEN 102 THEN f.protein -- g
+		WHEN 103 THEN f.fat -- g
+		END) * (CAST(m.quantity AS DECIMAL(10,2)) / 100) -- 100g 기준 가정
+		),0)
+		FROM MealRecord m
+		JOIN FoodInfo f ON f.food_id = m.food_id
+		WHERE m.user_id = #{userId}
+		AND m.meal_date BETWEEN #{from} AND #{to}
+	</select>
+
+	<select id="getExerciseDailySummary" parameterType="int" resultType="ExerciseSummaryVo">
+		select activity_date,
+		sum(duration_minutes) total_minutes,
+		sum(calories_burned) total_calories
+		from ExerciseRecord
+		where user_id = #{user_id}
+		group by activity_date
+		order by activity_date desc
+	</select>
+
+	<select id="getExerciseGoalProgress" parameterType="int" resultType="GoalProgressVo">
+		select g.goal_id,
+		e.name exercise_name,
+		g.target_value goal_value,
+		g.goal_unit,
+		sum(r.duration_minutes) actual_value,
+		round((sum(r.duration_minutes)/g.target_value)*100,1) progress_rate,
+		g.end_date
+		from ExerciseGoal g
+		join ExerciseInfo e on g.exercise_id = e.exercise_id
+		left join ExerciseRecord r
+		on r.exercise_id = g.exercise_id
+		and r.user_id = g.user_id
+		and r.activity_date between g.start_date and g.end_date
+		where g.user_id =
+		#{user_id}
+		group by g.goal_id
+		order by g.start_date desc
+	</select>
+
+	<!-- 날짜별 식단 열량 합계 -->
+	<select id="getMealDailySummary" parameterType="int" resultType="MealSummaryVo">
+		SELECT mr.meal_date AS meal_date,
+		SUM(fi.calories) AS total_kcal
+		FROM MealRecord mr
+		JOIN FoodInfo fi ON mr.food_id = fi.food_id
+		WHERE mr.user_id = #{user_id}
+		GROUP BY mr.meal_date
+		ORDER BY mr.meal_date DESC
+	</select>
+
+	<!-- 목표별 달성률(칼로리 기준) -->
+	<select id="getNutritionGoalProgress" parameterType="int" resultType="NutritionProgressVo">
+		SELECT ng.goal_id, ng.goal_type , ng.nutrient_id ,
+		CASE WHEN ng.goal_type = 2 THEN fiGoal.name ELSE '' END AS goal_name ,
+		ng.target_value AS target_value,
+		CASE
+		WHEN ng.goal_type = 2 THEN
+		SUM(fi.calories)
+		WHEN ng.nutrient_id = 101 THEN SUM(fi.carbohydrates)
+		WHEN ng.nutrient_id = 102 THEN SUM(fi.protein)
+		WHEN ng.nutrient_id = 103 THEN SUM(fi.fat)
+		WHEN ng.nutrient_id = 104 THEN SUM(fi.calories)
+		ELSE 0
+		END AS actual_value ,
+		CASE
+		WHEN
+		ng.target_value = 0 THEN 0
+		ELSE ROUND(
+		( CASE
+		WHEN ng.goal_type = 2 THEN SUM(fi.calories)
+		WHEN ng.nutrient_id = 101 THEN SUM(fi.carbohydrates)
+		WHEN ng.nutrient_id = 102 THEN SUM(fi.protein)
+		WHEN ng.nutrient_id = 103 THEN SUM(fi.fat)
+		WHEN ng.nutrient_id = 104 THEN SUM(fi.calories)
+		ELSE 0
+		END
+		/ ng.target_value ) * 100 , 1)
+		END AS progress_rate ,
+		ng.goal_unit ,
+		ng.end_date
+		FROM NutritionGoal ng
+		LEFT JOIN FoodInfo fiGoal ON ng.food_id = fiGoal.food_id
+		LEFT JOIN MealRecord mr
+		LEFT JOIN FoodInfo fi ON fi.food_id =
+		mr.food_id
+		ON mr.user_id = ng.user_id
+		AND mr.meal_date BETWEEN ng.start_date AND ng.end_date
+		AND ( (ng.goal_type = 2 AND mr.food_id = ng.food_id)
+		OR ng.goal_type = 1
+		)
+		WHERE ng.user_id = #{user_id}
+		GROUP BY ng.goal_id
+		ORDER BY ng.start_date DESC
+	</select>
+
+
+
+
+
+
+
+
+	<!-- update -->
+	<update id="updateExerciseRecord">
+		UPDATE ExerciseRecord
+		SET
+		duration_minutes = #{duration_minutes},
+		calories_burned = #{calories_burned},
+		activity_date = #{activity_date},
+		source_platform = #{source_platform}
+		WHERE record_id = #{record_id} AND user_id = #{user_id}
+	</update>
+
+	<update id="updateMealRecord">
+		UPDATE MealRecord
+		SET
+		food_id = #{vo.food_id},
+		meal_time = #{vo.meal_time},
+		quantity = #{vo.quantity},
+		meal_date = #{vo.meal_date}
+		WHERE meal_id = #{vo.meal_id}
+		AND user_id = #{vo.user_id}
+	</update>
+
+	<update id="updateExerciseGoal">
+		UPDATE ExerciseGoal
+		SET exercise_id = #{exercise_id},
+		target_type = #{target_type},
+		target_value = #{target_value},
+		goal_unit = #{goal_unit},
+		start_date = #{start_date},
+		end_date = #{end_date}
+		WHERE goal_id = #{goal_id}
+		AND user_id = #{user_id}
+	</update>
+
+	<update id="updateNutritionGoal">
+		UPDATE NutritionGoal
+		SET goal_type = #{goal_type},
+		nutrient_id = #{nutrient_id},
+		food_id = #{food_id},
+		target_value = #{target_value},
+		goal_unit = #{goal_unit},
+		start_date = #{start_date},
+		end_date = #{end_date}
+		WHERE goal_id = #{goal_id}
+		AND user_id = #{user_id}
+	</update>
+
+
 
 
 
 	<!-- delete -->
-	<delete id="deleteLog">
-		delete from UserBehaviorLog  where behavior_id = #{id};
-	</delete>
-	
-	
-	
-	
-	<update id="updateUserBehaviorLog" parameterType="com.spring.springProject1.rec.UserBehaviorLogVo">
-		UPDATE UserBehaviorLog SET user_id = #{vo.user_id}, content_id = #{vo.content_id}, event_type = #{vo.event_type} WHERE behavior_id = #{vo.behavior_id}
-	</update>
-	
-	
-	<!-- <select id="getMemberTotRecCnt" resultType="int">
-		select count(*) from member
-		<if test="level != 99"> where level = #{level}</if>
-		;
-	</select>
-
-	<select id="getComplaintList" resultType="com.spring.JspringProject.vo.ComplaintVo">
-		select date_format(cpDate,'%Y-%m-%d %H:%i') as cpDate,b.title as title, b.nickName as nickName,b.complaint as complaint,c.* from complaint c, board b, pds p where c.boardIdx=b.idx and c.pdsIdx=p.idx order by c.idx desc;
-		select date_format(c.cpDate, '%Y-%m-%d %H:%i') as cpDate, b.title as title, b.nickName as nickName, b.mid as mid, b.content as content, b.complaint as complaint, c.* from complaint c left join board b on c.partIdx=b.idx order by c.idx desc;
-	</select>
-
-
-
-	<insert id="setBoardComplaintInput">
-		insert into complaint values (default,#{vo.part},#{vo.boardIdx},default,#{vo.cpMid},#{vo.cpContent},default);
-		insert into complaint values (default,#{vo.part},#{vo.partIdx},#{vo.cpMid},#{vo.cpContent},default,default);
-	</insert>
-
-
-
-
-	<update id="setMemberLevelChange">
-		update member set level = #{level} where idx = #{idx};
-	</update>
-
-	<update id="setMemberLevelCheck">
-		update member set level = #{level} where idx = #{idx};
-	</update>
-
-	<update id="setBoardTableComplaintOk">
-		update board set complaint = 'OK' where idx = #{partIdx};
-	</update>
-
-	<update id="setContentChange">
-		<if test='contentSw == "H"'>
-			update board set complaint = 'HI' where idx = #{contentIdx};
-		</if>
-		<if test='contentSw == "S"'>
-			update board set complaint = 'NO' where idx = #{contentIdx};
-		</if>
-	</update>
-
-	<update id="setComplaintProcess">
-		update board set complaint = #{complaintSw} where idx = #{partIdx};
-	</update>
-
-	<update id="setComplaintProcessOk">
-		update complaint set progress = #{complaintSw} where idx = #{idx};
-	</update>
-
-
-	board에서의 삭제인지, pds에서의 삭제인지는 동적쿼리로 체크할수 있도록 해야한다.(아래는 반영되지 않음)
-	<delete id="setContentDelete">
-		<if test='part == "board"'>delete from board where idx = #{contentIdx};</if>
-		<if test='part == "pds"'>delete from pds where idx = #{contentIdx};</if>
+	<delete id="deleteExerciseRecord">
+		DELETE FROM ExerciseRecord
+		WHERE record_id = #{record_id}
+		AND user_id = #{user_id}
 	</delete>
 
-	<delete id="setComplaintDelete">
-		delete from board where idx = #{partIdx};
-	</delete> -->
+	<delete id="multiDeleteExerciseRecord">
+		DELETE FROM ExerciseRecord
+		WHERE record_id IN
+		<foreach collection="recordIdList" item="id" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+		AND user_id = #{user_id}
+	</delete>
+
+	<delete id="deleteMealRecord">
+		DELETE FROM MealRecord
+		WHERE meal_id = #{meal_id}
+		AND user_id = #{user_id}
+	</delete>
+
+	<delete id="multiDeleteMealRecord">
+		DELETE FROM MealRecord
+		WHERE meal_id IN
+		<foreach collection="recordIdList" item="id" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+		AND user_id = #{user_id}
+	</delete>
+
+	<delete id="deleteExerciseGoal">
+		DELETE FROM ExerciseGoal
+		WHERE goal_id = #{goal_id}
+		AND user_id = #{user_id}
+	</delete>
+
+	<delete id="deleteExerciseGoals">
+		DELETE FROM ExerciseGoal
+		WHERE user_id = #{user_id}
+		AND goal_id IN
+		<foreach collection="goalIds" item="id" open="(" close=")" separator=",">
+			#{id}
+		</foreach>
+	</delete>
+
+	<delete id="deleteNutritionGoal">
+		DELETE FROM NutritionGoal
+		WHERE goal_id = #{goal_id}
+		AND user_id = #{user_id}
+	</delete>
+
+	<delete id="deleteNutritionGoals">
+		DELETE FROM NutritionGoal
+		WHERE user_id = #{user_id}
+		AND goal_id IN
+		<foreach collection="goalIds" item="id" open="(" close=")" separator=",">
+			#{id}
+		</foreach>
+	</delete>
+
+
+
+
+
+
+
 
 </mapper>

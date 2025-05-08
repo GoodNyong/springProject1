@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.spring.springProject1.user.dao.UserDao">
+<!-- namespace: "이 XML 파일은 UserDao.java 인터페이스와 연결된 SQL 모음입니다!"
+라고 MyBatis에게 알려주는 역할 -->
+
+	<select id="getUsernameCheck" resultType="com.spring.springProject1.user.UserVo">
+		select * from users where username = #{username}
+	</select>
+	
+	<select id="getUserLoginCheck" resultType="com.spring.springProject1.user.UserVo">
+		select * from users where email = #{email} and password = #{encPassword}
+	</select>
+	
+	<select id="getUserEmailCheck" resultType="com.spring.springProject1.user.UserVo">
+		select * from users where email = #{email}
+	</select>
+	
+	<select id="getUserByUser_id" resultType="com.spring.springProject1.user.UserVo">
+		select * from users where user_id = #{user_id}
+	</select>
+	
+	<select id="getUserRoles" resultType="String">
+		select r.role_name from roles r
+		join userroles ur on r.role_id = ur.role_id
+		where ur.user_id = #{user_id}
+	</select>
+	
+	<update id="resetLoginFail">
+		UPDATE users SET login_fail = 0 WHERE email = #{email}
+	</update>
+	
+	<update id="updatePassword">
+		update users set password = #{vo.password} where email = #{vo.email}
+	</update>
+	
+	<update id="setUserInvalid">
+	    update users set is_verified = 1, updated_at = default where user_id = #{user_id}
+	</update>
+	
+	<!-- <update id="updateUser">
+	  update users set username = #{username}, phone_number = #{phone_number}, updated_at = now()
+  		where user_id = #{user_id}
+	</update> -->
+	<update id="updateUser">
+		update users set username = #{vo.username}, phone_number = #{vo.phone_number}, updated_at = now()
+		where user_id = #{vo.user_id}
+	</update>
+	
+	
+	
+	
+	<insert id="setUserJoinOk">
+		insert into users values (default, #{vo.username}, #{vo.email}, #{vo.password}, #{vo.phone_number}, default, default, default, default, default)
+	</insert>
+	
+	<insert id="setUserRole">
+		insert into userroles (user_id, role_id) values (#{user_id}, #{role_id})
+	</insert>
+	
+	
+	
+	
+	<update id="increaseLoginFail">
+		update users set login_fail = login_fail + 1 where email = #{email}
+	</update>
+	
+
+</mapper>
